@@ -11,8 +11,8 @@ use crate::{
 };
 use maprando_game::{
     AreaIdx, BeamType, Direction, DoorLockType, DoorType, GameData, Item, ItemIdx, Map,
-    MapLiquidType, MapTile, MapTileEdge, MapTileInterior, MapTileSpecialType, RoomGeometryDoor,
-    RoomGeometryItem, RoomId, RoomPtr, util::sorted_hashmap_iter,
+    MapLiquidType, MapTile, MapTileEdge, MapTileFade, MapTileInterior, MapTileSpecialType,
+    RoomGeometryDoor, RoomGeometryItem, RoomId, RoomPtr, util::sorted_hashmap_iter,
 };
 
 use super::{Rom, snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset};
@@ -540,7 +540,7 @@ pub fn render_tile(
                 }
             }
         }
-        if tile.faded
+        if tile.faded == MapTileFade::Faded
             && tile.interior.is_item()
             && (tile.liquid_type == MapLiquidType::Lava
                 || tile.liquid_type == MapLiquidType::Acid
@@ -566,7 +566,7 @@ pub fn render_tile(
         }
     };
 
-    let item_color = if tile.faded {
+    let item_color = if tile.faded == MapTileFade::Faded {
         if tile.heated { 1 } else { 2 }
     } else {
         13
@@ -574,52 +574,60 @@ pub fn render_tile(
     match tile.interior {
         MapTileInterior::Empty | MapTileInterior::Event => {}
         MapTileInterior::Item => {
-            data[3][3] = item_color;
-            data[3][4] = item_color;
-            data[4][3] = item_color;
-            data[4][4] = item_color;
+            if tile.faded != MapTileFade::Disappeared {
+                data[3][3] = item_color;
+                data[3][4] = item_color;
+                data[4][3] = item_color;
+                data[4][4] = item_color;
+            }
         }
         MapTileInterior::MediumItem => {
-            data[2][3] = item_color;
-            data[2][4] = item_color;
-            data[3][2] = item_color;
-            data[3][5] = item_color;
-            data[4][2] = item_color;
-            data[4][5] = item_color;
-            data[5][3] = item_color;
-            data[5][4] = item_color;
-            if let Some(liquid_level) = tile.liquid_level
-                && liquid_level < 0.5
-            {
-                data[3][3] = liquid_colors.0;
-                data[3][4] = liquid_colors.0;
-                data[4][3] = liquid_colors.0;
-                data[4][4] = liquid_colors.0;
+            if tile.faded != MapTileFade::Disappeared {
+                data[2][3] = item_color;
+                data[2][4] = item_color;
+                data[3][2] = item_color;
+                data[3][5] = item_color;
+                data[4][2] = item_color;
+                data[4][5] = item_color;
+                data[5][3] = item_color;
+                data[5][4] = item_color;
+                if let Some(liquid_level) = tile.liquid_level
+                    && liquid_level < 0.5
+                {
+                    data[3][3] = liquid_colors.0;
+                    data[3][4] = liquid_colors.0;
+                    data[4][3] = liquid_colors.0;
+                    data[4][4] = liquid_colors.0;
+                }
             }
         }
         MapTileInterior::AmmoItem => {
-            data[2][2] = item_color;
-            data[2][5] = item_color;
-            data[3][3] = item_color;
-            data[3][4] = item_color;
-            data[4][3] = item_color;
-            data[4][4] = item_color;
-            data[5][2] = item_color;
-            data[5][5] = item_color;
+            if tile.faded != MapTileFade::Disappeared {
+                data[2][2] = item_color;
+                data[2][5] = item_color;
+                data[3][3] = item_color;
+                data[3][4] = item_color;
+                data[4][3] = item_color;
+                data[4][4] = item_color;
+                data[5][2] = item_color;
+                data[5][5] = item_color;
+            }
         }
         MapTileInterior::MajorItem => {
-            data[2][3] = item_color;
-            data[2][4] = item_color;
-            data[3][2] = item_color;
-            data[3][3] = item_color;
-            data[3][4] = item_color;
-            data[3][5] = item_color;
-            data[4][2] = item_color;
-            data[4][3] = item_color;
-            data[4][4] = item_color;
-            data[4][5] = item_color;
-            data[5][3] = item_color;
-            data[5][4] = item_color;
+            if tile.faded != MapTileFade::Disappeared {
+                data[2][3] = item_color;
+                data[2][4] = item_color;
+                data[3][2] = item_color;
+                data[3][3] = item_color;
+                data[3][4] = item_color;
+                data[3][5] = item_color;
+                data[4][2] = item_color;
+                data[4][3] = item_color;
+                data[4][4] = item_color;
+                data[4][5] = item_color;
+                data[5][3] = item_color;
+                data[5][4] = item_color;
+            }
         }
         MapTileInterior::DoubleItem => {
             panic!("Unreplaced DoubleItem");
@@ -2692,7 +2700,7 @@ impl<'a> MapPatcher<'a> {
             let (x, y) = find_item_xy(item_ptr, &room.items)?;
             let orig_tile = self.get_room_tile(room_id, x, y).unwrap().clone();
             let mut tile = orig_tile.clone();
-            tile.faded = false;
+            tile.faded = MapTileFade::None;
             if [MapTileInterior::HiddenItem, MapTileInterior::DoubleItem].contains(&tile.interior) {
                 tile.interior = MapTileInterior::Item;
             }
@@ -2702,16 +2710,17 @@ impl<'a> MapPatcher<'a> {
             match self.customize_settings.item_dot_change {
                 ItemDotChange::Fade => {
                     tile.interior = apply_item_interior(orig_tile.clone(), item, self.settings);
-                    tile.faded = true;
+                    tile.faded = MapTileFade::Faded;
                     self.set_room_tile(room_id, x, y, tile.clone());
                 }
                 ItemDotChange::Disappear => {
-                    tile.interior = MapTileInterior::Empty;
+                    tile.interior = apply_item_interior(orig_tile.clone(), item, self.settings);
+                    tile.faded = MapTileFade::Disappeared;
                     self.set_room_tile(room_id, x, y, tile.clone());
                 }
                 ItemDotChange::Stay => {
                     tile.interior = apply_item_interior(orig_tile.clone(), item, self.settings);
-                    tile.faded = false;
+                    tile.faded = MapTileFade::None;
                     self.set_room_tile(room_id, x, y, tile.clone());
                 }
             }

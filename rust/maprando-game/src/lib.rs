@@ -1476,6 +1476,14 @@ pub enum MapLiquidType {
     Acid,
 }
 
+#[derive(Clone, Copy, Debug, Deserialize, Default, PartialEq, Eq)]
+pub enum MapTileFade {
+    #[default]
+    None,
+    Faded,
+    Disappeared,
+}
+
 #[derive(Clone, Debug, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct MapTile {
@@ -1499,7 +1507,7 @@ pub struct MapTile {
     pub special_type: Option<MapTileSpecialType>,
     // Extensions added at runtime:
     #[serde(default)]
-    pub faded: bool,
+    pub faded: MapTileFade,
 }
 
 #[derive(Clone, Debug, Deserialize)]
