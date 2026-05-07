@@ -2034,7 +2034,7 @@ impl Patcher<'_> {
         Ok(())
     }
 
-    fn write_obj_mask(&mut self) -> Result<()> {
+    fn write_objectives_mask(&mut self) -> Result<()> {
         let settings = &self.settings.objective_settings;
 
         let value: u8 = settings
@@ -2049,7 +2049,7 @@ impl Patcher<'_> {
         Ok(())
     }
 
-    fn write_maplayout_mask(&mut self) -> Result<()> {
+    fn write_map_layout_mask(&mut self) -> Result<()> {
         let value: u8 = MapPreset::from_preset(&self.settings.map_layout)
             .map(MapPreset::to_byte)
             .unwrap_or(0);
@@ -3715,9 +3715,9 @@ pub fn make_rom(
     patcher.write_objective_data()?;
     patcher.write_skill_mask()?;
     patcher.write_progression_mask()?;
-    patcher.write_maplayout_mask()?;
     patcher.write_qol_mask()?;
-    patcher.write_obj_mask()?;
+    patcher.write_objectives_mask()?;
+    patcher.write_map_layout_mask()?;
     patcher.apply_seed_identifiers()?;
     patcher.apply_credits()?;
     if randomizer_settings.quality_of_life_settings.hazard_markers {
