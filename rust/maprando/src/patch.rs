@@ -1989,7 +1989,7 @@ impl Patcher<'_> {
         Ok(())
     }
 
-    fn write_skill_mask(&mut self) -> Result<()> {
+    fn write_autotracker_skill_setting(&mut self) -> Result<()> {
         let settings = &self.settings.skill_assumption_settings;
 
         let value: u8 = settings
@@ -2004,7 +2004,7 @@ impl Patcher<'_> {
         Ok(())
     }
 
-    fn write_progression_mask(&mut self) -> Result<()> {
+    fn write_autotracker_item_progression(&mut self) -> Result<()> {
         let settings = &self.settings.item_progression_settings;
 
         let value: u8 = settings
@@ -2019,7 +2019,7 @@ impl Patcher<'_> {
         Ok(())
     }
 
-    fn write_qol_mask(&mut self) -> Result<()> {
+    fn write_autotracker_qol_setting(&mut self) -> Result<()> {
         let settings = &self.settings.quality_of_life_settings;
 
         let value: u8 = settings
@@ -2034,7 +2034,7 @@ impl Patcher<'_> {
         Ok(())
     }
 
-    fn write_objectives_mask(&mut self) -> Result<()> {
+    fn write_autotracker_objective_setting(&mut self) -> Result<()> {
         let settings = &self.settings.objective_settings;
 
         let value: u8 = settings
@@ -2049,7 +2049,7 @@ impl Patcher<'_> {
         Ok(())
     }
 
-    fn write_map_layout_mask(&mut self) -> Result<()> {
+    fn write_autotracker_map_layout(&mut self) -> Result<()> {
         let value: u8 = MapPreset::from_preset(&self.settings.map_layout)
             .map(MapPreset::to_byte)
             .unwrap_or(0);
@@ -3713,11 +3713,11 @@ pub fn make_rom(
     patcher.apply_mother_brain_fight_patches()?;
     patcher.write_custom_item_graphics()?;
     patcher.write_objective_data()?;
-    patcher.write_skill_mask()?;
-    patcher.write_progression_mask()?;
-    patcher.write_qol_mask()?;
-    patcher.write_objectives_mask()?;
-    patcher.write_map_layout_mask()?;
+    patcher.write_autotracker_skill_setting()?;
+    patcher.write_autotracker_item_progression()?;
+    patcher.write_autotracker_qol_setting()?;
+    patcher.write_autotracker_objective_setting()?;
+    patcher.write_autotracker_map_layout()?;
     patcher.apply_seed_identifiers()?;
     patcher.apply_credits()?;
     if randomizer_settings.quality_of_life_settings.hazard_markers {
