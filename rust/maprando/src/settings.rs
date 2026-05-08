@@ -103,6 +103,153 @@ pub struct ItemProgressionSettings {
     pub filler_items: Vec<FillerItemPrioritySetting>,
 }
 
+#[repr(u8)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub enum SkillPreset {
+    Basic = 1,
+    Medium = 2,
+    Hard = 3,
+    VeryHard = 4,
+    Expert = 5,
+    ExpertPlus = 6,
+    Extreme = 7,
+    ExtremePlus = 8,
+    Insane = 9,
+    InsanePlus = 10,
+}
+
+impl SkillPreset {
+    pub fn from_preset(s: &str) -> Option<Self> {
+        match s.trim().to_lowercase().as_str() {
+            "basic" => Some(Self::Basic),
+            "medium" => Some(Self::Medium),
+            "hard" => Some(Self::Hard),
+            "very hard" => Some(Self::VeryHard),
+            "expert" => Some(Self::Expert),
+            "expert+" => Some(Self::ExpertPlus),
+            "extreme" => Some(Self::Extreme),
+            "extreme+" => Some(Self::ExtremePlus),
+            "insane" => Some(Self::Insane),
+            "insane+" => Some(Self::InsanePlus),
+            _ => None,
+        }
+    }
+
+    pub fn to_byte(self) -> u8 {
+        self as u8
+    }
+}
+
+#[repr(u8)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub enum QolPreset {
+    Off = 1,
+    Low = 2,
+    Default = 3,
+    High = 4,
+    Max = 5,
+}
+
+impl QolPreset {
+    pub fn from_preset(s: &str) -> Option<Self> {
+        match s.trim().to_lowercase().as_str() {
+            "off" => Some(Self::Off),
+            "low" => Some(Self::Low),
+            "default" => Some(Self::Default),
+            "high" => Some(Self::High),
+            "max" => Some(Self::Max),
+            _ => None,
+        }
+    }
+
+    pub fn to_byte(self) -> u8 {
+        self as u8
+    }
+}
+
+#[repr(u8)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub enum ObjPreset {
+    None = 1,
+    Bosses = 2,
+    MiniBosses = 3,
+    Chozos = 4,
+    Pirates = 5,
+    Metroids = 6,
+    Random = 7,
+}
+
+impl ObjPreset {
+    pub fn from_preset(s: &str) -> Option<Self> {
+        match s.trim().to_lowercase().as_str() {
+            "none" => Some(Self::None),
+            "bosses" => Some(Self::Bosses),
+            "minibosses" => Some(Self::MiniBosses),
+            "chozos" => Some(Self::Chozos),
+            "pirates" => Some(Self::Pirates),
+            "metroids" => Some(Self::Metroids),
+            "random" => Some(Self::Random),
+            _ => None,
+        }
+    }
+
+    pub fn to_byte(self) -> u8 {
+        self as u8
+    }
+}
+
+#[repr(u8)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub enum ProgressionPreset {
+    Normal = 1,
+    Tricky = 2,
+    Technical = 3,
+    Challenge = 4,
+    Desolate = 5,
+}
+
+impl ProgressionPreset {
+    pub fn from_preset(s: &str) -> Option<Self> {
+        match s.trim().to_lowercase().as_str() {
+            "normal" => Some(Self::Normal),
+            "tricky" => Some(Self::Tricky),
+            "technical" => Some(Self::Technical),
+            "challenge" => Some(Self::Challenge),
+            "desolate" => Some(Self::Desolate),
+            _ => None,
+        }
+    }
+
+    pub fn to_byte(self) -> u8 {
+        self as u8
+    }
+}
+
+#[repr(u8)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub enum MapPreset {
+    Vanilla = 1,
+    Small = 2,
+    Standard = 3,
+    Wild = 4,
+}
+
+impl MapPreset {
+    pub fn from_preset(s: &str) -> Option<Self> {
+        match s.trim().to_lowercase().as_str() {
+            "vanilla" => Some(Self::Vanilla),
+            "small" => Some(Self::Small),
+            "standard" => Some(Self::Standard),
+            "wild" => Some(Self::Wild),
+            _ => None,
+        }
+    }
+
+    pub fn to_byte(self) -> u8 {
+        self as u8
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct ItemCount {
     pub item: Item,

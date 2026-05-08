@@ -19,8 +19,9 @@ use crate::{
     randomize::{LockedDoor, Randomization, get_starting_items},
     settings::{
         AreaAssignmentPreset, CrashFixes, CrashFixesPreset, DisableETankSetting, ETankRefill,
-        EnemyDrops, Fanfares, FixMode, ItemCount, MotherBrainFight, Objective, ObjectiveScreen,
-        RandomizerSettings, SaveAnimals, SpeedBooster, StartLocationMode, WallJump,
+        EnemyDrops, Fanfares, FixMode, ItemCount, MapPreset, MotherBrainFight, ObjPreset,
+        Objective, ObjectiveScreen, ProgressionPreset, QolPreset, RandomizerSettings, SaveAnimals,
+        SkillPreset, SpeedBooster, StartLocationMode, WallJump,
     },
 };
 use anyhow::{Context, Result, bail, ensure};
@@ -747,6 +748,7 @@ impl Patcher<'_> {
         // For now this is just to indicate if walljump-boots exists as an item,
         // and if Speed Booster is split into Blue Booster and Spark Booster.
         let mut settings_flag = 0x0000;
+
         if self.settings.other_settings.wall_jump == WallJump::Collectible {
             settings_flag |= 0x0001;
         }
@@ -1984,6 +1986,75 @@ impl Patcher<'_> {
             .write_u8(snes2pc(0x809E21), (seconds % 10) + 16 * (seconds / 10))?;
         self.rom
             .write_u8(snes2pc(0x809E22), (minutes % 10) + 16 * (minutes / 10))?;
+        Ok(())
+    }
+
+    fn write_autotracker_skill_setting(&mut self) -> Result<()> {
+        let settings = &self.settings.skill_assumption_settings;
+
+        let value: u8 = settings
+            .preset
+            .as_deref()
+            .and_then(SkillPreset::from_preset)
+            .map(SkillPreset::to_byte)
+            .unwrap_or(0);
+
+        self.rom.write_u8(snes2pc(0xdfff09), value as isize)?;
+
+        Ok(())
+    }
+
+    fn write_autotracker_item_progression(&mut self) -> Result<()> {
+        let settings = &self.settings.item_progression_settings;
+
+        let value: u8 = settings
+            .preset
+            .as_deref()
+            .and_then(ProgressionPreset::from_preset)
+            .map(ProgressionPreset::to_byte)
+            .unwrap_or(0);
+
+        self.rom.write_u8(snes2pc(0xdfff0a), value as isize)?;
+
+        Ok(())
+    }
+
+    fn write_autotracker_qol_setting(&mut self) -> Result<()> {
+        let settings = &self.settings.quality_of_life_settings;
+
+        let value: u8 = settings
+            .preset
+            .as_deref()
+            .and_then(QolPreset::from_preset)
+            .map(QolPreset::to_byte)
+            .unwrap_or(0);
+
+        self.rom.write_u8(snes2pc(0xdfff0b), value as isize)?;
+
+        Ok(())
+    }
+
+    fn write_autotracker_objective_setting(&mut self) -> Result<()> {
+        let settings = &self.settings.objective_settings;
+
+        let value: u8 = settings
+            .preset
+            .as_deref()
+            .and_then(ObjPreset::from_preset)
+            .map(ObjPreset::to_byte)
+            .unwrap_or(0);
+
+        self.rom.write_u8(snes2pc(0xdfff0c), value as isize)?;
+
+        Ok(())
+    }
+
+    fn write_autotracker_map_layout(&mut self) -> Result<()> {
+        let value: u8 = MapPreset::from_preset(&self.settings.map_layout)
+            .map(MapPreset::to_byte)
+            .unwrap_or(0);
+        self.rom.write_u8(snes2pc(0xdfff0d), value as isize)?;
+
         Ok(())
     }
 
@@ -3642,6 +3713,11 @@ pub fn make_rom(
     patcher.apply_mother_brain_fight_patches()?;
     patcher.write_custom_item_graphics()?;
     patcher.write_objective_data()?;
+    patcher.write_autotracker_skill_setting()?;
+    patcher.write_autotracker_item_progression()?;
+    patcher.write_autotracker_qol_setting()?;
+    patcher.write_autotracker_objective_setting()?;
+    patcher.write_autotracker_map_layout()?;
     patcher.apply_seed_identifiers()?;
     patcher.apply_credits()?;
     if randomizer_settings.quality_of_life_settings.hazard_markers {

@@ -6,4 +6,7 @@ FEF0 - FEFF: seed name (null-terminated ASCII string)
 FF04 - FF04: [FREE]
 FF05 - FF06: randomizer settings:
   - bitmask $0001: walljump-boots item enabled
+  - bitmask $0002: split speedbooster item enabled
 FF07 - FF08: number of frames of artificial lag to add to the unpause black screen
+FF09 - FF0D: randomizer settings: skill/progression/qol/objectives/maplayout (autotracker use)
+  - stored as single byte ordinal numbers, if a setting has a custom option then byte is set to 0
