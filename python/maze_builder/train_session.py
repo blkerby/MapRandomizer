@@ -753,6 +753,7 @@ class TrainingSession():
             door_connect_data[0].view(n, -1),
             door_connect_data[1].view(n, -1),
         ], dim=1)
+        
         # balance_loss = torch.mean(torch.square(balance_preds - balance_labels))
         balance_loss = torch.nn.functional.binary_cross_entropy_with_logits(balance_preds, balance_labels)
         self.balance_optimizer.zero_grad()

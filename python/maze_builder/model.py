@@ -179,10 +179,12 @@ class GroupedQueryAttentionLayer(torch.nn.Module):
         assert X.shape[2] == self.input_width
         n = X.shape[0]  # batch dimension
         s = X.shape[1]  # sequence dimension
-        Q = self.query(X).view(n, s, self.num_groups, self.num_heads_per_group, self.key_width)
-        K = self.key(X).view(n, s, self.num_groups, self.key_width)
-        V = self.value(X).view(n, s, self.num_groups, self.value_width)
-        A = compute_grouped_cross_attn(Q, K, V).reshape(n, s, self.num_heads * self.value_width)
+        Q = self.query(X).view(n, s, self.num_groups * self.num_heads_per_group, self.key_width).transpose(1, 2)
+        K = self.key(X).view(n, s, self.num_groups, self.key_width).transpose(1, 2)
+        V = self.value(X).view(n, s, self.num_groups, self.value_width).transpose(1, 2)
+        # A = compute_grouped_cross_attn(Q, K, V).reshape(n, s, self.num_heads * self.value_width)
+        A = torch.nn.functional.scaled_dot_product_attention(Q, K, V, enable_gqa=True)
+        A = A.reshape(n, s, self.num_heads * self.value_width)
         # A = torch.nn.functional.gelu(A)
         P = self.post(A)
         if self.dropout.p > 0.0:
@@ -190,70 +192,6 @@ class GroupedQueryAttentionLayer(torch.nn.Module):
         # out = self.layer_norm(X + P).to(X.dtype)
         # P = self.layer_norm(P).to(X.dtype)
         return X + P
-
-class MultiHeadAttentionLayer(torch.nn.Module):
-    def __init__(self, input_width, key_width, value_width, num_heads, dropout):
-        super().__init__()
-        self.input_width = input_width
-        self.key_width = key_width
-        self.value_width = value_width
-        self.num_heads = num_heads
-        self.query = torch.nn.Linear(input_width, num_heads * key_width, bias=False)
-        self.key = torch.nn.Linear(input_width, num_heads * key_width, bias=False)
-        self.value = torch.nn.Linear(input_width, num_heads * value_width, bias=False)
-        self.post = torch.nn.Linear(num_heads * value_width, input_width, bias=False)
-        # self.post.weight.data.zero_()
-        self.dropout = torch.nn.Dropout(p=dropout)
-        # self.layer_norm = torch.nn.LayerNorm(input_width, elementwise_affine=False)
-
-    def forward(self, X):
-        assert len(X.shape) == 3
-        assert X.shape[2] == self.input_width
-        n = X.shape[0]  # batch dimension
-        s = X.shape[1]  # sequence dimension
-        Q = self.query(X).view(n, s, self.num_heads, self.key_width)
-        K = self.key(X).view(n, s, self.num_heads, self.key_width)
-        V = self.value(X).view(n, s, self.num_heads, self.value_width)
-        A = compute_cross_attn(Q, K, V).reshape(n, s, self.num_heads * self.value_width)
-        # A = torch.nn.functional.gelu(A)
-        P = self.post(A)
-        if self.dropout.p > 0.0:
-            P = self.dropout(P)
-        # out = self.layer_norm(X + P).to(X.dtype)
-        # P = self.layer_norm(P).to(X.dtype)
-        return X + P
-
-
-class MultiQueryAttentionLayer(torch.nn.Module):
-    def __init__(self, input_width, key_width, value_width, num_heads, dropout):
-        super().__init__()
-        self.input_width = input_width
-        self.key_width = key_width
-        self.value_width = value_width
-        self.num_heads = num_heads
-        self.query = torch.nn.Linear(input_width, num_heads * key_width, bias=False)
-        self.key = torch.nn.Linear(input_width, key_width, bias=False)
-        self.value = torch.nn.Linear(input_width, value_width, bias=False)
-        self.post = torch.nn.Linear(num_heads * value_width, input_width, bias=False)
-        # self.post.weight.data.zero_()
-        self.dropout = torch.nn.Dropout(p=dropout)
-
-    def forward(self, X):
-        assert len(X.shape) == 3
-        assert X.shape[2] == self.input_width
-        n = X.shape[0]  # batch dimension
-        s = X.shape[1]  # sequence dimension
-        Q = self.query(X).view(n, s, self.num_heads, self.key_width)
-        K = self.key(X).view(n, s, self.key_width)
-        V = self.value(X).view(n, s, self.value_width)
-        A = compute_multi_query_cross_attn(Q, K, V).reshape(n, s, self.num_heads * self.value_width)
-        # A = torch.nn.functional.gelu(A)
-        P = self.post(A)
-        if self.dropout.p > 0.0:
-            P = self.dropout(P)
-        return X + P
-
-
 
 class FeedforwardLayer(torch.nn.Module):
     def __init__(self, input_width, hidden_width, arity, dropout):

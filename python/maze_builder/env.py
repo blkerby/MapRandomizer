@@ -44,7 +44,7 @@ class DoorData:
 class MazeBuilderEnv:
     def __init__(self, rooms: List[Room], map_x: int, map_y: int, num_envs: int, must_areas_be_connected: bool, starting_room_name: str, device):
         self.device = device
-        rooms = rooms + [Room(name='Dummy room', map=[[]], door_ids=[], sub_area=SubArea.WEST_CRATERIA)]
+        rooms = rooms + [Room(room_id=0, name='Dummy room', map=[[]], door_ids=[], sub_area=SubArea.WEST_CRATERIA)]
         for room in rooms:
             room.populate()
         room_names = [room.name for room in rooms]
@@ -575,6 +575,13 @@ class MazeBuilderEnv:
 
             cumul_door_id += num_room_doors
 
+        # Dummy values in case an environment has no valid doors; these will be filtered out below
+        # since the door ID of -1 is invalid and won't match any candidates
+        counts_by_door_list.append(torch.stack([
+            torch.full([num_envs], 0x7fff, device=map_door_env.device, dtype=torch.int64),
+            torch.arange(num_envs, device=map_door_env.device),
+            torch.full([num_envs], -1, device=map_door_env.device),
+        ], dim=1))
         counts_by_door_all = torch.cat(counts_by_door_list, dim=0)
         counts_by_door_all = counts_by_door_all[counts_by_door_all[:, 0] > 0, :]
         perm = torch.randperm(counts_by_door_all.shape[0], device=counts_by_door_all.device)
@@ -583,6 +590,7 @@ class MazeBuilderEnv:
                                                                           counts_by_door_all[:, 1],
                                                                           dim_size=num_envs)
         chosen_door_indices = torch.clamp_max(chosen_door_indices, counts_by_door_all.shape[0] - 1)
+        # print(counts_by_door_all.shape, chosen_door_indices.shape, chosen_door_indices.min(), chosen_door_indices.max())
         chosen_counts_by_door = counts_by_door_all[chosen_door_indices, :]
         chosen_door_id = chosen_counts_by_door[:, 2]
 
