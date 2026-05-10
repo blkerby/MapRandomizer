@@ -220,6 +220,9 @@ class TrainingSession():
             - preds.graph_diam * graph_diam_coef \
             - mc_dist_cost * mc_dist_coef.unsqueeze(1) \
             + pred_toilet_good_logprobs * toilet_good_coef
+        # replace scores for dummy candidates with a large negative value,
+        # so that they are never selected unless there is no other choice
+        expected = torch.where(action_candidates[:, :, 0] == model.num_rooms - 1, torch.full_like(expected, -10000.0), expected)
         return expected, logodds, kv_cache_candidates
 
 
@@ -345,13 +348,15 @@ class TrainingSession():
                 env.num_envs * episode_length, -1)
             all_outputs_flat = torch.cat([door_connects_flat, missing_connects_flat], dim=1)
 
+            # compute on-the-fly eval loss, for debugging
             loss_flat = torch.mean(torch.nn.functional.binary_cross_entropy_with_logits(selected_raw_logodds_flat,
                                                                                         all_outputs_flat.to(
                                                                                             selected_raw_logodds_flat.dtype),
                                                                                         reduction='none'), dim=1)
             # loss_flat = torch.mean(compute_mse_loss(state_raw_logodds_flat, all_outputs_flat.to(state_raw_logodds_flat.dtype)), dim=1)
             loss = loss_flat.view(env.num_envs, episode_length)
-            episode_loss = torch.mean(loss, dim=1)
+            mask = (action_tensor[:, :, 0] != model.num_rooms - 1).to(selected_raw_logodds_flat.dtype)
+            episode_loss = torch.mean(loss * mask, dim=1)
 
             episode_data = EpisodeData(
                 reward=reward_tensor,
@@ -453,6 +458,9 @@ class TrainingSession():
         s = data.action.shape[1]
         preds = self.get_preds(raw_preds)
 
+        mask = (data.action[:, :, 0] != self.state_model.num_rooms - 1).to(raw_preds.dtype)
+        # TODO: mask out loss values for dummy actions
+
         all_binary_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
         all_binary_outputs = all_binary_outputs.unsqueeze(1).expand(-1, s, -1)
 
@@ -461,7 +469,9 @@ class TrainingSession():
 
         binary_loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logodds,
                                                                            all_binary_outputs.to(
-                                                                               state_value_raw_logodds.dtype))
+                                                                               state_value_raw_logodds.dtype),
+                                                                           reduction='none')
+        binary_loss = torch.mean(binary_loss * mask.unsqueeze(2))
 
         balance_mask = ~torch.isnan(door_balance)
         balance_zeros = torch.zeros_like(door_balance)
@@ -472,27 +482,34 @@ class TrainingSession():
         # balance_loss = torch.mean((balance_data0 - balance_pred0) ** 2)
         balance_data0_probs = torch.sigmoid(balance_data0)
         balance_loss = torch.nn.functional.binary_cross_entropy_with_logits(balance_pred0, 
-                                                                            balance_data0_probs.unsqueeze(1).expand(-1, s, -1)) - \
+                                                                            balance_data0_probs.unsqueeze(1).expand(-1, s, -1),
+                                                                            reduction='none') - \
                        torch.nn.functional.binary_cross_entropy_with_logits(balance_data0.unsqueeze(1).expand(-1, s, -1), 
-                                                                            balance_data0_probs.unsqueeze(1).expand(-1, s, -1))
+                                                                            balance_data0_probs.unsqueeze(1).expand(-1, s, -1),
+                                                                            reduction='none')
+        balance_loss = torch.mean(balance_loss * mask.unsqueeze(2))
 
         toilet_good = data.toilet_good.to(raw_preds.dtype).unsqueeze(1).expand(-1, s)
-        toilet_loss = torch.nn.functional.binary_cross_entropy_with_logits(preds.toilet_good, toilet_good)
+        toilet_loss = torch.nn.functional.binary_cross_entropy_with_logits(preds.toilet_good, toilet_good, reduction='none')
+        toilet_loss = torch.mean(toilet_loss * mask)
 
         save_distances = data.save_distances.to(raw_preds.dtype).unsqueeze(1).expand(-1, s, -1)
         save_dist_mask = (data.save_distances != 255).unsqueeze(1).expand(-1, s, -1)
-        save_dist_loss = torch.mean(
+        save_dist_loss = \
             torch.where(save_dist_mask,
                         (torch.square(preds.save_dist) - torch.square(save_distances)) ** 2,
-                        torch.zeros_like(preds.save_dist)))
+                        torch.zeros_like(preds.save_dist))
+        save_dist_loss = torch.mean(save_dist_loss * mask.unsqueeze(2))
 
         graph_diameter = data.graph_diameter.to(raw_preds.dtype).unsqueeze(1).expand(-1, s)
-        graph_diam_loss = torch.mean((preds.graph_diam - graph_diameter) ** 2)
+        graph_diam_loss = (preds.graph_diam - graph_diameter) ** 2
+        graph_diam_loss = torch.mean(graph_diam_loss * mask)
 
         mc_distances = data.mc_distances.to(raw_preds.dtype).unsqueeze(1).expand(-1, s, -1)
         mc_dist_mask = (data.mc_distances != 255).unsqueeze(1).expand(-1, s, -1)
-        mc_dist_loss = torch.mean(torch.where(mc_dist_mask, (preds.mc_dist - mc_distances) ** 2,
-                                              torch.zeros_like(preds.mc_dist)))
+        mc_dist_loss = torch.where(mc_dist_mask, (preds.mc_dist - mc_distances) ** 2,
+                                              torch.zeros_like(preds.mc_dist))
+        mc_dist_loss = torch.mean(mc_dist_loss * mask.unsqueeze(2))
 
         loss = binary_loss + balance_loss * balance_weight + save_dist_loss * save_dist_weight + graph_diam_loss * graph_diam_weight + mc_dist_loss * mc_dist_weight + toilet_loss * toilet_weight
         return loss, binary_loss.item(), balance_loss.item(), save_dist_loss.item(), graph_diam_loss.item(), mc_dist_loss.item(), toilet_loss.item()
