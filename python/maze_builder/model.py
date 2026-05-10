@@ -1,163 +1,12 @@
 import torch
 import torch.nn.functional as F
-from maze_builder.high_order_act import HighOrderActivationA, HighOrderActivationB, B2Activation, D2Activation
+# from maze_builder.high_order_act import HighOrderActivationA, HighOrderActivationB, B2Activation, D2Activation
 import math
-from typing import List, Optional
-import logging
-
-from maze_builder.env import MazeBuilderEnv
-
-
-# class HuberLoss(torch.nn.Module):
-#     def __init__(self, delta):
-#         super().__init__()
-#         self.delta = delta
-#
-#     def forward(self, X):
-#         delta = self.delta
-#         abs_X = torch.abs(X)
-#         return torch.where(abs_X > delta, delta * (abs_X - (delta / 2)), 0.5 * X ** 2)
-
-
-def approx_simplex_projection(x: torch.tensor, dim: List[int], num_iters: int) -> torch.tensor:
-    mask = torch.ones(list(x.shape), dtype=x.dtype, device=x.device)
-    with torch.no_grad():
-        for i in range(num_iters - 1):
-            n_act = torch.sum(mask, dim=dim, keepdim=True)
-            x_sum = torch.sum(x * mask, dim=dim, keepdim=True)
-            t = (x_sum - 1.0) / n_act
-            x1 = x - t
-            mask = (x1 >= 0).to(x.dtype)
-        n_act = torch.sum(mask, dim=dim, keepdim=True)
-    x_sum = torch.sum(x * mask, dim=dim, keepdim=True)
-    t = (x_sum - 1.0) / n_act
-    x1 = torch.clamp(x - t, min=0.0)
-    # logging.info(torch.mean(torch.sum(x1, dim=1)))
-    return x1  # / torch.sum(torch.abs(x1), dim=dim).unsqueeze(dim=dim)
-
-
-def approx_l1_projection(x: torch.tensor, dim: List[int], num_iters: int) -> torch.tensor:
-    x_sgn = torch.sgn(x)
-    x_abs = torch.abs(x)
-    proj = approx_simplex_projection(x_abs, dim=dim, num_iters=num_iters)
-    return proj * x_sgn
-
-
-def multi_unsqueeze(X, target_dim):
-    while len(X.shape) < target_dim:
-        X = X.unsqueeze(-1)
-    return X
-
-
-class LinearNormalizer(torch.nn.Module):
-    def __init__(self, lin: torch.nn.Module, lr: float, dim: List[int], eps=1e-5):
-        super().__init__()
-        self.lr = lr
-        self.lin = lin
-        self.dim = dim
-        self.eps = eps
-
-    def forward(self, X):
-        Y = self.lin(X)
-        if self.training:
-            Y_std, Y_mean = torch.std_mean(Y.detach(), dim=self.dim)
-            Y_std = torch.clamp(multi_unsqueeze(Y_std, len(self.lin.weight.shape)), min=self.eps)
-            # print(self.lin.bias.shape, Y_mean.shape)
-            self.lin.bias.data -= Y_mean * self.lr
-            self.lin.weight.data /= Y_std ** self.lr
-            self.Y_mean = Y_mean
-            self.Y_std = Y_std
-        return Y
-
-
-class GlobalAvgPool2d(torch.nn.Module):
-    def forward(self, X):
-        return torch.mean(X, dim=[2, 3])
-
-
-class GlobalMaxPool2d(torch.nn.Module):
-    def forward(self, X):
-        return torch.max(X.view(X.shape[0], X.shape[1], X.shape[2] * X.shape[3]), dim=2)[0]
-
-
-class PReLU(torch.nn.Module):
-    def __init__(self, width):
-        super().__init__()
-        self.scale_left = torch.nn.Parameter(torch.randn([width]))
-        self.scale_right = torch.nn.Parameter(torch.randn([width]))
-
-    def forward(self, X):
-        scale_left = self.scale_left.view(1, -1).to(X.dtype)
-        scale_right = self.scale_right.view(1, -1).to(X.dtype)
-        return torch.where(X > 0, X * scale_right, X * scale_left)
-
-
-class PReLU2d(torch.nn.Module):
-    def __init__(self, width):
-        super().__init__()
-        self.scale_left = torch.nn.Parameter(torch.randn([width]))
-        self.scale_right = torch.nn.Parameter(torch.randn([width]))
-
-    def forward(self, X):
-        scale_left = self.scale_left.view(1, -1, 1, 1).to(X.dtype)
-        scale_right = self.scale_right.view(1, -1, 1, 1).to(X.dtype)
-        return torch.where(X > 0, X * scale_right, X * scale_left)
-
-
-class MaxOut(torch.nn.Module):
-    def __init__(self, arity):
-        super().__init__()
-        self.arity = arity
-
-    def forward(self, X):
-        shape = [X.shape[0], self.arity, X.shape[1] // self.arity] + list(X.shape)[2:]
-        X = X.view(*shape)
-        return torch.amax(X, dim=1)
-        # return torch.max(X, dim=1)[0]
-
-
-def map_extract(map, env_id, pos_x, pos_y, width_x, width_y):
-    x = pos_x.view(-1, 1, 1) + torch.arange(width_x, device=map.device).view(1, -1, 1)
-    y = pos_y.view(-1, 1, 1) + torch.arange(width_y, device=map.device).view(1, 1, -1)
-    x = torch.clamp(x, min=0, max=map.shape[2] - 1)
-    y = torch.clamp(y, min=0, max=map.shape[3] - 1)
-    return map[env_id.view(-1, 1, 1), :, x, y].view(env_id.shape[0], map.shape[1] * width_x * width_y)
-
-
-
-
-def compute_cross_attn(Q, K, V):
-    # Q, K, V: [batch, seq, head, emb]
-    d = Q.shape[-1]
-    raw_attn = torch.einsum('bshe,bthe->bsth', Q, K / math.sqrt(d))
-    attn = torch.softmax(raw_attn, dim=2)
-    out = torch.einsum('bsth,bthe->bshe', attn, V)
-    return out
-
-
-def compute_grouped_cross_attn(Q, K, V):
-    # Q: [batch, seq, head_group, head_within, emb]
-    # K, V: [batch, seq, head_group, emb]
-    d = Q.shape[-1]
-    s = Q.shape[1]
-    raw_attn = torch.einsum('bsgwe,btge->bstgw', Q, K / math.sqrt(d))
-    attn = torch.softmax(raw_attn, dim=2)
-    # attn = torch.relu(raw_attn) / s
-    out = torch.einsum('bstgw,btge->bsgwe', attn, V)
-    return out
-
-
-def compute_multi_query_cross_attn(Q, K, V):
-    # Q: [batch, seq, head, emb]
-    # K, V: [batch, seq, emb]
-    d = Q.shape[-1]
-    raw_attn = torch.einsum('bshe,bte->bsth', Q, K / math.sqrt(d))
-    attn = torch.softmax(raw_attn, dim=2)
-    out = torch.einsum('bsth,bte->bshe', attn, V)
-    return out
+from typing import Optional, List
+from dataclasses import dataclass
 
 class GroupedQueryAttentionLayer(torch.nn.Module):
-    def __init__(self, input_width, key_width, value_width, num_heads, num_groups, dropout):
+    def __init__(self, input_width, key_width, value_width, num_heads, num_groups):
         super().__init__()
         self.input_width = input_width
         self.key_width = key_width
@@ -171,7 +20,6 @@ class GroupedQueryAttentionLayer(torch.nn.Module):
         self.value = torch.nn.Linear(input_width, num_groups * value_width, bias=False)
         self.post = torch.nn.Linear(num_heads * value_width, input_width, bias=False)
         # self.post.weight.data.zero_()
-        self.dropout = torch.nn.Dropout(p=dropout)
         # self.layer_norm = torch.nn.LayerNorm(input_width, elementwise_affine=False)
 
     def forward(self, X):
@@ -179,86 +27,37 @@ class GroupedQueryAttentionLayer(torch.nn.Module):
         assert X.shape[2] == self.input_width
         n = X.shape[0]  # batch dimension
         s = X.shape[1]  # sequence dimension
-        Q = self.query(X).view(n, s, self.num_groups * self.num_heads_per_group, self.key_width).transpose(1, 2)
+        Q = self.query(X).view(n, s, self.num_heads, self.key_width).transpose(1, 2)
         K = self.key(X).view(n, s, self.num_groups, self.key_width).transpose(1, 2)
         V = self.value(X).view(n, s, self.num_groups, self.value_width).transpose(1, 2)
         # A = compute_grouped_cross_attn(Q, K, V).reshape(n, s, self.num_heads * self.value_width)
-        A = torch.nn.functional.scaled_dot_product_attention(Q, K, V, enable_gqa=True)
-        A = A.reshape(n, s, self.num_heads * self.value_width)
-        # A = torch.nn.functional.gelu(A)
+
+        causal_mask = torch.tril(torch.ones(s, s, dtype=torch.bool, device=X.device))
+        causal_mask = causal_mask & ~torch.eye(s, dtype=torch.bool, device=X.device)
+
+        A = torch.nn.functional.scaled_dot_product_attention(Q, K, V, enable_gqa=True, attn_mask=causal_mask)
+        # A: [n, h, s, v]
+        A = A.transpose(1, 2).reshape(n, s, self.num_heads * self.value_width)
+ 
         P = self.post(A)
-        if self.dropout.p > 0.0:
-            P = self.dropout(P)
+        # print("forward: Q:", Q.shape, Q, "\nK:", K.shape, K, "\nV:", V.shape, V, "\nA:", A.shape, A, "\nP:", P.shape, P)
         # out = self.layer_norm(X + P).to(X.dtype)
         # P = self.layer_norm(P).to(X.dtype)
         return X + P
 
 class FeedforwardLayer(torch.nn.Module):
-    def __init__(self, input_width, hidden_width, arity, dropout):
+    def __init__(self, input_width, hidden_width):
         super().__init__()
-        assert hidden_width % arity == 0
-        assert arity == 1
         self.lin1 = torch.nn.Linear(input_width, hidden_width, bias=False)
-        # self.act = HighOrderActivationB(arity, hidden_width // arity, arity)
-        # assert arity == 2
-        # self.act = B2Activation(hidden_width // 2, 1.0)
-        # self.act.compile()
-        # self.act.params.data.zero_()
-        # self.act = MaxOut(2)
-        # self.act = D2Activation(hidden_width // 2, 1.0)
-        self.lin2 = torch.nn.Linear(hidden_width // arity, input_width, bias=False)
-        # self.lin2.weight.data.zero_()
-        # self.arity = arity
-        self.dropout = torch.nn.Dropout(p=dropout)
+        self.lin2 = torch.nn.Linear(hidden_width, input_width, bias=False)
         self.layer_norm = torch.nn.LayerNorm(input_width, elementwise_affine=False)
 
     def forward(self, X):
         A = self.lin1(X)
-        # A = torch.relu(A)
         A = torch.nn.functional.gelu(A)
-        # A_shape = list(A.shape)
-        # A_shape[-1] = -1
-        # A1 = A.view(-1, A.shape[-1])
-        # A2 = self.act(A1)
-        # A = A2.view(*A_shape)
-
-        # shape = list(A.shape)
-        # shape[-1] //= self.arity
-        # shape.append(self.arity)
-        # A = torch.amax(A.reshape(*shape), dim=-1)
         A = self.lin2(A)
-        if self.dropout.p > 0.0:
-            A = self.dropout(A)
-        # A = self.layer_norm(A).to(A.dtype)
-        # return self.layer_norm(X).to(X.dtype)
         return X + A
 
-
-# class TransformerLayer(torch.nn.Module):
-#     def __init__(self, input_width, key_width, value_width, num_heads, relu_width):
-#         super().__init__()
-#         self.input_width = input_width
-#         self.key_width = key_width
-#         self.value_width = value_width
-#         self.num_heads = num_heads
-#         self.query = torch.nn.Linear(input_width, num_heads * key_width)
-#         self.key = torch.nn.Linear(input_width, num_heads * key_width)
-#         self.value = torch.nn.Linear(input_width, num_heads * value_width)
-#         self.post1 = torch.nn.Linear(num_heads * value_width, relu_width)
-#         self.post2 = torch.nn.Linear(relu_width, input_width)
-#         self.layer_norm = torch.nn.LayerNorm(input_width)
-#
-#     def forward(self, X):
-#         assert len(X.shape) == 3
-#         assert X.shape[2] == self.input_width
-#         n = X.shape[0]  # batch dimension
-#         s = X.shape[1]  # sequence dimension
-#         Q = self.query(X).view(n, s, self.num_heads, self.key_width)
-#         K = self.key(X).view(n, s, self.num_heads, self.key_width)
-#         V = self.value(X).view(n, s, self.num_heads, self.value_width)
-#         A = compute_cross_attn(Q, K, V).reshape(n, s, self.num_heads * self.value_width)
-#         return self.layer_norm(X + self.post2(torch.relu(self.post1(A))))
-#
 
 class FeedforwardModel(torch.nn.Module):
     def __init__(self, input_width, output_width, hidden_widths):
@@ -266,7 +65,7 @@ class FeedforwardModel(torch.nn.Module):
         self.ff_layers = torch.nn.ModuleList()
         prev_width = input_width
         for width in hidden_widths:
-            self.ff_layers.append(torch.nn.Linear(prev_width, width))
+            self.ff_layers.append(torch.nn.Linear(prev_width, width, bias=False))
             prev_width = width
         self.output_layer = torch.nn.Linear(prev_width, output_width)
         self.output_layer.weight.data.zero_()
@@ -280,105 +79,180 @@ class FeedforwardModel(torch.nn.Module):
 
 
 class RoomTransformerModel(torch.nn.Module):
-    def __init__(self, rooms, num_doors, num_outputs, map_x, map_y,
-                 embedding_width, key_width, value_width, attn_heads, head_groups, hidden_width, arity, num_local_layers,
-                 num_global_layers, global_attn_heads, global_attn_key_width, global_attn_value_width, global_width, global_hidden_width,
-                 embed_dropout, attn_dropout, ff_dropout, global_ff_dropout, use_action):
+    def __init__(self, rooms, map_x, map_y, num_outputs, embedding_width, key_width, value_width, attn_heads, head_groups, hidden_width, num_layers):
         super().__init__()
-        self.room_half_size_x = torch.tensor([len(r.map[0]) // 2 for r in rooms])
-        self.room_half_size_y = torch.tensor([len(r.map) // 2 for r in rooms])
         self.map_x = map_x
         self.map_y = map_y
+        self.room_half_size_x = torch.tensor([len(r.map[0]) // 2 for r in rooms])
+        self.room_half_size_y = torch.tensor([len(r.map) // 2 for r in rooms])
         self.num_rooms = len(rooms)
         self.num_tokens = self.num_rooms + 1
-        self.num_doors = num_doors
         self.num_outputs = num_outputs
-        self.num_local_layers = num_local_layers
-        self.num_global_layers = num_global_layers
-        self.global_attn_heads = global_attn_heads
-        self.global_attn_key_width = global_attn_key_width
-        self.global_attn_value_width = global_attn_value_width
-        self.global_width = global_width
-        self.global_hidden_width = global_hidden_width
+        self.num_layers = num_layers
         self.embedding_width = embedding_width
-        self.global_lin = torch.nn.Linear(self.num_rooms + 3, embedding_width)
-        # self.pos_embedding_x = torch.nn.Parameter(torch.randn([self.map_x, self.num_rooms, embedding_width]) / math.sqrt(embedding_width))
-        # self.pos_embedding_y = torch.nn.Parameter(torch.randn([self.map_y, self.num_rooms, embedding_width]) / math.sqrt(embedding_width))
+        self.global_lin = torch.nn.Linear(2, embedding_width)
         self.pos_embedding_x = torch.nn.Parameter(torch.randn([self.map_x, embedding_width]) / math.sqrt(embedding_width))
         self.pos_embedding_y = torch.nn.Parameter(torch.randn([self.map_y, embedding_width]) / math.sqrt(embedding_width))
         self.room_embedding = torch.nn.Parameter(
             torch.randn([self.num_rooms, embedding_width]) / math.sqrt(embedding_width))
-        self.unplaced_room_embedding = torch.nn.Parameter(
-            torch.randn([self.num_rooms, embedding_width]) / math.sqrt(embedding_width))
-        self.unplaced_room_embedding.data.zero_()
-        self.embed_dropout = torch.nn.Dropout(p=embed_dropout)
         self.attn_layers = torch.nn.ModuleList()
         self.ff_layers = torch.nn.ModuleList()
-        self.use_action = use_action
-        # self.transformer_layers = torch.nn.ModuleList()
-        for i in range(num_local_layers):
+        for i in range(num_layers):
             attn_layer = GroupedQueryAttentionLayer(
                 input_width=embedding_width,
                 key_width=key_width,
                 value_width=value_width,
                 num_heads=attn_heads,
-                num_groups=head_groups,
-                dropout=attn_dropout)
+                num_groups=head_groups)
             self.attn_layers.append(attn_layer)
             ff_layer = FeedforwardLayer(
                 input_width=embedding_width,
-                hidden_width=hidden_width,
-                arity=arity,
-                dropout=ff_dropout)
+                hidden_width=hidden_width)
             self.ff_layers.append(ff_layer)
 
-        self.global_query = torch.nn.Parameter(
-            torch.randn([num_outputs, embedding_width]) / math.sqrt(embedding_width))
-        self.global_value = torch.nn.Parameter(
-            torch.randn([num_outputs, embedding_width]) / math.sqrt(embedding_width))
+        # self.output_key = torch.nn.Linear(embedding_width, num_outputs, bias=False)
+        # self.output_value = torch.nn.Linear(embedding_width, num_outputs, bias=False)
+        self.output_lin = torch.nn.Linear(embedding_width, num_outputs, bias=False)
 
 
-    def forward_multiclass(self, room_mask, room_position_x, room_position_y,
-                           steps_remaining, round_frac,
-                           temperature, mc_dist_coef):
-        n = room_mask.shape[0]
-        # print(f"n={n}, room_mask={room_mask.shape}, room_position_x={room_position_x.shape}, room_position_y={room_position_y.shape}, map_door_id={map_door_id.shape}, action_env_id={action_env_id.shape}, action_door_id={action_door_id.shape}, steps_remaining={steps_remaining.shape}, round_frac={round_frac.shape}, temperature={temperature.shape}, mc_dist_coef={mc_dist_coef.shape}")
-        device = room_mask.device
-        dtype = torch.float16
+    def get_embedding(self, room_idx, room_x, room_y, temperature, mc_dist_coef):
+        device = room_idx.device
+        global_data = torch.cat([torch.log(temperature.view(-1, 1)),
+                                    mc_dist_coef.view(-1, 1)], dim=1)
+
+        global_emb = self.global_lin(global_data).unsqueeze(1)
+
+        adj_room_x = room_x + self.room_half_size_x.to(device)[room_idx]
+        adj_room_y = room_y + self.room_half_size_y.to(device)[room_idx]
+
+        position_emb_x = self.pos_embedding_x[adj_room_x]
+        position_emb_y = self.pos_embedding_y[adj_room_y]
+        room_emb = self.room_embedding[room_idx]
+        
+        X = global_emb + position_emb_x + position_emb_y + room_emb
+        return X        
+
+
+    def forward(self, action, temperature, mc_dist_coef):
+        n = action.shape[0]
+        s = action.shape[1]
+        room_idx = action[:, :, 0].to(torch.int64)
+        room_x = action[:, :, 1].to(torch.int64)
+        room_y = action[:, :, 2].to(torch.int64)
 
         with torch.cuda.amp.autocast():
-            global_data = torch.cat([room_mask.to(torch.float32),
-                                     steps_remaining.view(-1, 1) / self.num_rooms,
-                                     # round_frac.view(-1, 1),
-                                     torch.log(temperature.view(-1, 1)),
-                                     mc_dist_coef.view(-1, 1),
-                                     ], dim=1).to(dtype)
-
-            global_embedding = self.global_lin(global_data)
-
-            adj_room_position_x = room_position_x + self.room_half_size_x.to(device).view(1, -1)
-            adj_room_position_y = room_position_y + self.room_half_size_y.to(device).view(1, -1)
-
-            position_emb_x = self.pos_embedding_x[adj_room_position_x]
-            position_emb_y = self.pos_embedding_y[adj_room_position_y]
-            X = position_emb_x + position_emb_y + self.room_embedding.unsqueeze(0)
-            X = torch.where(room_mask.unsqueeze(2), X, self.unplaced_room_embedding.unsqueeze(0))
-            X = torch.cat([global_embedding.unsqueeze(1), X], dim=1)
-
-            if self.embed_dropout.p > 0.0:
-                X = self.embed_dropout(X)
+            X = self.get_embedding(room_idx, room_x, room_y, temperature, mc_dist_coef)
             for i in range(len(self.attn_layers)):
                 X = self.attn_layers[i](X)
                 X = self.ff_layers[i](X)
-
-            # New attention-like layer direct to outputs:
-            raw_global_weight = torch.einsum('bse,ge->bsg', X, self.global_query)
-            global_weight = torch.softmax(raw_global_weight, dim=1)
-            global_value = torch.einsum('bse,ge->bsg', X, self.global_value)
-            X = torch.sum(global_weight * global_value, dim=1)
+            X = self.output_lin(X)
+            
+            # # Compute output using attention with one head per output, key/value dimension 1.
+            # h = self.num_outputs
+            # s = X.shape[1]
+            # Q = torch.ones([n, h, s, 1], device=X.device, dtype=X.dtype)
+            # K = self.global_key(X).view(n, s, h).transpose(1, 2).view(n, h, s, 1)
+            # V = self.global_value(X).view(n, s, h).transpose(1, 2).view(n, h, s, 1)
+            # X = torch.nn.functional.scaled_dot_product_attention(Q, K, V, causal=True)
+            # assert X.shape == (n, h, s, 1)
+            # X = X.transpose(1, 2).view(n, s, h)
 
         return X.to(torch.float32)
 
+
+    def get_initial_kv_cache(self, batch_size, device):
+        K_list = []
+        V_list = []
+        for layer in self.attn_layers:
+            g = layer.num_groups
+            K_list.append(torch.zeros([batch_size, g, 0, layer.key_width], device=device))
+            V_list.append(torch.zeros([batch_size, g, 0, layer.value_width], device=device))
+        return K_list, V_list
+
+
+    def get_updated_kv_cache(self, old_kv_cache, cache_candidates, action_idx):
+        old_K_list, old_V_list = old_kv_cache
+        cand_K_list, cand_V_list = cache_candidates
+        new_K_list = []
+        new_V_list = []
+        for old_K, old_V, cand_K, cand_V in zip(old_K_list, old_V_list, cand_K_list, cand_V_list):
+            # old_K: [b, g, s, k]
+            # cand_K: [b, g, c, k]
+            batch_idx = torch.arange(old_K.shape[0], device=old_K.device)
+            # print("old_K:", old_K.shape, "cand_K:", cand_K.shape, "action_idx:", action_idx.shape, "?:", cand_K[batch_idx, :, action_idx].unsqueeze(2).shape)
+            new_K = torch.cat([old_K, cand_K[batch_idx, :, action_idx].unsqueeze(2)], dim=2)
+            # new_K: [b, g, s + 1, k]
+            
+            # old_V: [b, g, s, v]
+            # cand_V: [b, g, c, v]
+            new_V = torch.cat([old_V, cand_V[batch_idx, :, action_idx].unsqueeze(2)], dim=2)
+            # new_V: [b, g, s + 1, v]
+            
+            new_K_list.append(new_K)
+            new_V_list.append(new_V)
+        return new_K_list, new_V_list
+
+
+    def generate(self, action_candidates, kv_cache, temperature, mc_dist_coef):
+        n = action_candidates.shape[0]  # batch size
+        c = action_candidates.shape[1]  # number of candidates per batch element
+        e = self.embedding_width
+        room_idx = action_candidates[:, :, 0].to(torch.int64)
+        room_x = action_candidates[:, :, 1].to(torch.int64)
+        room_y = action_candidates[:, :, 2].to(torch.int64)
+        s = kv_cache[0][0].shape[2]  # current sequence length
+        K_list, V_list = kv_cache
+        K_cands = []
+        V_cands = []
+
+        with torch.cuda.amp.autocast():
+            X = self.get_embedding(room_idx, room_x, room_y, temperature, mc_dist_coef)
+            # X: [n, c, e]
+
+            for i in range(len(self.attn_layers)):
+                h = self.attn_layers[i].num_heads
+                g = self.attn_layers[i].num_groups
+                k = self.attn_layers[i].key_width
+                v = self.attn_layers[i].value_width
+                if s > 0:
+                    Q = self.attn_layers[i].query(X)
+                    Q = Q.view(n, c, h, k).transpose(1, 2)  # [n, h, c, k]
+                    K = K_list[i]  # [n, g, s, k]
+                    V = V_list[i]  # [n, g, s, v]
+                    # print("X:", X.shape, "Q:", Q.shape, "K:", K.shape, "V:", V.shape, "n:", n, "c:", c, "h:", h, "e:", e, "g:", g, "s:", s, "k:", k, "v:", v)
+                    A = torch.nn.functional.scaled_dot_product_attention(Q, K, V, enable_gqa=True)
+                    # A: [n, h, c, v]
+                    A = A.transpose(1, 2).reshape(n, c, h * v)
+                    P = self.attn_layers[i].post(A)  # [n, c, e]
+                    # print("generate: Q:", Q.shape, Q, "\nK:", K.shape, K, "\nV:", V.shape, V, "\nA:", A.shape, A, "\nP:", P.shape, P)
+                    X = X + P
+                
+                K1 = self.attn_layers[i].key(X)   # [n, c, num_groups * k]
+                V1 = self.attn_layers[i].value(X)  # [n, c, num_groups * v]
+                K1 = K1.view(n, c, g, k).transpose(1, 2)  # [n, g, c, k]
+                V1 = V1.view(n, c, g, v).transpose(1, 2)  # [n, g, c, v]
+                K_cands.append(K1)
+                V_cands.append(V1)
+                                
+                X = self.ff_layers[i].forward(X)
+
+            X = self.output_lin(X)
+            
+            # TODO: figure out how to make attention-based output work
+            # out = self.num_outputs
+            # K = K_list[-1]  # [n, out, s, 1]
+            # V = V_list[-1]  # [n, out, s, 1]
+            # Q = torch.ones([n, out, c, 1], device=X.device, dtype=X.dtype)
+            # K = self.global_key(X).view(n, s, out).transpose(1, 2).view(n, out, s, 1)
+            # V = self.global_value(X).view(n, s, out).transpose(1, 2).view(n, out, s, 1)
+            # X = torch.nn.functional.scaled_dot_product_attention(Q, K, V, causal=True)
+            # assert X.shape == (n, out, s, 1)
+            # X = X.transpose(1, 2).view(n, s, out)
+        
+        cache_candidates = (K_cands, V_cands)
+        return X.to(torch.float32), cache_candidates
+    
+    
     def decay(self, amount: Optional[float]):
         if amount is not None:
             factor = 1 - amount
@@ -395,3 +269,54 @@ class RoomTransformerModel(torch.nn.Module):
 
     def project(self):
         pass
+
+
+
+# @dataclass
+# class Room:
+#     map: List[List[int]]
+
+# state_model = RoomTransformerModel(
+#     rooms=[
+#         Room(map=[[0, 0], [0, 0]]),
+#         Room(map=[[0]]),
+#         Room(map=[[0]]),
+#     ],
+#     map_x=3,
+#     map_y=3,
+#     num_outputs=2,
+#     embedding_width=5,
+#     key_width=7,
+#     value_width=8,
+#     attn_heads=9,
+#     head_groups=3,
+#     hidden_width=6,
+#     num_layers=2,
+# )
+
+
+# action = torch.tensor([[
+#     [0, 0, 0],
+#     [1, 1, 0]
+# ]])
+# temperature = torch.tensor([1.0])
+# mc_dist_coef = torch.tensor([1.0])
+# out1 = state_model.forward(action, temperature, mc_dist_coef)
+# print("forward out:", out1)
+
+# action_candidates = torch.tensor([[
+#     [2, 1, 0],
+#     [0, 0, 0],
+# ]])
+# kv_cache = state_model.get_initial_kv_cache(1, "cpu")
+# out2, kv_cache_cands = state_model.generate(action_candidates, kv_cache, temperature, mc_dist_coef)
+# print("generate out2:", out2)
+
+# action_idx = torch.tensor([1])
+# kv_cache = state_model.get_updated_kv_cache(kv_cache, kv_cache_cands, action_idx)
+# action_candidates = torch.tensor([[
+#     [1, 1, 0],
+# ]])
+# out3, kv_cache_cands = state_model.generate(action_candidates, kv_cache, temperature, mc_dist_coef)
+# print("generate out3:", out3)
+# # print(out1)

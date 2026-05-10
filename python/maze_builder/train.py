@@ -7,7 +7,7 @@ import util
 import torch
 import torch.profiler
 import logging
-from maze_builder.types import EnvConfig, EpisodeData, reconstruct_room_data
+from maze_builder.types import EnvConfig, EpisodeData, reconstruct_final_room_data
 from maze_builder.env import MazeBuilderEnv
 import logic.rooms.crateria
 from datetime import datetime
@@ -89,29 +89,16 @@ global_hidden_width = 1024
 # action_model = TransformerModel(
 state_model = RoomTransformerModel(
     rooms=envs[0].rooms,
-    num_doors=envs[0].num_doors,
-    num_outputs=envs[0].num_doors + envs[0].num_missing_connects + envs[0].num_doors + envs[0].num_non_save_dist + 1 + envs[0].num_missing_connects + 1,
     map_x=env_config.map_x,
     map_y=env_config.map_y,
+    num_outputs=envs[0].num_doors + envs[0].num_missing_connects + envs[0].num_doors + envs[0].num_non_save_dist + 1 + envs[0].num_missing_connects + 1,
     embedding_width=embedding_width,
     key_width=key_width,
     value_width=value_width,
     attn_heads=attn_heads,
     head_groups=head_groups,
     hidden_width=hidden_width,
-    arity=1,
-    num_local_layers=4,
-    embed_dropout=0.0,
-    ff_dropout=0.0,
-    attn_dropout=0.0,
-    num_global_layers=2,
-    global_attn_heads=32,
-    global_attn_key_width=32,
-    global_attn_value_width=32,
-    global_width=global_embedding_width,
-    global_hidden_width=global_hidden_width,
-    global_ff_dropout=0.0,
-    use_action=True,
+    num_layers=4,
 ).to(device)
 
 balance_model = FeedforwardModel(
@@ -262,8 +249,10 @@ state_lr1 = 0.0005
 # lr_cooldown_time = 100
 num_candidates_min0 = 0.5
 num_candidates_max0 = 1.5
-num_candidates_min1 = 31.5
-num_candidates_max1 = 32.5
+# num_candidates_min1 = 31.5
+# num_candidates_max1 = 32.5
+num_candidates_min1 = 0.5
+num_candidates_max1 = 1.5
 
 state_weight = 0.0
 
@@ -311,10 +300,10 @@ temperature_decay = 1.0
 annealing_start = 0
 annealing_time = 2 ** 18
 
-pass_factor0 = 0.05
+pass_factor0 = 1.0
 pass_factor1 = 2.0
 num_load_files = int(episode_length * pass_factor1)
-print_freq = 4
+print_freq = 8
 total_state_losses = None
 total_action_losses = None
 total_balance_loss = 0.0
@@ -336,8 +325,8 @@ total_graph_diameter = 0.0
 total_mc_distances = 0.0
 total_toilet_good = 0.0
 total_cycle_cost = 0.0
-save_freq = 256
-summary_freq = 1024
+save_freq = 1024
+summary_freq = 64
 session.decay_amount = 0.01
 # session.decay_amount = 0.2
 session.state_optimizer.param_groups[0]['betas'] = (0.95, 0.95)
@@ -345,8 +334,10 @@ session.state_optimizer.param_groups[0]['eps'] = 1e-5
 session.balance_optimizer.param_groups[0]['betas'] = (0.95, 0.95)
 session.balance_optimizer.param_groups[0]['eps'] = 1e-5
 session.balance_optimizer.param_groups[0]['lr'] = 0.0001
-state_ema_alpha0 = 0.2
-state_ema_alpha1 = 0.001
+# state_ema_alpha0 = 0.2
+# state_ema_alpha1 = 0.001
+state_ema_alpha0 = 1.0
+state_ema_alpha1 = 1.0
 session.average_parameters.beta = 1 - state_ema_alpha0
 
 # layer_norm_param_decay = 0.9998
@@ -372,8 +363,7 @@ def compute_door_connect_counts(episode_data, only_success: bool, ind=None):
         else:
             mask = (batch_reward == batch_reward)
         masked_batch_action = batch_action[mask]
-        step = torch.full([masked_batch_action.shape[0]], num_rooms)
-        room_mask, room_position_x, room_position_y = reconstruct_room_data(masked_batch_action, step, num_rooms + 1)
+        room_mask, room_position_x, room_position_y = reconstruct_final_room_data(masked_batch_action, num_rooms + 1)
         batch_counts = session.envs[0].get_door_connect_stats(room_mask, room_position_x, room_position_y)
         if counts is None:
             counts = batch_counts
@@ -617,7 +607,7 @@ for i in range(1000000):
     #             total_summary_eval_loss += eval_loss
     #             total_summary_eval_loss_cnt += 1
 
-    num_batches = max(1, int(pass_factor * num_envs * len(devices) * episode_length / batch_size))
+    num_batches = max(1, int(pass_factor * num_envs * len(devices) / batch_size))
     # start_training_time = time.perf_counter()
     # with util.DelayedKeyboardInterrupt():
     #     total_loss += session.train_batch_parallel(num_batches, batch_size, hist, hist_c, executor)
@@ -638,8 +628,7 @@ for i in range(1000000):
     # ) as prof:
     batch_list = session.replay_buffer.sample(batch_size, num_batches, hist_frac=hist_frac, hist_c=hist_c,
                                               hist_max=hist_max,
-                                              env=envs[0],
-                                              include_next_step=False)
+                                              env=envs[0])
     for data in batch_list:
         with util.DelayedKeyboardInterrupt():
             state_losses, balance_loss = session.train_batch(
@@ -653,8 +642,6 @@ for i in range(1000000):
             total_state_losses = update_losses(total_state_losses, state_losses)
             total_balance_loss += balance_loss
             total_loss_cnt += 1
-
-            # session.state_model.state_output_lin2.weight.data *= old_out_param_decay
 
     if session.replay_buffer.num_files % print_freq == 0:
         mean_state_losses = [x / total_loss_cnt for x in total_state_losses]
