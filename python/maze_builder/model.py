@@ -142,6 +142,7 @@ class RoomTransformerModel(torch.nn.Module):
 
         with torch.cuda.amp.autocast():
             X = self.get_embedding(room_idx, room_x, room_y, temperature, mc_dist_coef)
+            # print("forward: X:", X.shape, X)
             for i in range(len(self.attn_layers)):
                 X = self.attn_layers[i](X)
                 X = self.ff_layers[i](X)
@@ -179,7 +180,6 @@ class RoomTransformerModel(torch.nn.Module):
             # old_K: [b, g, s, k]
             # cand_K: [b, g, c, k]
             batch_idx = torch.arange(old_K.shape[0], device=old_K.device)
-            # print("old_K:", old_K.shape, "cand_K:", cand_K.shape, "action_idx:", action_idx.shape, "?:", cand_K[batch_idx, :, action_idx].unsqueeze(2).shape)
             new_K = torch.cat([old_K, cand_K[batch_idx, :, action_idx].unsqueeze(2)], dim=2)
             # new_K: [b, g, s + 1, k]
             
@@ -200,7 +200,7 @@ class RoomTransformerModel(torch.nn.Module):
         room_idx = action_candidates[:, :, 0].to(torch.int64)
         room_x = action_candidates[:, :, 1].to(torch.int64)
         room_y = action_candidates[:, :, 2].to(torch.int64)
-        s = kv_cache[0][0].shape[2]  # current sequence length
+        s = kv_cache[0][0].shape[2] if len(kv_cache) > 0 else 0  # current sequence length
         K_list, V_list = kv_cache
         K_cands = []
         V_cands = []
@@ -208,32 +208,33 @@ class RoomTransformerModel(torch.nn.Module):
         with torch.cuda.amp.autocast():
             X = self.get_embedding(room_idx, room_x, room_y, temperature, mc_dist_coef)
             # X: [n, c, e]
+            # print("generate: X:", X.shape, X)
 
             for i in range(len(self.attn_layers)):
                 h = self.attn_layers[i].num_heads
                 g = self.attn_layers[i].num_groups
                 k = self.attn_layers[i].key_width
                 v = self.attn_layers[i].value_width
-                if s > 0:
-                    Q = self.attn_layers[i].query(X)
-                    Q = Q.view(n, c, h, k).transpose(1, 2)  # [n, h, c, k]
-                    K = K_list[i]  # [n, g, s, k]
-                    V = V_list[i]  # [n, g, s, v]
-                    # print("X:", X.shape, "Q:", Q.shape, "K:", K.shape, "V:", V.shape, "n:", n, "c:", c, "h:", h, "e:", e, "g:", g, "s:", s, "k:", k, "v:", v)
-                    A = torch.nn.functional.scaled_dot_product_attention(Q, K, V, enable_gqa=True)
-                    # A: [n, h, c, v]
-                    A = A.transpose(1, 2).reshape(n, c, h * v)
-                    P = self.attn_layers[i].post(A)  # [n, c, e]
-                    # print("generate: Q:", Q.shape, Q, "\nK:", K.shape, K, "\nV:", V.shape, V, "\nA:", A.shape, A, "\nP:", P.shape, P)
-                    X = X + P
-                
+
                 K1 = self.attn_layers[i].key(X)   # [n, c, num_groups * k]
                 V1 = self.attn_layers[i].value(X)  # [n, c, num_groups * v]
                 K1 = K1.view(n, c, g, k).transpose(1, 2)  # [n, g, c, k]
                 V1 = V1.view(n, c, g, v).transpose(1, 2)  # [n, g, c, v]
                 K_cands.append(K1)
                 V_cands.append(V1)
-                                
+
+                if s > 0:
+                    Q = self.attn_layers[i].query(X)
+                    Q = Q.view(n, c, h, k).transpose(1, 2)  # [n, h, c, k]
+                    K = K_list[i]  # [n, g, s, k]
+                    V = V_list[i]  # [n, g, s, v]
+                    A = torch.nn.functional.scaled_dot_product_attention(Q, K, V, enable_gqa=True)
+                    # A: [n, h, c, v]
+                    A = A.transpose(1, 2).reshape(n, c, h * v)
+                    P = self.attn_layers[i].post(A)  # [n, c, e]
+                    # print("generate: Q:", Q.shape, Q, "\nK:", K.shape, K, "\nV:", V.shape, V, "\nA:", A.shape, A, "\nP:", P.shape, P)
+                    X = X + P
+                                                
                 X = self.ff_layers[i].forward(X)
 
             X = self.output_lin(X)
@@ -281,42 +282,39 @@ class RoomTransformerModel(torch.nn.Module):
 #         Room(map=[[0, 0], [0, 0]]),
 #         Room(map=[[0]]),
 #         Room(map=[[0]]),
+#         Room(map=[[0, 0]]),
 #     ],
-#     map_x=3,
-#     map_y=3,
+#     map_x=8,
+#     map_y=8,
 #     num_outputs=2,
-#     embedding_width=5,
-#     key_width=7,
-#     value_width=8,
+#     embedding_width=3,
+#     key_width=4,
+#     value_width=5,
 #     attn_heads=9,
 #     head_groups=3,
-#     hidden_width=6,
+#     hidden_width=7,
 #     num_layers=2,
 # )
 
 
-# action = torch.tensor([[
-#     [0, 0, 0],
-#     [1, 1, 0]
-# ]])
-# temperature = torch.tensor([1.0])
-# mc_dist_coef = torch.tensor([1.0])
+# # action = torch.tensor([[
+# #     [0, 0, 0],
+# #     [1, 1, 0]
+# # ]])
+# b = 2
+# s = 3
+# action = torch.randint(0, 4, (b, s, 3))
+# temperature = torch.rand([b])
+# mc_dist_coef = torch.rand([b])
 # out1 = state_model.forward(action, temperature, mc_dist_coef)
 # print("forward out:", out1)
 
-# action_candidates = torch.tensor([[
-#     [2, 1, 0],
-#     [0, 0, 0],
-# ]])
-# kv_cache = state_model.get_initial_kv_cache(1, "cpu")
-# out2, kv_cache_cands = state_model.generate(action_candidates, kv_cache, temperature, mc_dist_coef)
-# print("generate out2:", out2)
+# kv_cache = state_model.get_initial_kv_cache(b, "cpu")
+# for i in range(s):
+#     action_candidates = action[:, i:i+1, :]    
+#     out2, kv_cache_cands = state_model.generate(action_candidates, kv_cache, temperature, mc_dist_coef)
+#     print(f"generate out {i}:", out2)
 
-# action_idx = torch.tensor([1])
-# kv_cache = state_model.get_updated_kv_cache(kv_cache, kv_cache_cands, action_idx)
-# action_candidates = torch.tensor([[
-#     [1, 1, 0],
-# ]])
-# out3, kv_cache_cands = state_model.generate(action_candidates, kv_cache, temperature, mc_dist_coef)
-# print("generate out3:", out3)
-# # print(out1)
+#     action_idx = torch.tensor([0])
+#     kv_cache = state_model.get_updated_kv_cache(kv_cache, kv_cache_cands, action_idx)
+
