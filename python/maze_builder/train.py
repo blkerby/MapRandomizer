@@ -292,20 +292,20 @@ balance_weight = 2.0
 temperature_min0 = 1.0
 temperature_max0 = 10.0
 temperature_min1 = 0.03
-temperature_max1 = 10.0
+temperature_max1 = 1.0
 # temperature_min0 = 0.01
 # temperature_max0 = 10.0
 # temperature_min1 = 0.01
 # temperature_max1 = 10.0
 # temperature_frac_min0 = 0.0
 # temperature_frac_min1 = 0.0
-temperature_frac_min0 = 0.0
-temperature_frac_min1 = 0.0
+temperature_frac_min0 = 0.5
+temperature_frac_min1 = 0.5
 temperature_decay = 1.0
 
 annealing_start = 0
-annealing_time = 1
-# annealing_time = 2 ** 20
+# annealing_time = 1
+annealing_time = 2 ** 20
 
 pass_factor0 = 4.0
 pass_factor1 = 4.0
@@ -580,8 +580,8 @@ for i in range(1000000):
             cpu_executor=cpu_executor,
             render=False)
 
-        if num_candidates_max > 1:
-            total_ent += session.get_door_connect_entropy(num_envs // 2)
+        if temp_num_min > 0 and num_candidates_max > 1:
+            total_ent += session.get_door_connect_entropy(temp_num_min)
         # logging.info("cand_count={:.3f}".format(torch.mean(data.cand_count)))
         session.replay_buffer.insert(data)
 
