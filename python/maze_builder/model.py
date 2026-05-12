@@ -116,9 +116,9 @@ class RoomTransformerModel(torch.nn.Module):
                 hidden_width=hidden_width)
             self.ff_layers.append(ff_layer)
 
-        # self.output_key = torch.nn.Linear(embedding_width, num_outputs, bias=False)
-        # self.output_value = torch.nn.Linear(embedding_width, num_outputs, bias=False)
-        self.output_lin = torch.nn.Linear(embedding_width, num_outputs, bias=False)
+        self.output_key = torch.nn.Linear(embedding_width, num_outputs, bias=False)
+        self.output_value = torch.nn.Linear(embedding_width, num_outputs, bias=False)
+        # self.output_lin = torch.nn.Linear(embedding_width, num_outputs, bias=False)
 
 
     def get_embedding(self, room_idx, room_x, room_y, temperature, mc_dist_coef):
@@ -154,17 +154,17 @@ class RoomTransformerModel(torch.nn.Module):
                 X = self.ff_layers[i](X)
 
         X = normalize(X)
-        X = self.output_lin(X)
+        # X = self.output_lin(X)
         X = X.to(torch.float32)
-        # # TODO: do this in a more numerically stable way (could express as attention with Q=1)
-        # X = X.to(torch.float32)            
-        # out_k = self.output_key(X)
-        # out_v = self.output_value(X)
-        # out_w = torch.exp(out_k)
-        # out_numer = torch.cumsum(out_v * out_w, dim=1)
-        # out_denom = torch.cumsum(out_w, dim=1)
-        # # print("forward: X:", X.shape, X, "\nout_w:", out_w.shape, out_w, "\nout_v:", out_v.shape, out_v, "\nout_numer:", out_numer.shape, out_numer, "\nout_denom:", out_denom.shape, out_denom)
-        # out = out_numer / out_denom
+        # TODO: do this in a more numerically stable way (could express as attention with Q=1)
+        X = X.to(torch.float32)            
+        out_k = self.output_key(X)
+        out_v = self.output_value(X)
+        out_w = torch.exp(out_k)
+        out_numer = torch.cumsum(out_v * out_w, dim=1)
+        out_denom = torch.cumsum(out_w, dim=1)
+        # print("forward: X:", X.shape, X, "\nout_w:", out_w.shape, out_w, "\nout_v:", out_v.shape, out_v, "\nout_numer:", out_numer.shape, out_numer, "\nout_denom:", out_denom.shape, out_denom)
+        out = out_numer / out_denom
             
         # # rough idea: Compute output using attention with one head per output, key/value dimension 1.
         # h = self.num_outputs
@@ -176,7 +176,8 @@ class RoomTransformerModel(torch.nn.Module):
         # assert X.shape == (n, h, s, 1)
         # X = X.transpose(1, 2).view(n, s, h)
 
-        return X
+        # return X
+        return out
 
 
     def get_initial_kv_cache(self, batch_size, device):
@@ -186,14 +187,16 @@ class RoomTransformerModel(torch.nn.Module):
             g = layer.num_groups
             K_list.append(torch.zeros([batch_size, g, 0, layer.key_width], device=device))
             V_list.append(torch.zeros([batch_size, g, 0, layer.value_width], device=device))
-        return K_list, V_list
+        out_numer = torch.zeros([batch_size, self.num_outputs], device=device)
+        out_denom = torch.zeros([batch_size, self.num_outputs], device=device)
+        return K_list, V_list, out_numer, out_denom
 
 
     def get_updated_kv_cache(self, old_kv_cache, cache_candidates, action_idx):
         # old_K_list, old_V_list, old_out_numer, old_out_denom = old_kv_cache
         # cand_K_list, cand_V_list, cand_out_numer, cand_out_denom = cache_candidates
-        old_K_list, old_V_list = old_kv_cache
-        cand_K_list, cand_V_list = cache_candidates
+        old_K_list, old_V_list, old_out_numer, old_out_denom = old_kv_cache
+        cand_K_list, cand_V_list, cand_out_numer, cand_out_denom = cache_candidates
         new_K_list = []
         new_V_list = []
         for old_K, old_V, cand_K, cand_V in zip(old_K_list, old_V_list, cand_K_list, cand_V_list):
@@ -211,7 +214,9 @@ class RoomTransformerModel(torch.nn.Module):
             new_K_list.append(new_K)
             new_V_list.append(new_V)
         
-        return new_K_list, new_V_list
+        new_out_numer = cand_out_numer[batch_idx, action_idx]
+        new_out_denom = cand_out_denom[batch_idx, action_idx]
+        return new_K_list, new_V_list, new_out_numer, new_out_denom
 
 
     def generate(self, action_candidates, kv_cache, temperature, mc_dist_coef):
@@ -222,7 +227,8 @@ class RoomTransformerModel(torch.nn.Module):
         room_x = action_candidates[:, :, 1].to(torch.int64)
         room_y = action_candidates[:, :, 2].to(torch.int64)
         s = kv_cache[0][0].shape[2] if len(kv_cache) > 0 else 0  # current sequence length
-        K_list, V_list = kv_cache
+        # K_list, V_list = kv_cache
+        K_list, V_list, old_out_numer, old_out_denom = kv_cache
         K_cands = []
         V_cands = []
 
@@ -261,16 +267,17 @@ class RoomTransformerModel(torch.nn.Module):
                 X = self.ff_layers[i].forward(X)
 
             X = normalize(X)
-            X = self.output_lin(X)
+            # X = self.output_lin(X)
             X = X.to(torch.float32)
-            # out_k = self.output_key(X)
-            # out_v = self.output_value(X)
-            # out_w = torch.exp(out_k)
-            # # out_v, out_w: [n, c, out]
-            # out_numer = out_w * out_v + old_out_numer.unsqueeze(1)
-            # out_denom = out_w + old_out_denom.unsqueeze(1)
-            # # print("generate: X:", X.shape, X, "\nout_w:", out_w.shape, out_w, "\nout_v:", out_v.shape, out_v, "\nout_numer:", out_numer.shape, out_numer, "\nout_denom:", out_denom.shape, out_denom)
-            # out = out_numer / out_denom
+
+            out_k = self.output_key(X)
+            out_v = self.output_value(X)
+            out_w = torch.exp(out_k)
+            # out_v, out_w: [n, c, out]
+            out_numer = out_w * out_v + old_out_numer.unsqueeze(1)
+            out_denom = out_w + old_out_denom.unsqueeze(1)
+            # print("generate: X:", X.shape, X, "\nout_w:", out_w.shape, out_w, "\nout_v:", out_v.shape, out_v, "\nout_numer:", out_numer.shape, out_numer, "\nout_denom:", out_denom.shape, out_denom)
+            out = out_numer / out_denom
             
             # TODO: figure out how to make attention-based output work
             # out = self.num_outputs
@@ -283,11 +290,11 @@ class RoomTransformerModel(torch.nn.Module):
             # assert X.shape == (n, out, s, 1)
             # X = X.transpose(1, 2).view(n, s, out)
 
-        cache_candidates = (K_cands, V_cands)
-        return X, cache_candidates
+        # cache_candidates = (K_cands, V_cands)
+        # return X, cache_candidates
         
-        # cache_candidates = (K_cands, V_cands, out_numer, out_denom)
-        # return out, cache_candidates
+        cache_candidates = (K_cands, V_cands, out_numer, out_denom)
+        return out, cache_candidates
     
     
     def decay(self, amount: Optional[float]):
