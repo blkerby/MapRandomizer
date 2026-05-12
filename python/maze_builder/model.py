@@ -5,6 +5,10 @@ import math
 from typing import Optional, List
 from dataclasses import dataclass
 
+
+def normalize(x: torch.Tensor):
+    return F.rms_norm(x, (x.size(-1),))
+
 class GroupedQueryAttentionLayer(torch.nn.Module):
     def __init__(self, input_width, key_width, value_width, num_heads, num_groups):
         super().__init__()
@@ -28,7 +32,9 @@ class GroupedQueryAttentionLayer(torch.nn.Module):
         n = X.shape[0]  # batch dimension
         s = X.shape[1]  # sequence dimension
         Q = self.query(X).view(n, s, self.num_heads, self.key_width).transpose(1, 2)
+        Q = normalize(Q)
         K = self.key(X).view(n, s, self.num_groups, self.key_width).transpose(1, 2)
+        K = normalize(K)
         V = self.value(X).view(n, s, self.num_groups, self.value_width).transpose(1, 2)
         # A = compute_grouped_cross_attn(Q, K, V).reshape(n, s, self.num_heads * self.value_width)
 
@@ -50,10 +56,10 @@ class FeedforwardLayer(torch.nn.Module):
         super().__init__()
         self.lin1 = torch.nn.Linear(input_width, hidden_width, bias=False)
         self.lin2 = torch.nn.Linear(hidden_width, input_width, bias=False)
-        self.layer_norm = torch.nn.LayerNorm(input_width, elementwise_affine=False)
 
     def forward(self, X):
-        A = self.lin1(X)
+        A = normalize(X)
+        A = self.lin1(A)
         A = torch.nn.functional.gelu(A)
         A = self.lin2(A)
         return X + A

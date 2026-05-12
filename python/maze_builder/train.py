@@ -46,18 +46,18 @@ executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
 num_envs = 2 ** 11
-rooms = logic.rooms.crateria_isolated.rooms
-# rooms = logic.rooms.norfair_isolated.rooms
+# rooms = logic.rooms.crateria_isolated.rooms
+rooms = logic.rooms.norfair_isolated.rooms
 # rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
 
 cpu_executor = None
 
 
-map_x = 32
-map_y = 32
-# map_x = 48
-# map_y = 48
+# map_x = 32
+# map_y = 32
+map_x = 48
+map_y = 48
 # map_x = 64
 # map_y = 64
 # map_x = 72
@@ -74,18 +74,16 @@ envs = [MazeBuilderEnv(rooms,
                        num_envs=num_envs,
                        device=device,
                        must_areas_be_connected=False,
-                       starting_room_name="Landing Site")
-                       # starting_room_name="Business Center")
+                    #    starting_room_name="Landing Site")
+                       starting_room_name="Business Center")
         for device in devices]
 
-embedding_width = 256
-key_width = 32
-value_width = 32
+embedding_width = 512
+key_width = 64
+value_width = 64
 attn_heads = 16
 head_groups = 4
-hidden_width = 512
-global_embedding_width = 512
-global_hidden_width = 1024
+hidden_width = 1024
 # action_model = TransformerModel(
 state_model = RoomTransformerModel(
     rooms=envs[0].rooms,
@@ -107,16 +105,126 @@ balance_model = FeedforwardModel(
     hidden_widths=[128],
 ).to(device)
 
+print("state_model:", state_model)
 print("balance_model:", envs[0].room_left.shape[0] ** 2 + envs[0].room_up.shape[0] ** 2)
 print("doors:", envs[0].room_left.shape[0], envs[0].room_right.shape[0], envs[0].room_up.shape[0], envs[0].room_down.shape[0])
 
 # model.output_lin2.weight.data.zero_()  # TODO: this doesn't belong here, use an initializer in model.py
-state_optimizer = torch.optim.Adam(state_model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
+# state_optimizer = torch.optim.Adam(state_model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
+
+
+
+
+@torch.compile
+def zeropower_via_newtonschulz5(G, steps, eps=1e-7):
+    """
+    Newton-Schulz iteration to compute the zeroth power / orthogonalization of G. We opt to use a
+    quintic iteration whose coefficients are selected to maximize the slope at zero. For the purpose
+    of minimizing steps, it turns out to be empirically effective to keep increasing the slope at
+    zero even beyond the point where the iteration no longer converges all the way to one everywhere
+    on the interval. This iteration therefore does not produce UV^T but rather something like US'V^T
+    where S' is diagonal with S_{ii}' \\sim Uniform(0.5, 1.5), which turns out not to hurt model
+    performance at all relative to UV^T, where USV^T = G is the SVD.
+    """
+    assert len(G.shape) == 2
+    a, b, c = (3.4445, -4.7750, 2.0315)
+    X = G.bfloat16() / (G.norm() + eps)  # ensure top singular value <= 1
+    if G.size(0) > G.size(1):
+        X = X.T
+    for _ in range(steps):
+        A = X @ X.T
+        B = A @ X
+        X = a * X + b * B + c * A @ B
+    if G.size(0) > G.size(1):
+        X = X.T
+    return X.to(G.dtype)
+
+class Muon(torch.optim.Optimizer):
+    """
+    Muon: MomentUm Orthogonalized by Newton-schulz
+
+    Muon internally runs standard SGD-momentum, and then performs an orthogonalization post-
+    processing step, in which each 2D parameter's update is replaced with the nearest orthogonal
+    matrix. To efficiently orthogonalize each update, we use a Newton-Schulz iteration, which has
+    the advantage that it can be stably run in bfloat16 on the GPU.
+
+    Some warnings:
+    - This optimizer assumes that all parameters passed in are 2D.
+    - It should not be used for the embedding layer, the final fully connected layer, or any {0,1}-D
+    parameters; those should all be optimized by a standard method (e.g., AdamW).
+    - To use it with 4D convolutional filters, it works well to just flatten their last 3 dimensions.
+    - We believe it is unlikely to work well for training with small batch size.
+    - We believe it may not work well for finetuning pretrained models, but we haven't tested this.
+    - We have not yet tried this optimizer for training scenarios larger than NanoGPT (124M).
+
+    Arguments:
+        lr: The learning rate used by the internal SGD.
+        momentum: The momentum used by the internal SGD.
+        nesterov: Whether to use Nesterov-style momentum in the internal SGD. (recommended)
+        backend: The chosen backend for the orthogonalization step. (recommended: 'newtonschulz5')
+        backend_steps: The number of iteration steps to use in the backend, if it is iterative.
+    """
+
+    def __init__(self, params, lr=3e-4, momentum=0.95, nesterov=True, backend='newtonschulz5', backend_steps=5):
+        defaults = dict(lr=lr, momentum=momentum, nesterov=nesterov, backend=backend, backend_steps=backend_steps)
+        super().__init__(params, defaults)
+
+    def step(self):
+        for group in self.param_groups:
+            lr = group['lr']
+            momentum = group['momentum']
+            for p in group['params']:
+                g = p.grad
+                if g is None:
+                    continue
+                state = self.state[p]
+                if 'momentum_buffer' not in state:
+                    state['momentum_buffer'] = torch.zeros_like(g)
+                buf = state['momentum_buffer']
+                buf.mul_(momentum).add_(g)
+                if group['nesterov']:
+                    g = g.add(buf, alpha=momentum)
+                g = zeropower_via_newtonschulz5(g, steps=group['backend_steps'])
+                # scale = max(g.size(0), g.size(1)) ** 0.5  # scale to have update.square().mean() == 1
+                # p.data.add_(g, alpha=-lr * scale)
+                p.data.add_(g, alpha=-lr)
+
+learning_rate_adam = 0.0003
+learning_rate_muon = 0.003
+
+adam_param_names = set([
+ 'pos_embedding_x',
+ 'pos_embedding_y',
+ 'room_embedding',
+ 'global_lin.weight',
+ 'global_lin.bias',
+ 'output_lin.weight',
+])
+
+state_optimizer_adam = torch.optim.Adam([
+    {
+        'params': [param for name, param in state_model.named_parameters() if name in adam_param_names],
+        'lr': learning_rate_adam,
+        'betas': (0.9, 0.95),
+        'eps': 1e-15,
+        # 'weight_decay': weight_decay_head,
+    },
+])
+state_optimizer_muon = Muon([
+    {
+        'params': [param for name, param in state_model.named_parameters() if name not in adam_param_names],
+        'lr': learning_rate_muon,
+        'momentum': 0.95,
+    }
+])
+state_optimizers = [state_optimizer_adam, state_optimizer_muon]
+
+
 balance_optimizer = torch.optim.Adam(balance_model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
 session = TrainingSession(envs,
                           state_model=state_model,
                           balance_model=balance_model,
-                          state_optimizer=state_optimizer,
+                          state_optimizers=state_optimizers,
                           balance_optimizer=balance_optimizer,
                           data_path="data/{}".format(start_time.isoformat()),
                           ema_beta=0.995,
@@ -131,108 +239,6 @@ session = TrainingSession(envs,
 # # # # # logging.info("Action model: {}".format(action_model))
 
 
-
-# # Add new outputs to the model (for continued training):
-# # num_new_outputs = session.envs[0].num_missing_connects
-# num_new_outputs = 1
-# # new_pos = session.envs[0].num_missing_connects + session.envs[0].num_doors
-# session.model.global_query.data = torch.cat([
-#     # session.model.global_query.data[:new_pos, :],
-#     session.model.global_query.data,
-#     torch.randn([num_new_outputs, embedding_width], device=device) / math.sqrt(embedding_width),
-#     # session.model.global_query.data[new_pos:, :],
-# ])
-# session.model.global_value.data = torch.cat([
-#     # session.model.global_value.data[:new_pos, :],
-#     session.model.global_value.data,
-#     torch.zeros([num_new_outputs, embedding_width], device=device),
-#     # session.model.global_value.data[new_pos:, :],
-# ])
-# session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
-# session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=0.995)
-
-# # Add new global input feature to the model:
-# num_new_inputs = 1
-# session.model.global_lin.weight.data = torch.cat([
-#     session.model.global_lin.weight.data,
-#     torch.zeros([embedding_width, num_new_inputs], device=device)
-# ], dim=1)
-# session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
-# session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=0.995)
-
-
-# # Backfill new output data:
-# batch_size = 1024
-# num_batches = session.replay_buffer.capacity // batch_size
-# out_list = []
-# session.envs[0].init_toilet_data()
-# session.envs[1].init_toilet_data()
-# for i in range(num_batches):
-#     if i % 100 == 0:
-#         print("{}/{}".format(i, num_batches))
-#     batch_start = i * batch_size
-#     batch_end = (i + 1) * batch_size
-#     batch_action = session.replay_buffer.episode_data.action[batch_start:batch_end]
-#     num_rooms = len(envs[0].rooms)
-#     step_indices = torch.tensor([num_rooms])
-#     room_mask, room_position_x, room_position_y = reconstruct_room_data(batch_action, step_indices, num_rooms)
-#     with torch.no_grad():
-#         # A = session.envs[0].compute_part_adjacency_matrix(room_mask.to(device), room_position_x.to(device), room_position_y.to(device))
-#         # D = session.envs[0].compute_distance_matrix(A)
-#         # S = session.envs[0].compute_save_distances(D)
-#         # graph_diameter = session.envs[0].compute_graph_diameter(D)
-#         # out = session.envs[0].compute_mc_distances(D)
-#         out = session.envs[0].compute_toilet_good(room_mask.to(device), room_position_x.to(device), room_position_y.to(device))
-#         out_list.append(out)
-# # save_distances = torch.cat(save_distances_list, dim=0)
-# # graph_diameter = torch.cat(graph_diameter_list, dim=0)
-# out = torch.cat(out_list, dim=0)
-# # session.replay_buffer.episode_data.save_distances = save_distances.to('cpu')
-# # session.replay_buffer.episode_data.graph_diameter = graph_diameter.to('cpu')
-# # session.replay_buffer.episode_data.mc_distances = out.to('cpu')
-# # session.replay_buffer.episode_data.mc_dist_coef = torch.zeros([session.replay_buffer.capacity])
-# session.replay_buffer.episode_data.toilet_good = out.to('cpu')
-# # ind = torch.nonzero(session.replay_buffer.episode_data.reward == 0)
-
-
-
-
-# Add new Transformer layers
-# new_layer_idxs = list(range(1, len(session.state_model.attn_layers) + 1))
-# logging.info("Inserting new layers at positions {}".format(new_layer_idxs))
-# for i in reversed(new_layer_idxs):
-#     attn_layer = GroupedQueryAttentionLayer(
-#         input_width=embedding_width,
-#         key_width=key_width,
-#         value_width=value_width,
-#         num_heads=attn_heads,
-#         num_groups=head_groups,
-#         dropout=0.0).to(device)
-#     attn_layer.post.weight.data.zero_()
-#     session.state_model.attn_layers.insert(i, attn_layer)
-#     ff_layer = FeedforwardLayer(
-#         input_width=embedding_width,
-#         hidden_width=hidden_width,
-#         arity=1,
-#         dropout=0.0).to(device)
-#     ff_layer.lin2.weight.data.zero_()
-#     session.state_model.ff_layers.insert(i, ff_layer)
-#     # global_ff_layer = FeedforwardLayer(
-#     #     input_width=global_embedding_width,
-#     #     hidden_width=global_hidden_width,
-#     #     arity=1,
-#     #     dropout=0.0).to(device)
-#     # session.action_model.action_ff_layers.insert(i, global_ff_layer)
-#
-
-# # Set up direct attention layer for output
-# session.state_model.global_query = torch.nn.Parameter(
-#     torch.randn([session.state_model.num_outputs, session.state_model.embedding_width], device=device) / math.sqrt(embedding_width))
-# session.state_model.global_value = torch.nn.Parameter(torch.zeros([session.state_model.num_outputs, session.state_model.embedding_width], device=device))
-#
-# session.state_optimizer = torch.optim.Adam(session.state_model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
-# session.average_parameters = ExponentialAverage(session.state_model.all_param_data(), beta=0.995)
-
 num_state_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.state_model.parameters())
 num_balance_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.balance_model.parameters())
 # session.replay_buffer.resize(2 ** 23)
@@ -242,15 +248,15 @@ num_balance_params = sum(torch.prod(torch.tensor(list(param.shape))) for param i
 hist_frac = 1.0
 hist_c = 4.0
 hist_max = 2 ** 23
-batch_size = 2 ** 8
+batch_size = 2 ** 9
 state_lr0 = 0.0005
 state_lr1 = 0.0003
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
 num_candidates_min0 = 0.5
 num_candidates_max0 = 1.5
-num_candidates_min1 = 31.5
-num_candidates_max1 = 32.5
+num_candidates_min1 = 63.5
+num_candidates_max1 = 64.5
 # num_candidates_min1 = 0.5
 # num_candidates_max1 = 1.5
 
@@ -261,30 +267,30 @@ state_weight = 0.0
 explore_eps_factor = 0.0
 # temperature_min = 0.02
 # temperature_max = 2.0
-save_loss_weight = 0.00001
-save_dist_coef = 0.002
+save_loss_weight = 0.000001
+save_dist_coef = 0.0002
 # save_dist_coef = 0.0
 
 mc_dist_weight = 0.002
 mc_dist_coef_tame = 0.2
 mc_dist_coef_wild = 0.0
 
-toilet_weight = 0.01
+toilet_weight = 0.001
 toilet_good_coef = 1.0
 
-graph_diam_weight = 0.00002
+graph_diam_weight = 0.0002
 graph_diam_coef = 0.2
 # graph_diam_coef = 0.0
 
 balance_coef0 = 0.20
 balance_coef1 = balance_coef0
-balance_weight = 20.0
+balance_weight = 2.0
 
 # door_connect_bound = 0.0
 # door_connect_alpha = 1e-15
 
-temperature_min0 = 10.0
-temperature_max0 = 100.0
+temperature_min0 = 1.0
+temperature_max0 = 10.0
 temperature_min1 = 0.03
 temperature_max1 = 10.0
 # temperature_min0 = 0.01
@@ -293,15 +299,16 @@ temperature_max1 = 10.0
 # temperature_max1 = 10.0
 # temperature_frac_min0 = 0.0
 # temperature_frac_min1 = 0.0
-temperature_frac_min0 = 0.5
-temperature_frac_min1 = 0.5
+temperature_frac_min0 = 0.0
+temperature_frac_min1 = 0.0
 temperature_decay = 1.0
 
 annealing_start = 0
-annealing_time = 2 ** 20
+annealing_time = 1
+# annealing_time = 2 ** 20
 
-pass_factor0 = 1.0
-pass_factor1 = 16.0
+pass_factor0 = 4.0
+pass_factor1 = 4.0
 print_freq = 4
 total_state_losses = None
 total_action_losses = None
@@ -328,8 +335,8 @@ save_freq = 1024
 summary_freq = 256
 session.decay_amount = 0.01
 # session.decay_amount = 0.2
-session.state_optimizer.param_groups[0]['betas'] = (0.95, 0.95)
-session.state_optimizer.param_groups[0]['eps'] = 1e-5
+# session.state_optimizer.param_groups[0]['betas'] = (0.95, 0.95)
+# session.state_optimizer.param_groups[0]['eps'] = 1e-5
 session.balance_optimizer.param_groups[0]['betas'] = (0.95, 0.95)
 session.balance_optimizer.param_groups[0]['eps'] = 1e-5
 session.balance_optimizer.param_groups[0]['lr'] = 0.0001
@@ -342,6 +349,11 @@ session.average_parameters.beta = 1 - state_ema_alpha0
 # layer_norm_param_decay = 0.9998
 # layer_norm_param_decay = 0.999
 # old_out_param_decay = 0.0
+
+
+
+
+
 
 def compute_door_connect_counts(episode_data, only_success: bool, ind=None):
     batch_size = 1024
@@ -504,7 +516,7 @@ def update_losses(total_losses, losses):
 
 min_door_value = float('inf')
 torch.set_printoptions(linewidth=120, threshold=10000)
-logging.info(session.state_optimizer)
+logging.info(session.state_optimizers)
 logging.info(session.balance_optimizer)
 logging.info("State model: {}".format(session.state_model))
 logging.info("Checkpoint path: {}".format(pickle_name))
@@ -521,8 +533,9 @@ for i in range(1000000):
     frac = max(0.0, min(1.0, (session.replay_buffer.num_episodes - annealing_start) / annealing_time))
     num_candidates_min = num_candidates_min0 * (num_candidates_min1 / num_candidates_min0) ** frac
     num_candidates_max = num_candidates_max0 * (num_candidates_max1 / num_candidates_max0) ** frac
-    state_lr = state_lr0 * (state_lr1 / state_lr0) ** frac
-    session.state_optimizer.param_groups[0]['lr'] = state_lr
+    # state_lr = state_lr0 * (state_lr1 / state_lr0) ** frac
+    # session.state_optimizer.param_groups[0]['lr'] = state_lr
+
     # state_ema_beta = state_ema_beta0 * (state_ema_beta1 / state_ema_beta0) ** frac
     # session.state_average_parameters.beta = state_ema_beta
     state_ema_alpha = state_ema_alpha0 * (state_ema_alpha1 / state_ema_alpha0) ** frac
@@ -567,8 +580,8 @@ for i in range(1000000):
             cpu_executor=cpu_executor,
             render=False)
 
-        if temp_num_min > 0 and num_candidates_max > 1:
-            total_ent += session.get_door_connect_entropy(temp_num_min)
+        if num_candidates_max > 1:
+            total_ent += session.get_door_connect_entropy(num_envs // 2)
         # logging.info("cand_count={:.3f}".format(torch.mean(data.cand_count)))
         session.replay_buffer.insert(data)
 

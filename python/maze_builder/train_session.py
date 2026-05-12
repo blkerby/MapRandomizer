@@ -63,7 +63,7 @@ class TrainingSession():
     def __init__(self, envs: List[MazeBuilderEnv],
                  state_model: RoomTransformerModel,
                  balance_model: torch.nn.Module,
-                 state_optimizer: torch.optim.Optimizer,
+                 state_optimizers: List[torch.optim.Optimizer],
                  balance_optimizer: torch.optim.Optimizer,
                  data_path: str,
                  ema_beta: float,
@@ -73,7 +73,7 @@ class TrainingSession():
         self.envs = envs
         self.state_model = state_model
         self.balance_model = balance_model
-        self.state_optimizer = state_optimizer
+        self.state_optimizers = state_optimizers
         self.balance_optimizer = balance_optimizer
         self.average_parameters = ExponentialAverage(state_model.all_param_data(), beta=ema_beta)
         self.balance_average_parameters = ExponentialAverage(balance_model.parameters(), beta=ema_beta)
@@ -487,11 +487,11 @@ class TrainingSession():
                        torch.nn.functional.binary_cross_entropy_with_logits(balance_data0.unsqueeze(1).expand(-1, s, -1), 
                                                                             balance_data0_probs.unsqueeze(1).expand(-1, s, -1),
                                                                             reduction='none')
-        balance_loss = torch.mean(balance_loss * mask.unsqueeze(2))
+        balance_loss = torch.mean(balance_loss * mask.unsqueeze(2)) * balance_weight
 
         toilet_good = data.toilet_good.to(raw_preds.dtype).unsqueeze(1).expand(-1, s)
         toilet_loss = torch.nn.functional.binary_cross_entropy_with_logits(preds.toilet_good, toilet_good, reduction='none')
-        toilet_loss = torch.mean(toilet_loss * mask)
+        toilet_loss = torch.mean(toilet_loss * mask) * toilet_weight
 
         save_distances = data.save_distances.to(raw_preds.dtype).unsqueeze(1).expand(-1, s, -1)
         save_dist_mask = (data.save_distances != 255).unsqueeze(1).expand(-1, s, -1)
@@ -499,19 +499,19 @@ class TrainingSession():
             torch.where(save_dist_mask,
                         (torch.square(preds.save_dist) - torch.square(save_distances)) ** 2,
                         torch.zeros_like(preds.save_dist))
-        save_dist_loss = torch.mean(save_dist_loss * mask.unsqueeze(2))
+        save_dist_loss = torch.mean(save_dist_loss * mask.unsqueeze(2)) * save_dist_weight
 
         graph_diameter = data.graph_diameter.to(raw_preds.dtype).unsqueeze(1).expand(-1, s)
         graph_diam_loss = (preds.graph_diam - graph_diameter) ** 2
-        graph_diam_loss = torch.mean(graph_diam_loss * mask)
+        graph_diam_loss = torch.mean(graph_diam_loss * mask) * graph_diam_weight
 
         mc_distances = data.mc_distances.to(raw_preds.dtype).unsqueeze(1).expand(-1, s, -1)
         mc_dist_mask = (data.mc_distances != 255).unsqueeze(1).expand(-1, s, -1)
         mc_dist_loss = torch.where(mc_dist_mask, (preds.mc_dist - mc_distances) ** 2,
                                               torch.zeros_like(preds.mc_dist))
-        mc_dist_loss = torch.mean(mc_dist_loss * mask.unsqueeze(2))
+        mc_dist_loss = torch.mean(mc_dist_loss * mask.unsqueeze(2)) * mc_dist_weight
 
-        loss = binary_loss + balance_loss * balance_weight + save_dist_loss * save_dist_weight + graph_diam_loss * graph_diam_weight + mc_dist_loss * mc_dist_weight + toilet_loss * toilet_weight
+        loss = binary_loss + balance_loss + save_dist_loss + graph_diam_loss + mc_dist_loss + toilet_loss
         return loss, binary_loss.item(), balance_loss.item(), save_dist_loss.item(), graph_diam_loss.item(), mc_dist_loss.item(), toilet_loss.item()
 
 
@@ -576,11 +576,13 @@ class TrainingSession():
                                                  graph_diam_weight,
                                                  mc_dist_weight, toilet_weight)
 
-        self.state_optimizer.zero_grad()
+        self.state_model.zero_grad()
         self.state_grad_scaler.scale(state_losses[0]).backward()
-        self.state_grad_scaler.step(self.state_optimizer)
+
+        for optimizer in self.state_optimizers:
+            self.state_grad_scaler.step(optimizer)
         self.state_grad_scaler.update()
-        self.state_model.decay(self.decay_amount * self.state_optimizer.param_groups[0]['lr'])
+        self.state_model.decay(self.decay_amount * self.state_optimizers[0].param_groups[0]['lr'])
         self.state_model.project()
         self.average_parameters.update(self.state_model.all_param_data())
 
