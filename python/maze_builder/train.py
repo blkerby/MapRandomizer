@@ -267,24 +267,32 @@ state_weight = 0.0
 explore_eps_factor = 0.0
 # temperature_min = 0.02
 # temperature_max = 2.0
-save_loss_weight = 0.000001
-save_dist_coef = 0.0002
-# save_dist_coef = 0.0
+# save_loss_weight = 0.000001
+save_loss_weight = 0.0
+# save_dist_coef = 0.0002
+save_dist_coef = 0.0
 
-mc_dist_weight = 0.002
-mc_dist_coef_tame = 0.2
+# mc_dist_weight = 0.002
+mc_dist_weight = 0.0
+# mc_dist_coef_tame = 0.2
+mc_dist_coef_tame = 0.0
 mc_dist_coef_wild = 0.0
 
-toilet_weight = 0.001
-toilet_good_coef = 1.0
+# toilet_weight = 0.001
+toilet_weight = 0.0
+# toilet_good_coef = 1.0
+toilet_good_coef = 0.0
 
-graph_diam_weight = 0.0002
-graph_diam_coef = 0.2
-# graph_diam_coef = 0.0
+graph_diam_weight = 0.0
+# graph_diam_weight = 0.0002
+# graph_diam_coef = 0.2
+graph_diam_coef = 0.0
 
-balance_coef0 = 0.20
+balance_coef0 = 0.0
+# balance_coef0 = 0.20
 balance_coef1 = balance_coef0
-balance_weight = 2.0
+# balance_weight = 2.0
+balance_weight = 0.0
 
 # door_connect_bound = 0.0
 # door_connect_alpha = 1e-15
