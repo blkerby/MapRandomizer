@@ -208,8 +208,8 @@ class TrainingSession():
 
         # Multiplying by temperature here partly cancels out the divison by temperature in the caller:
         # Unlike other score components, we want the balance penalties not to scale as much with temperature.
-        # balance_cost = torch.sum(torch.clamp(preds.door_balance, min=-10.0, max=10.0), dim=1) * torch.sqrt(temperature_valid)
-        balance_cost = torch.sum(torch.clamp(preds.door_balance, min=-10.0, max=10.0), dim=2)
+        balance_cost = torch.sum(torch.clamp(preds.door_balance, min=-10.0, max=10.0), dim=2) * torch.sqrt(temperature).unsqueeze(1)
+        # balance_cost = torch.sum(torch.clamp(preds.door_balance, min=-10.0, max=10.0), dim=2)
 
         # save_dist_cost = torch.sum(preds.save_dist, dim=1)
         save_dist_cost = torch.sum(torch.square(preds.save_dist), dim=2)

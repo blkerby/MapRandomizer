@@ -71,10 +71,11 @@ class FeedforwardModel(torch.nn.Module):
         self.ff_layers = torch.nn.ModuleList()
         prev_width = input_width
         for width in hidden_widths:
-            self.ff_layers.append(torch.nn.Linear(prev_width, width, bias=False))
+            self.ff_layers.append(torch.nn.Linear(prev_width, width))
             prev_width = width
         self.output_layer = torch.nn.Linear(prev_width, output_width)
         self.output_layer.weight.data.zero_()
+        self.output_layer.bias.data.zero_()
 
     def forward(self, X):
         for layer in self.ff_layers:

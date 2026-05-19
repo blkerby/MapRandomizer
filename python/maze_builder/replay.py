@@ -67,7 +67,8 @@ class ReplayBuffer:
     def sample(self, batch_size, num_batches, hist_frac, hist_c, hist_max, env) -> List[EpisodeData]:
         device = env.device
         n = batch_size * num_batches
-        num_files = n // self.episodes_per_file
+        # num_files = n // self.episodes_per_file
+        num_files = max(0, n // self.episodes_per_file - 1)
 
         # if num_files > self.num_files:
         #     num_files = self.num_files
@@ -77,7 +78,10 @@ class ReplayBuffer:
         t = torch.pow(torch.rand([num_files]), 1 / (1 + hist_c)) * hist_frac + (1 - hist_frac)
         # file_num_list = torch.randint(int((1 - hist_frac) * self.num_files), self.num_files, [num_files]).tolist()
         file_num_list = torch.floor(t * self.num_files).to(torch.int64).clamp_max(self.num_files - 1).tolist()
-
+        
+        # Always include the most recent file, so that we train immediately on the most recent data
+        file_num_list = [self.num_files - 1] + file_num_list
+    
         data, _ = self.read_files(file_num_list)
         batch_list = []
         for i in range(num_batches):

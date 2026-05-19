@@ -45,10 +45,10 @@ device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
-num_envs = 2 ** 11
+num_envs = 2 ** 9
 # rooms = logic.rooms.crateria_isolated.rooms
-rooms = logic.rooms.norfair_isolated.rooms
-# rooms = logic.rooms.all_rooms.rooms
+# rooms = logic.rooms.norfair_isolated.rooms
+rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
 
 cpu_executor = None
@@ -56,12 +56,12 @@ cpu_executor = None
 
 # map_x = 32
 # map_y = 32
-map_x = 48
-map_y = 48
+# map_x = 48
+# map_y = 48
 # map_x = 64
 # map_y = 64
-# map_x = 72
-# map_y = 72
+map_x = 72
+map_y = 72
 
 env_config = EnvConfig(
     rooms=rooms,
@@ -74,16 +74,17 @@ envs = [MazeBuilderEnv(rooms,
                        num_envs=num_envs,
                        device=device,
                        must_areas_be_connected=False,
-                    #    starting_room_name="Landing Site")
-                       starting_room_name="Business Center")
+                       starting_room_name="Landing Site")
+                    #    starting_room_name="Business Center")
         for device in devices]
 
-embedding_width = 512
-key_width = 64
-value_width = 64
+embedding_width = 2048
+key_width = 128
+value_width = 128
 attn_heads = 16
 head_groups = 4
-hidden_width = 1024
+hidden_width = 8192
+num_layers = 4
 # action_model = TransformerModel(
 state_model = RoomTransformerModel(
     rooms=envs[0].rooms,
@@ -96,7 +97,7 @@ state_model = RoomTransformerModel(
     attn_heads=attn_heads,
     head_groups=head_groups,
     hidden_width=hidden_width,
-    num_layers=4,
+    num_layers=num_layers,
 ).to(device)
 
 balance_model = FeedforwardModel(
@@ -189,8 +190,10 @@ class Muon(torch.optim.Optimizer):
                 # p.data.add_(g, alpha=-lr * scale)
                 p.data.add_(g, alpha=-lr)
 
-learning_rate_adam = 0.0003
-learning_rate_muon = 0.003
+# learning_rate_adam = 0.0002
+# learning_rate_muon = 0.002
+learning_rate_adam = 0.0002
+learning_rate_muon = 0.002
 
 adam_param_names = set([
  'pos_embedding_x',
@@ -220,7 +223,7 @@ state_optimizer_muon = Muon([
 state_optimizers = [state_optimizer_adam, state_optimizer_muon]
 
 
-balance_optimizer = torch.optim.Adam(balance_model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
+balance_optimizer = torch.optim.Adam(balance_model.parameters(), lr=0.0005, betas=(0.9, 0.9), eps=1e-5)
 session = TrainingSession(envs,
                           state_model=state_model,
                           balance_model=balance_model,
@@ -232,10 +235,11 @@ session = TrainingSession(envs,
                           decay_amount=0.0)
 
 # pickle_name = 'models/session-2024-09-18T05:56:26.276400.pkl'
-# # session = pickle.load(open(pickle_name, 'rb'))
+# pickle_name = 'models/session-2026-05-15T18:48:41.705171.pkl'
+# session = pickle.load(open(pickle_name, 'rb'))
 # session = pickle.load(open(pickle_name + '-bk95', 'rb'))
-# session.envs = envs
-# session.replay_buffer.episodes_per_file = num_envs * num_devices
+session.envs = envs
+session.replay_buffer.episodes_per_file = num_envs * num_devices
 # # # # # logging.info("Action model: {}".format(action_model))
 
 
@@ -248,15 +252,15 @@ num_balance_params = sum(torch.prod(torch.tensor(list(param.shape))) for param i
 hist_frac = 1.0
 hist_c = 4.0
 hist_max = 2 ** 23
-batch_size = 2 ** 9
-state_lr0 = 0.0005
-state_lr1 = 0.0003
+batch_size = 2 ** 7
+# state_lr0 = 0.0005
+# state_lr1 = 0.0003
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
-num_candidates_min0 = 0.5
-num_candidates_max0 = 1.5
-num_candidates_min1 = 63.5
-num_candidates_max1 = 64.5
+num_candidates_min0 = 3.5
+num_candidates_max0 = 4.5
+num_candidates_min1 = 127.5
+num_candidates_max1 = 128.5
 # num_candidates_min1 = 0.5
 # num_candidates_max1 = 1.5
 
@@ -268,39 +272,35 @@ explore_eps_factor = 0.0
 # temperature_min = 0.02
 # temperature_max = 2.0
 # save_loss_weight = 0.000001
-save_loss_weight = 0.0
+save_loss_weight = 0.000001
 # save_dist_coef = 0.0002
-save_dist_coef = 0.0
+save_dist_coef = 0.0005
 
-# mc_dist_weight = 0.002
-mc_dist_weight = 0.0
-# mc_dist_coef_tame = 0.2
-mc_dist_coef_tame = 0.0
+mc_dist_weight = 0.001
+mc_dist_coef_tame = 0.2
 mc_dist_coef_wild = 0.0
 
-# toilet_weight = 0.001
-toilet_weight = 0.0
-# toilet_good_coef = 1.0
-toilet_good_coef = 0.0
+toilet_weight = 0.01
+# toilet_weight = 0.0
+toilet_good_coef = 1.0
+# toilet_good_coef = 0.0
 
-graph_diam_weight = 0.0
-# graph_diam_weight = 0.0002
-# graph_diam_coef = 0.2
-graph_diam_coef = 0.0
+graph_diam_weight = 1e-5
+graph_diam_coef = 0.05
 
-balance_coef0 = 0.0
+balance_coef0 = 0.2
 # balance_coef0 = 0.20
 balance_coef1 = balance_coef0
-# balance_weight = 2.0
-balance_weight = 0.0
+balance_weight = 5.0
+# balance_weight = 0.0
 
 # door_connect_bound = 0.0
 # door_connect_alpha = 1e-15
 
-temperature_min0 = 1.0
-temperature_max0 = 10.0
+temperature_min0 = 5.0
+temperature_max0 = 50.0
 temperature_min1 = 0.03
-temperature_max1 = 1.0
+temperature_max1 = 0.3
 # temperature_min0 = 0.01
 # temperature_max0 = 10.0
 # temperature_min1 = 0.01
@@ -313,9 +313,9 @@ temperature_decay = 1.0
 
 annealing_start = 0
 # annealing_time = 1
-annealing_time = 2 ** 20
+annealing_time = 2 ** 24
 
-pass_factor0 = 4.0
+pass_factor0 = 2.0
 pass_factor1 = 4.0
 print_freq = 4
 total_state_losses = None
@@ -339,15 +339,16 @@ total_graph_diameter = 0.0
 total_mc_distances = 0.0
 total_toilet_good = 0.0
 total_cycle_cost = 0.0
-save_freq = 1024
-summary_freq = 256
+save_freq = 2**17 // (num_envs * num_devices)
+summary_freq = 2**17 // (num_envs * num_devices)
+summary_size = 2**21 // (num_envs * num_devices)
 session.decay_amount = 0.01
 # session.decay_amount = 0.2
 # session.state_optimizer.param_groups[0]['betas'] = (0.95, 0.95)
 # session.state_optimizer.param_groups[0]['eps'] = 1e-5
 session.balance_optimizer.param_groups[0]['betas'] = (0.95, 0.95)
 session.balance_optimizer.param_groups[0]['eps'] = 1e-5
-session.balance_optimizer.param_groups[0]['lr'] = 0.0001
+session.balance_optimizer.param_groups[0]['lr'] = 0.001
 state_ema_alpha0 = 0.2
 state_ema_alpha1 = 0.001
 # state_ema_alpha0 = 1.0
@@ -529,8 +530,8 @@ logging.info(session.balance_optimizer)
 logging.info("State model: {}".format(session.state_model))
 logging.info("Checkpoint path: {}".format(pickle_name))
 logging.info(
-    "num_rooms={}, map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, hist_frac={}, hist_c={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, num_params_state={}, num_params_balance={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, explore_eps_factor={}, annealing_time={}, state_weight={}, save_loss_weight={}, save_dist_coef={}, graph_diam_weight={}, graph_diam_coef={}, mc_dist_weight={}, mc_dist_coef_tame={}, mc_dist_coef_wild={}, balance_coef0={}, balance_coef1={}, balance_weight={}".format(
-        len(rooms), session.state_model.map_x, session.state_model.map_y, session.envs[0].num_envs, batch_size, pass_factor0, pass_factor1, hist_frac, hist_c, state_lr0, state_lr1, num_candidates_min0, num_candidates_max0, num_candidates_min1, num_candidates_max1,
+    "num_rooms={}, map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, hist_frac={}, hist_c={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, num_params_state={}, num_params_balance={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, explore_eps_factor={}, annealing_time={}, state_weight={}, save_loss_weight={}, save_dist_coef={}, graph_diam_weight={}, graph_diam_coef={}, mc_dist_weight={}, mc_dist_coef_tame={}, mc_dist_coef_wild={}, balance_coef0={}, balance_coef1={}, balance_weight={}".format(
+        len(rooms), session.state_model.map_x, session.state_model.map_y, session.envs[0].num_envs, batch_size, pass_factor0, pass_factor1, hist_frac, hist_c, num_candidates_min0, num_candidates_max0, num_candidates_min1, num_candidates_max1,
         num_state_params, num_balance_params, session.decay_amount,
         temperature_min0, temperature_min1, temperature_max0, temperature_max1, temperature_decay, explore_eps_factor,
         annealing_time, state_weight, save_loss_weight, save_dist_coef, graph_diam_weight, graph_diam_coef,
@@ -827,7 +828,7 @@ for i in range(1000000):
             # display_counts(counts1, 10, False)
             # display_counts(counts, 10, True)
 
-        last_file_num = max(0, session.replay_buffer.num_files - 64 * summary_freq)
+        last_file_num = max(0, session.replay_buffer.num_files - summary_size)
         file_num_list = list(range(last_file_num, session.replay_buffer.num_files))
         episode_data, _ = session.replay_buffer.read_files(file_num_list)
 
