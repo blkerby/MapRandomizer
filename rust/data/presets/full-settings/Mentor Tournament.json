@@ -4710,11 +4710,11 @@
         "acid_chozo": true,
         "remove_climb_lava": true,
         "crash_fixes": {
-            "preset": "Death",
-            "spring_ball": "Death",
-            "yapping_maw": "Death",
-            "auto_reserve": "Death",
-            "x_mode": "Death",
+            "preset": "Warn",
+            "spring_ball": "Warn",
+            "yapping_maw": "Warn",
+            "auto_reserve": "Warn",
+            "x_mode": "Warn",
             "sprite_overflow": "Silent"
         },
         "fix_blue_echoes": true,
