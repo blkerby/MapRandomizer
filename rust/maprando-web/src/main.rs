@@ -437,7 +437,6 @@ struct SeedData {
     item_progression_preset: Option<String>,
     difficulty: DifficultyConfig,
     quality_of_life_preset: Option<String>,
-    map_station_activation_preset: Option<String>,
     supers_double: bool,
     escape_autosave: bool,
     mother_brain_fight: String,
@@ -720,11 +719,6 @@ async fn randomize(
         race_mode: settings.other_settings.race_mode,
         preset: settings.skill_assumption_settings.preset.clone(),
         item_progression_preset: settings.item_progression_settings.preset.clone(),
-        map_station_activation_preset: settings
-            .quality_of_life_settings
-            .map_station_activation_settings
-            .preset
-            .map(|p| format!("{:?}", p)),
         difficulty: output.difficulty_tiers[0].clone(),
         quality_of_life_preset: settings.quality_of_life_settings.preset.clone(),
         supers_double: settings.quality_of_life_settings.supers_double,

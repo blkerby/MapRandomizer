@@ -183,6 +183,7 @@ function buildInitialMapRevealSettings(formData) {
         "refill_stations": formData.get("initial_map_reveal_refills"),
         "ship": formData.get("initial_map_reveal_ship"),
         "objectives": formData.get("initial_map_reveal_objectives"),
+        "refill_stations": formData.get("initial_map_reveal_refills"),
         "area_transitions": formData.get("initial_map_reveal_area_transitions"),
         "items1": formData.get("initial_map_reveal_items1"),
         "items2": formData.get("initial_map_reveal_items2"),
@@ -190,23 +191,6 @@ function buildInitialMapRevealSettings(formData) {
         "items4": formData.get("initial_map_reveal_items4"),
         "other": formData.get("initial_map_reveal_other"),
         "all_areas": formData.get("initial_map_reveal_all_areas") == "true",
-    }
-}
-
-function buildMapStationActivationSettings(formData) {
-    return {
-        "preset": formData.get("map_station_reveal"),
-        "save_stations": formData.get("map_station_activation_saves"),
-        "refill_stations": formData.get("map_station_activation_refills"),
-        "ship": formData.get("map_station_activation_ship"),
-        "objectives": formData.get("map_station_activation_objectives"),
-        "area_transitions": formData.get("map_station_activation_transitions"),
-        "items1": formData.get("map_station_activation_tier1"),
-        "items2": formData.get("map_station_activation_tier2"),
-        "items3": formData.get("map_station_activation_tier3"),
-        "items4": formData.get("map_station_activation_tier4"),
-        "other": formData.get("map_station_activation_other"),
-        "sub_area": formData.get("map_station_activation_sub_area"),
     }
 }
 
@@ -292,7 +276,6 @@ function buildSettingsObject() {
         "quality_of_life_settings": {
             "preset": formData.get("quality_of_life_preset"),
             "enhanced_map_settings": buildEnhancedMapSettings(formData),
-            "map_station_activation_settings": buildMapStationActivationSettings(formData),
             "initial_map_reveal_settings": buildInitialMapRevealSettings(formData),
             "item_markers": formData.get("item_markers"),
             "room_outline_revealed": formData.get("room_outline_revealed") == "true",
@@ -539,22 +522,6 @@ function applyInitialMapRevealSettings(imrSettings) {
     processInitialMapRevealPreset();
 }
 
-function applyMapStationActivationSettings(msaSettings) {
-    applyRadioValue("mapStationActivationSaves", msaSettings.save_stations);
-    applyRadioValue("mapStationActivationRefills", msaSettings.refill_stations);
-    applyRadioValue("mapStationActivationShip", msaSettings.ship);
-    applyRadioValue("mapStationActivationObjectives", msaSettings.objectives);
-    applyRadioValue("mapStationActivationTransitions", msaSettings.area_transitions);
-    applyRadioValue("mapStationActivationTier1", msaSettings.items1);
-    applyRadioValue("mapStationActivationTier2", msaSettings.items2);
-    applyRadioValue("mapStationActivationTier3", msaSettings.items3);
-    applyRadioValue("mapStationActivationTier4", msaSettings.items4);
-    applyRadioValue("mapStationActivationOther", msaSettings.other);
-    applyRadioValue("mapStationActivationSubArea", msaSettings.sub_area);
-    applyRadioValue("mapStationActivationPreset", msaSettings.preset);
-    processMapStationActivationPreset();
-}
-
 function applyEnhancedMapSettings(emSettings) {
     applyRadioValue("enhancedMapBlueDoors", emSettings.blue_doors);
     applyRadioValue("enhancedMapGrayDoors", emSettings.gray_doors);
@@ -585,7 +552,6 @@ function applyQolPreset(preset) {
     }
 
     applyInitialMapRevealSettings(preset.initial_map_reveal_settings);
-    applyMapStationActivationSettings(preset.map_station_activation_settings);
     applyEnhancedMapSettings(preset.enhanced_map_settings);
     applyRadioValue("itemMarkers", preset.item_markers);
     applyRadioValue("roomOutlineRevealed", preset.room_outline_revealed);
@@ -680,6 +646,7 @@ function applyFullSettingsPreset(preset) {
     applyRadioValue("wallJump", other.wall_jump);
     applyAreaAssignment(other.area_assignment);
     applyRadioValue("doorLocksSize", other.door_locks_size);
+    applyRadioValue("mapStationReveal", other.map_station_reveal);
     applyRadioValue("energyFreeShinesparks", other.energy_free_shinesparks);
     applyRadioValue("allEnemiesRespawn", other.all_enemies_respawn);
     applyRadioValue("disableSpikesuit", other.disable_spikesuit);
@@ -939,43 +906,6 @@ function crashFixesChanged() {
     document.getElementById("crashFixesPresetSilent").checked = false;
     document.getElementById("crashFixesPresetCrash").checked = false;
     qualityOfLifeSettingChanged();
-}
-
-function mapStationActivationPresetChanged() {
-    processMapStationActivationPreset();
-    qualityOfLifeSettingChanged();
-}
-
-function processMapStationActivationPreset() {
-    let tileTypes = [
-        "Saves",
-        "Refills",
-        "Ship",
-        "Objectives",
-        "Transitions",
-        "Tier1",
-        "Tier2",
-        "Tier3",
-        "Tier4",
-        "Other"
-    ]
-    if (document.getElementById("mapStationActivationPresetPartial").checked) {
-        for (t of tileTypes) {
-            document.getElementById(`mapStationActivation${t}Partial`).checked = true;
-        }
-        document.getElementById("mapStationActivationSubAreaSame").checked = true;
-    } else if (document.getElementById("mapStationActivationPresetFull").checked) { 
-        for (t of tileTypes) {
-            document.getElementById(`mapStationActivation${t}Full`).checked = true;
-        }
-        document.getElementById("mapStationActivationSubAreaSame").checked = true;
-    } 
-}
-
-function mapStationActivationSettingChanged() {
-    document.getElementById("mapStationActivationPresetPartial").checked = false;
-    document.getElementById("mapStationActivationPresetFull").checked = false;
-    mapStationActivationPresetChanged();
 }
 
 function processInitialMapRevealPreset() {
@@ -1416,6 +1346,7 @@ function checkOtherOptions() {
         document.getElementById("speedBoosterSplit").checked ||
         !document.getElementById("areaAssignmentPresetStandard").checked ||
         document.getElementById("doorLocksSizeSmall").checked ||
+        document.getElementById("mapStationRevealPartial").checked ||
         document.getElementById("raceModeYes").checked) 
     {
         document.getElementById("collapseGameVariations").classList.remove("collapse");

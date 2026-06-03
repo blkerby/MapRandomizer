@@ -79,28 +79,6 @@
                                 <div class="form-group row my-3">
                                     <div class="col-lg-5 ml-0 my-1 align-items-center">
                                         <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
-                                            data-bs-target="#mapStationActivationHelpModal">
-                                            <i class="bi bi-question-circle"></i>
-                                        </button>
-                                        <label for="map_station_reveal">Map station activation reveal</label>
-                                    </div>
-                                    <div id="mapStationActivationPreset" class="col-lg-3 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="map_station_reveal" id="mapStationActivationPresetPartial"
-                                            value="Partial" onchange="mapStationActivationPresetChanged()">
-                                        <label class="btn btn-outline-primary" for="mapStationActivationPresetPartial">Partial</label>
-                                        <input type="radio" class="btn-check" name="map_station_reveal" id="mapStationActivationPresetFull" value="Full"
-                                            onchange="mapStationActivationPresetChanged()">
-                                        <label class="btn btn-outline-primary" for="mapStationActivationPresetFull">Full</label>
-                                        <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal"
-                                            data-bs-target="#mapStationActivationModal">
-                                            <i class="bi bi-gear"></i>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div class="form-group row my-3">
-                                    <div class="col-lg-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
                                             data-bs-target="#itemMarkersModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
@@ -867,7 +845,6 @@
 
 {% include "help/quality/enhanced_map.html" %}
 {% include "help/quality/initial_map_reveal.html" %}
-{% include "help/quality/map_station_activation.html" %}
 {% include "help/quality/item_markers.html" %}
 {% include "help/quality/room_outline.html" %}
 {% include "help/quality/opposite_area_revealed.html" %}
@@ -912,6 +889,5 @@
 {% include "help/quality/camera_fixes.html" %}
 
 {% include "initial_map_reveal.html" %}
-{% include "map_station_activation.html" %}
 {% include "enhanced_map.html" %}
 {% include "crash_fixes.html" %}

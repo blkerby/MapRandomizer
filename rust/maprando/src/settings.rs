@@ -306,7 +306,6 @@ pub struct QualityOfLifeSettings {
     // Map:
     pub enhanced_map_settings: EnhancedMapSettings,
     pub initial_map_reveal_settings: InitialMapRevealSettings,
-    pub map_station_activation_settings: MapStationActivationSettings,
     pub item_markers: ItemMarkers,
     pub room_outline_revealed: bool,
     pub opposite_area_revealed: bool,
@@ -415,60 +414,6 @@ pub struct InitialMapRevealSettings {
     pub items4: MapRevealLevel,
     pub other: MapRevealLevel,
     pub all_areas: bool,
-}
-
-#[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]
-pub enum MapStationActivationLevel {
-    No,
-    Partial,
-    Full,
-}
-
-impl std::fmt::Display for MapStationActivationLevel {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
-
-#[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]
-pub enum MapStationActivationSubArea {
-    No,
-    Partial,
-    Same,
-}
-
-impl std::fmt::Display for MapStationActivationSubArea {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
-
-#[derive(Serialize, Deserialize, Clone, PartialEq)]
-pub struct MapStationActivationSettings {
-    pub preset: Option<MapStationActivationPreset>,
-    pub save_stations: MapStationActivationLevel,
-    pub refill_stations: MapStationActivationLevel,
-    pub ship: MapStationActivationLevel,
-    pub objectives: MapStationActivationLevel,
-    pub area_transitions: MapStationActivationLevel,
-    pub items1: MapStationActivationLevel,
-    pub items2: MapStationActivationLevel,
-    pub items3: MapStationActivationLevel,
-    pub items4: MapStationActivationLevel,
-    pub other: MapStationActivationLevel,
-    pub sub_area: MapStationActivationSubArea,
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum MapStationActivationPreset {
-    Partial,
-    Full,
-}
-
-impl std::fmt::Display for MapStationActivationPreset {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
-    }
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
@@ -647,6 +592,7 @@ pub struct OtherSettings {
     pub wall_jump: WallJump,
     pub area_assignment: AreaAssignment,
     pub door_locks_size: DoorLocksSize,
+    pub map_station_reveal: MapStationReveal,
     pub energy_free_shinesparks: bool,
     pub all_enemies_respawn: bool,
     pub disable_spikesuit: bool,
@@ -886,6 +832,12 @@ pub enum SpeedBooster {
 pub enum ETankRefill {
     Disabled,
     Vanilla,
+    Full,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum MapStationReveal {
+    Partial,
     Full,
 }
 
@@ -1217,44 +1169,6 @@ fn upgrade_enhanced_map_settings(settings: &mut serde_json::Value) -> Result<()>
     Ok(())
 }
 
-fn upgrade_map_station_activation_settings(settings: &mut serde_json::Value) -> Result<()> {
-    // Skip if already present
-    let qol_settings = settings["quality_of_life_settings"]
-        .as_object_mut()
-        .context("missing 'quality_of_life_settings'")?;
-
-    if !qol_settings.contains_key("map_station_activation_settings") {
-        let msa_settings = MapStationActivationSettings {
-            preset: Some(MapStationActivationPreset::Full),
-            save_stations: MapStationActivationLevel::Full,
-            refill_stations: MapStationActivationLevel::Full,
-            ship: MapStationActivationLevel::Full,
-            objectives: MapStationActivationLevel::Full,
-            area_transitions: MapStationActivationLevel::Full,
-            items1: MapStationActivationLevel::Full,
-            items2: MapStationActivationLevel::Full,
-            items3: MapStationActivationLevel::Full,
-            items4: MapStationActivationLevel::Full,
-            other: MapStationActivationLevel::Full,
-            sub_area: MapStationActivationSubArea::Same,
-        };
-
-        qol_settings.insert(
-            "map_station_activation_settings".to_string(),
-            serde_json::to_value(msa_settings)?,
-        );
-    }
-
-    let msa_settings = qol_settings["map_station_activation_settings"]
-        .as_object_mut()
-        .context("map_station_activation_settings is not object")?;
-    if !msa_settings.contains_key("sub_area") {
-        msa_settings.insert("sub_area".to_string(), "Same".into());
-    }
-
-    Ok(())
-}
-
 fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
     let etank_refill = settings["other_settings"]["etank_refill"]
         .as_str()
@@ -1353,7 +1267,6 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
     }
 
     upgrade_initial_map_reveal_settings(settings)?;
-    upgrade_map_station_activation_settings(settings)?;
     upgrade_enhanced_map_settings(settings)?;
     Ok(())
 }

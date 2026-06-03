@@ -11,8 +11,8 @@ use maprando::{
     seed_repository::{Seed, SeedFile},
     settings::{
         AreaAssignmentBaseOrder, AreaAssignmentPreset, CrashFixesPreset, DisableETankSetting,
-        DoorLocksSize, ETankRefill, FillerItemPriority, ItemCount, MapStationActivationPreset,
-        RandomizerSettings, SpeedBooster, WallJump, get_objective_groups,
+        DoorLocksSize, ETankRefill, FillerItemPriority, ItemCount, RandomizerSettings,
+        SpeedBooster, WallJump, get_objective_groups,
     },
     spoiler_log::SpoilerLog,
     spoiler_map,
@@ -157,18 +157,6 @@ impl SeedHeaderTemplate<'_> {
         }
     }
 
-    fn map_station_activation_preset(&self) -> &'static str {
-        match self
-            .settings
-            .quality_of_life_settings
-            .map_station_activation_settings
-            .preset
-        {
-            Some(MapStationActivationPreset::Partial) => "Partial",
-            Some(MapStationActivationPreset::Full) => "Full",
-            None => "Custom",
-        }
-    }
     fn game_variations(&self) -> Vec<&str> {
         let mut game_variations = vec![];
         let other_settings = &self.settings.other_settings;
@@ -197,6 +185,10 @@ impl SeedHeaderTemplate<'_> {
         if other_settings.wall_jump == WallJump::Collectible {
             game_variations.push("Collectible wall jump");
         }
+        if other_settings.map_station_reveal == maprando::settings::MapStationReveal::Partial {
+            game_variations.push("Map stations give partial reveal");
+        }
+
         if other_settings.energy_free_shinesparks {
             game_variations.push("Energy-free shinesparks");
         }
