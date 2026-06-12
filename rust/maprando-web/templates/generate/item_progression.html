@@ -197,6 +197,11 @@
                                             <input type="text" class="form-control item-pool-input-multiple" name="item_pool_{{+ item }}" id="itemPool{{+ item }}" 
                                             value="0" onchange="itemPoolChanged()">
                                         </div>
+                                        <label class="col-lg-2 col-form-label text-end" for="tank_size_{{+ item }}">Units per tank:</label>
+                                        <div class="col-lg-2">
+                                            <input type="text" class="form-control" name="tank_size_{{+ item }}" id="tankSize{{+ item }}"
+                                            value="0" onchange="itemPoolChanged()">
+                                        </div>
                                     </div>
                                 {% endfor %}
                                 {% for item in item_names_single %}

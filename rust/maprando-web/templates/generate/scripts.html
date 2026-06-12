@@ -272,6 +272,11 @@ function buildSettingsObject() {
             "starting_items": buildStartingItems(),
             "key_item_priority": buildItemPriorities(),
             "filler_items": buildFillerItems(),
+            "etank_size": tryParseInt(formData.get("tank_size_ETank")),
+            "reserve_size": tryParseInt(formData.get("tank_size_ReserveTank")),
+            "missile_size": tryParseInt(formData.get("tank_size_Missile")),
+            "super_size": tryParseInt(formData.get("tank_size_Super")),
+            "powerbomb_size": tryParseInt(formData.get("tank_size_PowerBomb")),
         },
         "quality_of_life_settings": {
             "preset": formData.get("quality_of_life_preset"),
@@ -1134,13 +1139,20 @@ function applyItemProgressionPreset(preset) {
     for (x of preset.item_pool) {
         let item = x.item;
         let cnt = x.count;
-	let el = document.getElementById(`itemPool${item}`);
-	if (el.classList.contains("item-pool-input-multiple")) {
-		el.value = cnt;
-	} else {
-		applyRadioValue(`itemPool${item}`, cnt > 0 ? "Yes" : "No");
-	}
+        let el = document.getElementById(`itemPool${item}`);
+        if (el.classList.contains("item-pool-input-multiple")) {
+            el.value = cnt;
+        } else {
+            applyRadioValue(`itemPool${item}`, cnt > 0 ? "Yes" : "No");
+        }
     }
+
+    document.getElementById("tankSizeETank").value = preset.etank_size;
+    document.getElementById("tankSizeReserveTank").value = preset.reserve_size;
+    document.getElementById("tankSizeMissile").value = preset.missile_size;
+    document.getElementById("tankSizeSuper").value = preset.super_size;
+    document.getElementById("tankSizePowerBomb").value = preset.powerbomb_size;
+
     processItemPoolPreset();
     applyRadioValue("startingItemsPreset", preset.starting_items_preset);
     for (x of preset.starting_items) {
@@ -1273,8 +1285,8 @@ function processItemPoolPreset() {
     }
 }
 function validateItemPool() {
-    if (parseInt(document.getElementById("itemPoolMissile").value) > 199) {
-        document.getElementById("itemPoolMissile").value = "199";
+    if (parseInt(document.getElementById("itemPoolMissile").value) > 999) {
+        document.getElementById("itemPoolMissile").value = "999";
     }
     if (parseInt(document.getElementById("itemPoolETank").value) > 14) {
         document.getElementById("itemPoolETank").value = "14";
@@ -1282,11 +1294,11 @@ function validateItemPool() {
     if (parseInt(document.getElementById("itemPoolReserveTank").value) > 4) {
         document.getElementById("itemPoolReserveTank").value = "4";
     }
-    if (parseInt(document.getElementById("itemPoolSuper").value) > 19) {
-        document.getElementById("itemPoolSuper").value = "19";
+    if (parseInt(document.getElementById("itemPoolSuper").value) > 99) {
+        document.getElementById("itemPoolSuper").value = "99";
     }
-    if (parseInt(document.getElementById("itemPoolPowerBomb").value) > 19) {
-        document.getElementById("itemPoolPowerBomb").value = "19";
+    if (parseInt(document.getElementById("itemPoolPowerBomb").value) > 99) {
+        document.getElementById("itemPoolPowerBomb").value = "99";
     }
 
     if (parseInt(document.getElementById("itemPoolMissile").value) < 0) {
@@ -1303,6 +1315,41 @@ function validateItemPool() {
     }
     if (parseInt(document.getElementById("itemPoolPowerBomb").value) < 0) {
         document.getElementById("itemPoolPowerBomb").value = "0";
+    }
+    
+    let esz = tryParseInt(document.getElementById("tankSizeETank").value);
+    if (esz === null || isNaN(esz) || esz < 2) {
+        document.getElementById("tankSizeETank").value = "100";
+    }
+    if (esz > 100 && (esz % 100) != 0) {
+        document.getElementById("tankSizeETank").value = Math.floor((esz / 100)) * 100;
+    }
+    if (esz > 1400) {
+        document.getElementById("tankSizeETank").value = "1400";
+    }
+    if (parseInt(document.getElementById("tankSizeReserveTank").value) < 1) {
+        document.getElementById("tankSizeReserveTank").value = "100";
+    }
+    if (parseInt(document.getElementById("tankSizeReserveTank").value) > 200) {
+        document.getElementById("tankSizeReserveTank").value = "200";
+    }
+    if (parseInt(document.getElementById("tankSizeMissile").value) < 1) {
+        document.getElementById("tankSizeMissile").value = "5";
+    }
+    if (parseInt(document.getElementById("tankSizeMissile").value) * parseInt(document.getElementById("itemPoolMissile").value) > 32000) {
+        document.getElementById("tankSizeMissile").value = "5";
+    }
+    if (parseInt(document.getElementById("tankSizeMissile").value) > 99) {
+        document.getElementById("tankSizeMissile").value = "99";
+    }
+    if (parseInt(document.getElementById("tankSizeSuper").value) < 1) {
+        document.getElementById("tankSizeSuper").value = "5";
+    }
+    if (parseInt(document.getElementById("tankSizeSuper").value) > 99) {
+        document.getElementById("tankSizeSuper").value = "99";
+    }
+    if (parseInt(document.getElementById("tankSizePowerBomb").value) < 1) {
+        document.getElementById("tankSizePowerBomb").value = "5";
     }
 }
 function itemPoolPresetChanged() {

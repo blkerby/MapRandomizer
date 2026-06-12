@@ -45,6 +45,11 @@ impl GlobalState {
         item: Item,
         game_data: &GameData,
         ammo_collect_fraction: f32,
+        missile_size: u16,
+        super_size: u16,
+        powerbomb_size: u16,
+        etank_size: u16,
+        reserve_size: u16,
         tech: &[bool],
     ) {
         self.inventory.items[item as usize] = true;
@@ -54,7 +59,7 @@ impl GlobalState {
                 let new_max_missiles = (ammo_collect_fraction
                     * self.inventory.collectible_missile_packs as f32)
                     .round() as Capacity
-                    * 5;
+                    * (missile_size as Capacity);
                 self.inventory.max_missiles = new_max_missiles;
             }
             Item::Super => {
@@ -62,7 +67,7 @@ impl GlobalState {
                 let new_max_supers = (ammo_collect_fraction
                     * self.inventory.collectible_super_packs as f32)
                     .round() as Capacity
-                    * 5;
+                    * (super_size as Capacity);
                 self.inventory.max_supers = new_max_supers;
             }
             Item::PowerBomb => {
@@ -70,11 +75,11 @@ impl GlobalState {
                 let new_max_power_bombs = (ammo_collect_fraction
                     * self.inventory.collectible_power_bomb_packs as f32)
                     .round() as Capacity
-                    * 5;
+                    * (powerbomb_size as Capacity);
                 self.inventory.max_power_bombs = new_max_power_bombs;
             }
             Item::ETank => {
-                self.inventory.max_energy += 100;
+                self.inventory.max_energy += etank_size as Capacity;
                 if !tech[game_data.manage_reserves_tech_idx] {
                     self.inventory.max_reserves =
                         Capacity::min(self.inventory.max_reserves, self.inventory.max_energy);
@@ -82,7 +87,7 @@ impl GlobalState {
             }
             Item::ReserveTank => {
                 self.inventory.collectible_reserve_tanks += 1;
-                self.inventory.max_reserves = self.inventory.collectible_reserve_tanks * 100;
+                self.inventory.max_reserves = self.inventory.collectible_reserve_tanks * reserve_size as Capacity;
                 if !tech[game_data.manage_reserves_tech_idx] {
                     self.inventory.max_reserves =
                         Capacity::min(self.inventory.max_reserves, self.inventory.max_energy);
