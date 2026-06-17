@@ -137,6 +137,49 @@
                         id="ammoCollectFraction" value="0.7" min="0.5" max="1.0" step="0.1" onchange="itemProgressionChanged()">
                     </div>
                 </div>
+                
+                <div class="form-group row border rounded-3 m-3 p-0">
+                    <div class="col-lg-3 ml-0 mt-1 mb-1 align-items-center">
+                        <label for="preset">Tank Size Settings</label>
+                    </div>
+                    <div class="accordion m-0 p-0" id="accordionTankSize">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed my-0 d-block text-center customize-button" style="padding-top:10px;padding-bottom:10px;" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTankSize">
+                                Customize
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseTankSize" class="accordion-collapse collapse">
+                            <div class="form-group row m-2">
+                                <label class="col-lg-3 col-form-label text-end" for="tank_size_Missile">Missiles per tank:</label>
+                                <span class="itemIcon itemIconMissile"></span>
+                                <div class="col-lg-2">
+                                    <input type="text" class="form-control" name="tank_size_Missile" id="tankSizeMissile"
+                                    value="0" onchange="itemPoolChanged()">
+                                </div>
+                            </div>
+
+                            <div class="form-group row m-2">
+                                <label class="col-lg-3 col-form-label text-end" for="tank_size_Super">Super Missiles per tank:</label>
+                                <span class="itemIcon itemIconSuper"></span>
+                                <div class="col-lg-2">
+                                    <input type="text" class="form-control" name="tank_size_Super" id="tankSizeSuper"
+                                    value="0" onchange="itemPoolChanged()">
+                                </div>
+                            </div>
+
+                            <div class="form-group row m-2">
+                                <label class="col-lg-3 col-form-label text-end" for="tank_size_PowerBomb">Power Bombs per tank:</label>
+                                <span class="itemIcon itemIconPowerBomb"></span>
+                                <div class="col-lg-2">
+                                    <input type="text" class="form-control" name="tank_size_PowerBomb" id="tankSizePowerBomb"
+                                    value="0" onchange="itemPoolChanged()">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="form-group row border rounded-3 m-3 p-0">
                     <div class="col-lg-3 ml-0 mt-1 mb-1 align-items-center">
@@ -195,11 +238,6 @@
                                         <span class="itemIcon itemIcon{{+ item }}"></span>
                                         <div class="col-lg-2">
                                             <input type="text" class="form-control item-pool-input-multiple" name="item_pool_{{+ item }}" id="itemPool{{+ item }}" 
-                                            value="0" onchange="itemPoolChanged()">
-                                        </div>
-                                        <label class="col-lg-2 col-form-label text-end" for="tank_size_{{+ item }}">Units per tank:</label>
-                                        <div class="col-lg-2">
-                                            <input type="text" class="form-control" name="tank_size_{{+ item }}" id="tankSize{{+ item }}"
                                             value="0" onchange="itemPoolChanged()">
                                         </div>
                                     </div>

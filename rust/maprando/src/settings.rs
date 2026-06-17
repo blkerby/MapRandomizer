@@ -101,8 +101,6 @@ pub struct ItemProgressionSettings {
     pub starting_items: Vec<ItemCount>,
     pub key_item_priority: Vec<KeyItemPrioritySetting>,
     pub filler_items: Vec<FillerItemPrioritySetting>,
-    pub etank_size: u16,
-    pub reserve_size: u16,
     pub missile_size: u16,
     pub super_size: u16,
     pub powerbomb_size: u16

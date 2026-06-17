@@ -767,58 +767,6 @@ impl Patcher<'_> {
             self.rom.write_u16(snes2pc(0xA9FB7B), escape_items)?;
         }
         
-        if self.settings.item_progression_settings.etank_size != 100 {
-            let e_sz = self.settings.item_progression_settings.etank_size as isize;
-            
-            for addr in [
-                0x84E0B8, // PLM EED7 (E-Tank)
-                0x84E474, // PLM EF2B (E-Tank, Chozo)
-                0x84E93F, // PLM EF7F (E-Tank, Shot Block)
-                0x88E717, // Credits, E-Tank Item % Divisor
-            ] {
-                self.rom.write_u16(snes2pc(addr), e_sz)?;
-            }
-            
-            if e_sz < 100 {
-                self.rom.write_u8(snes2pc(0x809B9F), e_sz)?; // HUD divisor for current energy -> full tanks
-                self.rom.write_u8(snes2pc(0x809BBC), e_sz)?; // HUD divisor for max energy -> tank count
-                
-                if self.settings.quality_of_life_settings.disableable_etanks != DisableETankSetting::Off {
-                    for addr in [
-                        0x83BBA8, // Disable E-Tank Patch: Disable tank check
-                        0x83BBB4, // Disable E-Tank Patch: Disable tank
-                        0x83BBE6  // Disable E-Tank Patch: Enable tank
-                    ] {
-                        self.rom.write_u16(snes2pc(addr), e_sz)?;
-                    }
-
-                    for addr in [
-                        0x83BB16, // Disable E-Tank Patch: divisor for e-tank calculations
-                        0x83BB2E  // Disable E-Tank Patch: divisor for e-tank calculations
-                    ] {
-                        self.rom.write_u8(snes2pc(addr), e_sz)?;
-                    }
-                }
-            }
-        }
-        
-        if self.settings.item_progression_settings.reserve_size != 100 {
-            let r_sz = self.settings.item_progression_settings.reserve_size;
-
-            self.rom.write_u16(snes2pc(0x84E444), r_sz as isize)?; // PLM EF27 (Reserve Tank)
-            self.rom.write_u16(snes2pc(0x84E909), r_sz as isize)?; // PLM EF7B (Reserve Tank, Chozo)
-            self.rom.write_u16(snes2pc(0x84EE43), r_sz as isize)?; // PLM EFCF (Reserve Tank, Shot Block)
-            self.rom.write_u16(snes2pc(0x88E719), r_sz as isize)?; // Credits, Reserve Tank Item % Divisor
-            self.rom.write_u8(snes2pc(0x82B2C1), r_sz as isize)?; // Pause Menu: Reserve Tank Bars
-            self.rom.write_u8(snes2pc(0x82B2DC), r_sz as isize)?; // Pause Menu: Divisor for full reserve tanks
-            if r_sz > 7 {
-                self.rom.write_u8(snes2pc(0x82B320), (r_sz / 7) as isize)?; // Pause Menu: 1/7 reserve tank per pixel
-            }
-            else {
-                self.rom.write_u8(snes2pc(0x82B320), 1)?; // Pause Menu: 1 unit per pixel
-            }
-        }
-        
         if self.settings.item_progression_settings.missile_size != 5 {
             let m_sz = self.settings.item_progression_settings.missile_size as isize;
             
@@ -2323,7 +2271,7 @@ impl Patcher<'_> {
         let mut item_mask = 0;
         let mut beam_mask = 0;
         let mut starting_missiles = 0;
-        let mut starting_energy = if self.settings.item_progression_settings.etank_size <= 100 { (self.settings.item_progression_settings.etank_size as isize) - 1 } else { 99 };
+        let mut starting_energy = 99;
         let mut starting_reserves = 0;
         let mut starting_supers = 0;
         let mut starting_powerbombs = 0;
@@ -2371,7 +2319,7 @@ impl Patcher<'_> {
             } else if x.item == Item::Missile {
                 starting_missiles += (x.count as isize) * (self.settings.item_progression_settings.missile_size as isize);
             } else if x.item == Item::ETank {
-                starting_energy += (x.count as isize) * (self.settings.item_progression_settings.etank_size as isize);
+                starting_energy += (x.count as isize) * 100;
             } else if x.item == Item::ReserveTank {
                 starting_reserves += (x.count as isize) * 100;
             } else if x.item == Item::Super {

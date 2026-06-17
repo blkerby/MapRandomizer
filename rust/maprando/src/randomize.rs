@@ -3704,18 +3704,18 @@ impl<'r> Randomizer<'r> {
             initial_items_remaining[x.item as usize] -=
                 usize::min(x.count, initial_items_remaining[x.item as usize]);
             if x.item == Item::ETank {
-                minimal_energy = minimal_energy.saturating_sub((x.count * settings.item_progression_settings.etank_size as usize) as Capacity);
+                minimal_energy = minimal_energy.saturating_sub(100);
             }
             else if x.item == Item::ReserveTank {
-                minimal_energy = minimal_energy.saturating_sub((x.count * settings.item_progression_settings.reserve_size as usize) as Capacity);
+                minimal_energy = minimal_energy.saturating_sub(100);
             }
         }
         
-        while ((initial_items_remaining[Item::ETank as usize] as u16 * settings.item_progression_settings.etank_size) as Capacity
-            + (initial_items_remaining[Item::ReserveTank as usize] as u16 * settings.item_progression_settings.reserve_size) as Capacity)
+        while ((initial_items_remaining[Item::ETank as usize] * 100) as Capacity
+            + (initial_items_remaining[Item::ReserveTank as usize] * 100) as Capacity)
             < minimal_energy
         {
-            if (initial_items_remaining[Item::ETank as usize] < 14) && ((initial_items_remaining[Item::ETank as usize] + 1) * settings.item_progression_settings.etank_size as usize <= 1400) {
+            if (initial_items_remaining[Item::ETank as usize] < 14) && ((initial_items_remaining[Item::ETank as usize] + 1) * 100 <= 1400) {
                 initial_items_remaining[Item::ETank as usize] += 1;
             }
             else if initial_items_remaining[Item::ReserveTank as usize] < 4 {
@@ -3727,12 +3727,6 @@ impl<'r> Randomizer<'r> {
         }
 
         // Enforce HUD-based total resource limits t(1400 energy, 999 reserve, 999 missile, 99 super, 99 PB)
-        while initial_items_remaining[Item::ETank as usize] * settings.item_progression_settings.etank_size as usize > 1400 {
-            initial_items_remaining[Item::ETank as usize] -= 1;
-        }
-        while initial_items_remaining[Item::ReserveTank as usize] * settings.item_progression_settings.reserve_size as usize > 999 {
-            initial_items_remaining[Item::ReserveTank as usize] -= 1;
-        }
         while initial_items_remaining[Item::Missile as usize] * settings.item_progression_settings.missile_size as usize > 999 {
             initial_items_remaining[Item::Missile as usize] -= 1;
         }
@@ -3756,8 +3750,8 @@ impl<'r> Randomizer<'r> {
             .sum::<usize>()
             .saturating_sub(available_items)
         {
-            let energy_left_to_place = ((initial_items_remaining[Item::ETank as usize] as u16 * settings.item_progression_settings.etank_size) as Capacity)
-                + ((initial_items_remaining[Item::ReserveTank as usize] as u16 * settings.item_progression_settings.reserve_size) as Capacity);
+            let energy_left_to_place = ((initial_items_remaining[Item::ETank as usize] * 100) as Capacity)
+                + ((initial_items_remaining[Item::ReserveTank as usize] * 100) as Capacity);
             let mut removal_options = ammo_shortage_weight.clone();
             if energy_left_to_place > minimal_energy {
                 removal_options.extend(tank_shortage_weight.clone());
@@ -4431,8 +4425,6 @@ impl<'r> Randomizer<'r> {
                 self.settings.item_progression_settings.missile_size,
                 self.settings.item_progression_settings.super_size,
                 self.settings.item_progression_settings.powerbomb_size,
-                self.settings.item_progression_settings.etank_size,
-                self.settings.item_progression_settings.reserve_size,
                 &self.difficulty_tiers[0].tech,
             );
         }
@@ -5273,18 +5265,16 @@ impl<'r> Randomizer<'r> {
         let collectible_missile_packs = self.initial_items_remaining[Item::Missile as usize];
         let collectible_super_packs = self.initial_items_remaining[Item::Super as usize];
         let collectible_pb_packs = self.initial_items_remaining[Item::PowerBomb as usize];
-        let collectible_etanks = self.initial_items_remaining[Item::ETank as usize];
-        let collectible_reserve_tanks = self.initial_items_remaining[Item::ReserveTank as usize];
+        let collectible_etanks = self.initial_items_remaining[Item::ETank as usize] as u16;
+        let collectible_reserve_tanks = self.initial_items_remaining[Item::ReserveTank as usize] as u16;
         Inventory {
             items: self
                 .initial_items_remaining
                 .iter()
                 .map(|&x| x > 0)
                 .collect(),
-            max_energy: if self.settings.item_progression_settings.etank_size <= 100 { 
-                (((1 + collectible_etanks) * (self.settings.item_progression_settings.etank_size as usize)) - 1) as Capacity
-            } else { (99 + collectible_etanks * (self.settings.item_progression_settings.etank_size as usize)) as Capacity },
-            max_reserves: (collectible_reserve_tanks * (self.settings.item_progression_settings.reserve_size as usize)) as Capacity,
+            max_energy: (99 + collectible_etanks * 100) as Capacity,
+            max_reserves: (collectible_reserve_tanks * 100) as Capacity,
             max_missiles: (acf * collectible_missile_packs as f32).round() as Capacity * (self.settings.item_progression_settings.missile_size as i16),
             max_supers: (acf * collectible_super_packs as f32).round() as Capacity * (self.settings.item_progression_settings.super_size as i16),
             max_power_bombs: (acf * collectible_pb_packs as f32).round() as Capacity * (self.settings.item_progression_settings.powerbomb_size as i16),
@@ -5303,7 +5293,7 @@ impl<'r> Randomizer<'r> {
         let mut global = GlobalState {
             inventory: Inventory {
                 items,
-                max_energy: if self.settings.item_progression_settings.etank_size <= 100 { (self.settings.item_progression_settings.etank_size - 1) as Capacity } else { 99 },
+                max_energy: 99,
                 max_reserves: 0,
                 max_missiles: 0,
                 max_supers: 0,
@@ -5329,8 +5319,6 @@ impl<'r> Randomizer<'r> {
                     self.settings.item_progression_settings.missile_size,
                     self.settings.item_progression_settings.super_size,
                     self.settings.item_progression_settings.powerbomb_size,
-                    self.settings.item_progression_settings.etank_size,
-                    self.settings.item_progression_settings.reserve_size,
                     &self.difficulty_tiers[0].tech,
                 );
             }

@@ -272,8 +272,6 @@ function buildSettingsObject() {
             "starting_items": buildStartingItems(),
             "key_item_priority": buildItemPriorities(),
             "filler_items": buildFillerItems(),
-            "etank_size": tryParseInt(formData.get("tank_size_ETank")),
-            "reserve_size": tryParseInt(formData.get("tank_size_ReserveTank")),
             "missile_size": tryParseInt(formData.get("tank_size_Missile")),
             "super_size": tryParseInt(formData.get("tank_size_Super")),
             "powerbomb_size": tryParseInt(formData.get("tank_size_PowerBomb")),
@@ -1147,8 +1145,6 @@ function applyItemProgressionPreset(preset) {
         }
     }
 
-    document.getElementById("tankSizeETank").value = preset.etank_size;
-    document.getElementById("tankSizeReserveTank").value = preset.reserve_size;
     document.getElementById("tankSizeMissile").value = preset.missile_size;
     document.getElementById("tankSizeSuper").value = preset.super_size;
     document.getElementById("tankSizePowerBomb").value = preset.powerbomb_size;
@@ -1317,22 +1313,6 @@ function validateItemPool() {
         document.getElementById("itemPoolPowerBomb").value = "0";
     }
     
-    let esz = tryParseInt(document.getElementById("tankSizeETank").value);
-    if (esz === null || isNaN(esz) || esz < 2) {
-        document.getElementById("tankSizeETank").value = "100";
-    }
-    if (esz > 100 && (esz % 100) != 0) {
-        document.getElementById("tankSizeETank").value = Math.floor((esz / 100)) * 100;
-    }
-    if (esz > 1400) {
-        document.getElementById("tankSizeETank").value = "1400";
-    }
-    if (parseInt(document.getElementById("tankSizeReserveTank").value) < 1) {
-        document.getElementById("tankSizeReserveTank").value = "100";
-    }
-    if (parseInt(document.getElementById("tankSizeReserveTank").value) > 200) {
-        document.getElementById("tankSizeReserveTank").value = "200";
-    }
     if (parseInt(document.getElementById("tankSizeMissile").value) < 1) {
         document.getElementById("tankSizeMissile").value = "5";
     }
