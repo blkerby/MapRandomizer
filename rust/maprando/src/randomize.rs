@@ -5265,8 +5265,8 @@ impl<'r> Randomizer<'r> {
         let collectible_missile_packs = self.initial_items_remaining[Item::Missile as usize];
         let collectible_super_packs = self.initial_items_remaining[Item::Super as usize];
         let collectible_pb_packs = self.initial_items_remaining[Item::PowerBomb as usize];
-        let collectible_etanks = self.initial_items_remaining[Item::ETank as usize] as u16;
-        let collectible_reserve_tanks = self.initial_items_remaining[Item::ReserveTank as usize] as u16;
+        let collectible_etanks = self.initial_items_remaining[Item::ETank as usize];
+        let collectible_reserve_tanks = self.initial_items_remaining[Item::ReserveTank as usize];
         Inventory {
             items: self
                 .initial_items_remaining
