@@ -517,9 +517,12 @@ fn get_spoiler_start_state(
         max_missiles: global_state.inventory.max_missiles,
         max_supers: global_state.inventory.max_supers,
         max_power_bombs: global_state.inventory.max_power_bombs,
-        collectible_missiles: global_state.inventory.collectible_missile_packs * randomizer.settings.item_progression_settings.missile_size as i16,
-        collectible_supers: global_state.inventory.collectible_super_packs * randomizer.settings.item_progression_settings.super_size as i16,
-        collectible_power_bombs: global_state.inventory.collectible_power_bomb_packs * randomizer.settings.item_progression_settings.powerbomb_size as i16,
+        collectible_missiles: global_state.inventory.collectible_missile_packs
+            * randomizer.settings.item_progression_settings.missile_size as i16,
+        collectible_supers: global_state.inventory.collectible_super_packs
+            * randomizer.settings.item_progression_settings.super_size as i16,
+        collectible_power_bombs: global_state.inventory.collectible_power_bomb_packs
+            * randomizer.settings.item_progression_settings.powerbomb_size as i16,
         items,
         flags,
     }

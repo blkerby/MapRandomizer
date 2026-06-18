@@ -103,7 +103,7 @@ pub struct ItemProgressionSettings {
     pub filler_items: Vec<FillerItemPrioritySetting>,
     pub missile_size: u16,
     pub super_size: u16,
-    pub powerbomb_size: u16
+    pub powerbomb_size: u16,
 }
 
 #[repr(u8)]

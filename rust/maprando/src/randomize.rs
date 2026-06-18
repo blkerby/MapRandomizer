@@ -3703,37 +3703,43 @@ impl<'r> Randomizer<'r> {
         for x in &starting_items {
             initial_items_remaining[x.item as usize] -=
                 usize::min(x.count, initial_items_remaining[x.item as usize]);
-            if x.item == Item::ETank {
-                minimal_energy = minimal_energy.saturating_sub(100);
-            }
-            else if x.item == Item::ReserveTank {
+            if x.item == Item::ETank || x.item == Item::ReserveTank {
                 minimal_energy = minimal_energy.saturating_sub(100);
             }
         }
-        
+
         while ((initial_items_remaining[Item::ETank as usize] * 100) as Capacity
             + (initial_items_remaining[Item::ReserveTank as usize] * 100) as Capacity)
             < minimal_energy
         {
-            if (initial_items_remaining[Item::ETank as usize] < 14) && ((initial_items_remaining[Item::ETank as usize] + 1) * 100 <= 1400) {
+            if (initial_items_remaining[Item::ETank as usize] < 14)
+                && ((initial_items_remaining[Item::ETank as usize] + 1) * 100 <= 1400)
+            {
                 initial_items_remaining[Item::ETank as usize] += 1;
-            }
-            else if initial_items_remaining[Item::ReserveTank as usize] < 4 {
+            } else if initial_items_remaining[Item::ReserveTank as usize] < 4 {
                 initial_items_remaining[Item::ReserveTank as usize] += 1;
-            }
-            else {
+            } else {
                 panic!("Can't ensure enough energy!");
             }
         }
 
         // Enforce HUD-based total resource limits t(1400 energy, 999 reserve, 999 missile, 99 super, 99 PB)
-        while initial_items_remaining[Item::Missile as usize] * settings.item_progression_settings.missile_size as usize > 999 {
+        while initial_items_remaining[Item::Missile as usize]
+            * settings.item_progression_settings.missile_size as usize
+            > 999
+        {
             initial_items_remaining[Item::Missile as usize] -= 1;
         }
-        while initial_items_remaining[Item::Super as usize] * settings.item_progression_settings.super_size as usize > 99 {
+        while initial_items_remaining[Item::Super as usize]
+            * settings.item_progression_settings.super_size as usize
+            > 99
+        {
             initial_items_remaining[Item::Super as usize] -= 1;
         }
-        while initial_items_remaining[Item::PowerBomb as usize] * settings.item_progression_settings.powerbomb_size as usize > 99 {
+        while initial_items_remaining[Item::PowerBomb as usize]
+            * settings.item_progression_settings.powerbomb_size as usize
+            > 99
+        {
             initial_items_remaining[Item::PowerBomb as usize] -= 1;
         }
 
@@ -3750,7 +3756,8 @@ impl<'r> Randomizer<'r> {
             .sum::<usize>()
             .saturating_sub(available_items)
         {
-            let energy_left_to_place = ((initial_items_remaining[Item::ETank as usize] * 100) as Capacity)
+            let energy_left_to_place = ((initial_items_remaining[Item::ETank as usize] * 100)
+                as Capacity)
                 + ((initial_items_remaining[Item::ReserveTank as usize] * 100) as Capacity);
             let mut removal_options = ammo_shortage_weight.clone();
             if energy_left_to_place > minimal_energy {
@@ -5275,9 +5282,12 @@ impl<'r> Randomizer<'r> {
                 .collect(),
             max_energy: (99 + collectible_etanks * 100) as Capacity,
             max_reserves: (collectible_reserve_tanks * 100) as Capacity,
-            max_missiles: (acf * collectible_missile_packs as f32).round() as Capacity * (self.settings.item_progression_settings.missile_size as i16),
-            max_supers: (acf * collectible_super_packs as f32).round() as Capacity * (self.settings.item_progression_settings.super_size as i16),
-            max_power_bombs: (acf * collectible_pb_packs as f32).round() as Capacity * (self.settings.item_progression_settings.powerbomb_size as i16),
+            max_missiles: (acf * collectible_missile_packs as f32).round() as Capacity
+                * (self.settings.item_progression_settings.missile_size as i16),
+            max_supers: (acf * collectible_super_packs as f32).round() as Capacity
+                * (self.settings.item_progression_settings.super_size as i16),
+            max_power_bombs: (acf * collectible_pb_packs as f32).round() as Capacity
+                * (self.settings.item_progression_settings.powerbomb_size as i16),
             collectible_missile_packs: collectible_missile_packs as Capacity,
             collectible_super_packs: collectible_super_packs as Capacity,
             collectible_power_bomb_packs: collectible_pb_packs as Capacity,

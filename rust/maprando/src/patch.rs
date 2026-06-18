@@ -766,24 +766,23 @@ impl Patcher<'_> {
         if let Some(escape_items) = escape_itembits {
             self.rom.write_u16(snes2pc(0xA9FB7B), escape_items)?;
         }
-        
+
         if self.settings.item_progression_settings.missile_size != 5 {
             let m_sz = self.settings.item_progression_settings.missile_size as isize;
-            
+
             self.rom.write_u16(snes2pc(0x84E0DD), m_sz)?; // PLM EEDB (Missile Tank)
             self.rom.write_u16(snes2pc(0x84E4A6), m_sz)?; // PLM EF2F (Missile, Chozo)
             self.rom.write_u16(snes2pc(0x84E977), m_sz)?; // PLM EF83 (Missile, Shot Block)
             self.rom.write_u16(snes2pc(0x88E71B), m_sz)?; // Credits, Missile Item % Divisor
         }
-        
+
         if self.settings.item_progression_settings.super_size != 5 {
             let s_sz = self.settings.item_progression_settings.super_size as isize;
-            
+
             self.rom.write_u16(snes2pc(0x84E102), s_sz)?; // PLM EEDF (Super Tank)
             self.rom.write_u16(snes2pc(0x84E4D8), s_sz)?; // PLM EF33 (Super, Chozo)
             self.rom.write_u16(snes2pc(0x84E9AF), s_sz)?; // PLM EF87 (Super, Shot Block)
             self.rom.write_u16(snes2pc(0x88E71D), s_sz)?; // Credits, Super Item % Divisor
-            
         }
 
         if self.settings.item_progression_settings.powerbomb_size != 5 {
@@ -2275,11 +2274,11 @@ impl Patcher<'_> {
         let mut starting_reserves = 0;
         let mut starting_supers = 0;
         let mut starting_powerbombs = 0;
-        
+
         if starting_energy < 1 {
             bail!("E-Tank size is too low".to_string());
         }
-        
+
         let item_bitmask_map: HashMap<Item, u16> = vec![
             (Item::Varia, 0x0001),
             (Item::SpringBall, 0x0002),
@@ -2317,15 +2316,18 @@ impl Patcher<'_> {
             } else if beam_bitmask_map.contains_key(&x.item) {
                 beam_mask |= beam_bitmask_map[&x.item];
             } else if x.item == Item::Missile {
-                starting_missiles += (x.count as isize) * (self.settings.item_progression_settings.missile_size as isize);
+                starting_missiles += (x.count as isize)
+                    * (self.settings.item_progression_settings.missile_size as isize);
             } else if x.item == Item::ETank {
                 starting_energy += (x.count as isize) * 100;
             } else if x.item == Item::ReserveTank {
                 starting_reserves += (x.count as isize) * 100;
             } else if x.item == Item::Super {
-                starting_supers += (x.count as isize) * (self.settings.item_progression_settings.super_size as isize);
+                starting_supers += (x.count as isize)
+                    * (self.settings.item_progression_settings.super_size as isize);
             } else if x.item == Item::PowerBomb {
-                starting_powerbombs += (x.count as isize) * (self.settings.item_progression_settings.powerbomb_size as isize);
+                starting_powerbombs += (x.count as isize)
+                    * (self.settings.item_progression_settings.powerbomb_size as isize);
             }
         }
         let beam_equipped_mask = if beam_mask & 0x000C == 0x000C {
