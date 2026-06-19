@@ -3529,7 +3529,7 @@ pub fn get_objectives<R: Rng>(
 }
 
 pub fn get_starting_items(settings: &RandomizerSettings) -> Vec<ItemCount> {
-    let starting_items = if settings.start_location_settings.mode == StartLocationMode::Escape {
+    let mut starting_items = if settings.start_location_settings.mode == StartLocationMode::Escape {
         vec![
             ItemCount {
                 item: Item::ETank,
@@ -3635,10 +3635,29 @@ pub fn get_starting_items(settings: &RandomizerSettings) -> Vec<ItemCount> {
     };
 
     let mut out = vec![];
-    for x in &starting_items {
+    for x in &mut starting_items {
         // If collectible wall jump is not enabled, do not place it as a starting item.
         if x.item == Item::WallJump && settings.other_settings.wall_jump == WallJump::Vanilla {
             continue;
+        }
+        // Enforce HUD-based limits for starting ammo
+        match x.item {
+            Item::Missile => {
+                while x.count * settings.item_progression_settings.missile_size as usize > 999 {
+                    x.count -= 1;
+                }
+            },
+            Item::Super => {
+                while x.count * settings.item_progression_settings.super_size as usize > 99 {
+                    x.count -= 1;
+                }
+            },
+            Item::PowerBomb => {
+                while x.count * settings.item_progression_settings.powerbomb_size as usize > 99 {
+                    x.count -= 1;
+                }
+            },
+            _ => {}
         }
         // Depending on if Split Speed Booster is enabled, do not place inapplicable booster items.
         match (x.item, settings.other_settings.speed_booster) {
@@ -3723,7 +3742,7 @@ impl<'r> Randomizer<'r> {
             }
         }
 
-        // Enforce HUD-based total resource limits t(1400 energy, 999 reserve, 999 missile, 99 super, 99 PB)
+        // Enforce HUD-based total resource limits (999 missile, 99 super, 99 PB)
         while initial_items_remaining[Item::Missile as usize]
             * settings.item_progression_settings.missile_size as usize
             > 999

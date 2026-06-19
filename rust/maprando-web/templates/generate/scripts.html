@@ -1280,6 +1280,24 @@ function processItemPoolPreset() {
         {% endfor %}
     }
 }
+function validateTankSize() {
+    if (parseInt(document.getElementById("tankSizeMissile").value) < 1) {
+        document.getElementById("tankSizeMissile").value = "5";
+    }
+    if (parseInt(document.getElementById("tankSizeMissile").value) > 999) {
+        document.getElementById("tankSizeMissile").value = "999";
+    }
+    if (parseInt(document.getElementById("tankSizeSuper").value) < 1) {
+        document.getElementById("tankSizeSuper").value = "5";
+    }
+    if (parseInt(document.getElementById("tankSizeSuper").value) > 99) {
+        document.getElementById("tankSizeSuper").value = "99";
+    }
+    if (parseInt(document.getElementById("tankSizePowerBomb").value) < 1) {
+        document.getElementById("tankSizePowerBomb").value = "5";
+    }
+}
+
 function validateItemPool() {
     if (parseInt(document.getElementById("itemPoolMissile").value) > 999) {
         document.getElementById("itemPoolMissile").value = "999";
@@ -1313,27 +1331,13 @@ function validateItemPool() {
         document.getElementById("itemPoolPowerBomb").value = "0";
     }
     
-    if (parseInt(document.getElementById("tankSizeMissile").value) < 1) {
-        document.getElementById("tankSizeMissile").value = "5";
-    }
-    if (parseInt(document.getElementById("tankSizeMissile").value) * parseInt(document.getElementById("itemPoolMissile").value) > 32000) {
-        document.getElementById("tankSizeMissile").value = "5";
-    }
-    if (parseInt(document.getElementById("tankSizeMissile").value) > 99) {
-        document.getElementById("tankSizeMissile").value = "99";
-    }
-    if (parseInt(document.getElementById("tankSizeSuper").value) < 1) {
-        document.getElementById("tankSizeSuper").value = "5";
-    }
-    if (parseInt(document.getElementById("tankSizeSuper").value) > 99) {
-        document.getElementById("tankSizeSuper").value = "99";
-    }
-    if (parseInt(document.getElementById("tankSizePowerBomb").value) < 1) {
-        document.getElementById("tankSizePowerBomb").value = "5";
-    }
 }
 function itemPoolPresetChanged() {
     processItemPoolPreset();
+    itemProgressionChanged();
+}
+function tankSizeChanged() {
+    validateTankSize();
     itemProgressionChanged();
 }
 function itemPoolChanged() {

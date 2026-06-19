@@ -1054,12 +1054,6 @@ fn upgrade_item_progression_settings(settings: &mut serde_json::Value) -> Result
     if !item_progression_settings.contains_key("ammo_collect_fraction") {
         item_progression_settings.insert("ammo_collect_fraction".to_string(), (0.7).into());
     }
-    if !item_progression_settings.contains_key("etank_size") {
-        item_progression_settings.insert("etank_size".to_string(), (100).into());
-    }
-    if !item_progression_settings.contains_key("reserve_size") {
-        item_progression_settings.insert("reserve_size".to_string(), (5).into());
-    }
     if !item_progression_settings.contains_key("missile_size") {
         item_progression_settings.insert("missile_size".to_string(), (5).into());
     }
