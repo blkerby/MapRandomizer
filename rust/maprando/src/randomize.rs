@@ -3646,17 +3646,17 @@ pub fn get_starting_items(settings: &RandomizerSettings) -> Vec<ItemCount> {
                 while x.count * settings.item_progression_settings.missile_size as usize > 999 {
                     x.count -= 1;
                 }
-            },
+            }
             Item::Super => {
                 while x.count * settings.item_progression_settings.super_size as usize > 99 {
                     x.count -= 1;
                 }
-            },
+            }
             Item::PowerBomb => {
                 while x.count * settings.item_progression_settings.powerbomb_size as usize > 99 {
                     x.count -= 1;
                 }
-            },
+            }
             _ => {}
         }
         // Depending on if Split Speed Booster is enabled, do not place inapplicable booster items.
