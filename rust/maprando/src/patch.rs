@@ -773,7 +773,7 @@ impl Patcher<'_> {
             self.rom.write_u16(snes2pc(0x84E0DD), m_sz)?; // PLM EEDB (Missile Tank)
             self.rom.write_u16(snes2pc(0x84E4A6), m_sz)?; // PLM EF2F (Missile, Chozo)
             self.rom.write_u16(snes2pc(0x84E977), m_sz)?; // PLM EF83 (Missile, Shot Block)
-            self.rom.write_u16(snes2pc(0x88E71B), m_sz)?; // Credits, Missile Item % Divisor
+            self.rom.write_u16(snes2pc(0x8BE71B), m_sz)?; // Credits, Missile Item % Divisor
         }
 
         if self.settings.item_progression_settings.super_size != 5 {
@@ -782,7 +782,7 @@ impl Patcher<'_> {
             self.rom.write_u16(snes2pc(0x84E102), s_sz)?; // PLM EEDF (Super Tank)
             self.rom.write_u16(snes2pc(0x84E4D8), s_sz)?; // PLM EF33 (Super, Chozo)
             self.rom.write_u16(snes2pc(0x84E9AF), s_sz)?; // PLM EF87 (Super, Shot Block)
-            self.rom.write_u16(snes2pc(0x88E71D), s_sz)?; // Credits, Super Item % Divisor
+            self.rom.write_u16(snes2pc(0x8BE71D), s_sz)?; // Credits, Super Item % Divisor
         }
 
         if self.settings.item_progression_settings.powerbomb_size != 5 {
@@ -791,7 +791,7 @@ impl Patcher<'_> {
             self.rom.write_u16(snes2pc(0x84E127), p_sz)?; // PLM EEE3 (PB Tank)
             self.rom.write_u16(snes2pc(0x84E50A), p_sz)?; // PLM EF37 (PB, Chozo)
             self.rom.write_u16(snes2pc(0x84E9E7), p_sz)?; // PLM EF8B (PB, Shot Block)
-            self.rom.write_u16(snes2pc(0x88E71F), p_sz)?; // Credits, Power Bomb Item % Divisor
+            self.rom.write_u16(snes2pc(0x8BE71F), p_sz)?; // Credits, Power Bomb Item % Divisor
         }
 
         Ok(())
