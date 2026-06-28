@@ -23,7 +23,38 @@ pub struct RandomizerSettings {
     pub save_animals: SaveAnimals,
     pub other_settings: OtherSettings,
     #[serde(default)]
+    pub experimental_settings: ExperimentalSettings,
+    #[serde(default)]
     pub debug: bool,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub struct ExperimentalSettings {
+    #[serde(default)]
+    pub randomize_water_environments: bool,
+    #[serde(default = "default_water_room_count")]
+    pub water_room_count: u32,
+    /// Flood dry rooms near the ship spawn instead of picking randomly across the map.
+    #[serde(default)]
+    pub water_flood_near_spawn: bool,
+    /// Apply ROM FX and pause-map water only; skip logic overlay (Gravity on links).
+    #[serde(default)]
+    pub water_visual_only: bool,
+}
+
+impl Default for ExperimentalSettings {
+    fn default() -> Self {
+        Self {
+            randomize_water_environments: false,
+            water_room_count: default_water_room_count(),
+            water_flood_near_spawn: false,
+            water_visual_only: false,
+        }
+    }
+}
+
+fn default_water_room_count() -> u32 {
+    5
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]

@@ -10,9 +10,10 @@ use maprando::patch::Rom;
 use maprando::patch::make_rom;
 use maprando::preset::PresetData;
 use maprando::randomize::{
-    Randomization, Randomizer, get_difficulty_tiers, get_objectives, randomize_doors,
+    Randomization, Randomizer, RandomizerContext, get_difficulty_tiers, get_objectives,
+    randomize_doors,
 };
-use maprando::settings::{RandomizerSettings, StartLocationMode};
+use maprando::settings::{DoorsSettings, RandomizerSettings, StartLocationMode};
 use maprando::spoiler_log::SpoilerLog;
 use maprando::spoiler_map;
 use maprando_game::{GameData, Map};
@@ -65,6 +66,19 @@ struct Args {
 
     #[arg(long)]
     area_themed_palette: bool,
+
+    /// Experimental: flood random dry rooms with water (logic, ROM FX, and pause map).
+    #[arg(long)]
+    randomize_water_environments: bool,
+
+    /// Number of rooms to flood when --randomize-water-environments is set (default: 5).
+    #[arg(long, default_value_t = 5)]
+    water_room_count: u32,
+
+    /// Flood dry rooms near the ship spawn (for testing). Uses blue doors only, skips
+    /// logic changes so seed generation stays fast; swim physics and pause-map water apply.
+    #[arg(long)]
+    flood_near_spawn: bool,
 }
 
 fn get_settings(args: &Args, preset_data: &PresetData) -> Result<RandomizerSettings> {
@@ -91,6 +105,24 @@ fn get_settings(args: &Args, preset_data: &PresetData) -> Result<RandomizerSetti
         settings.quality_of_life_settings = serde_json::from_str(&s)?;
     }
     settings.other_settings.random_seed = args.random_seed;
+    settings.experimental_settings.randomize_water_environments =
+        args.randomize_water_environments || args.flood_near_spawn;
+    settings.experimental_settings.water_room_count = args.water_room_count;
+    settings.experimental_settings.water_flood_near_spawn = args.flood_near_spawn;
+    settings.experimental_settings.water_visual_only = args.flood_near_spawn;
+    if args.flood_near_spawn {
+        settings.doors_settings = DoorsSettings {
+            preset: Some("Blue".to_string()),
+            red_doors_count: 0,
+            green_doors_count: 0,
+            yellow_doors_count: 0,
+            charge_doors_count: 0,
+            ice_doors_count: 0,
+            wave_doors_count: 0,
+            spazer_doors_count: 0,
+            plasma_doors_count: 0,
+        };
+    }
     Ok(settings)
 }
 
@@ -174,14 +206,22 @@ fn get_randomization(
         };
         let objectives = get_objectives(settings, Some(&map), game_data, &mut rng);
         let locked_door_data = randomize_doors(game_data, &map, settings, &objectives, door_seed);
+        let (ctx, water_assignments) = RandomizerContext::prepare(game_data, &map, settings, door_seed, |gd| {
+            let global = get_full_global(gd);
+            gd.make_links_data(&|link, game_data| {
+                get_link_difficulty_length(link, game_data, preset_data, &global)
+            });
+        })?;
+        let effective_game_data = ctx.effective_game_data(game_data);
         let randomizer = Randomizer::new(
             &map,
             &locked_door_data,
             objectives,
             settings,
             &difficulty_tiers,
-            game_data,
-            &game_data.base_links_data,
+            effective_game_data,
+            &effective_game_data.base_links_data,
+            water_assignments,
             &mut rng,
         );
         for _ in 0..max_attempts_per_map {

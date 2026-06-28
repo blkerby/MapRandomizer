@@ -351,6 +351,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             race_mode: false,
             random_seed: None,
         },
+        experimental_settings: maprando::settings::ExperimentalSettings::default(),
         debug: false,
     })
 }

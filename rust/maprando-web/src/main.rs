@@ -37,8 +37,8 @@ use maprando::{
     map_repository::MapRepository,
     preset::PresetData,
     randomize::{
-        DifficultyConfig, Randomization, Randomizer, assign_map_areas, filter_links,
-        get_difficulty_tiers, get_objectives, randomize_doors,
+        DifficultyConfig, Randomization, Randomizer, RandomizerContext, assign_map_areas,
+        filter_links, get_difficulty_tiers, get_objectives, randomize_doors,
     },
     seed_repository::SeedRepository,
     settings::{RandomizerSettings, StartLocationMode, try_upgrade_settings},
@@ -535,16 +535,6 @@ fn handle_randomize_request(
         &app_data.preset_data.notables_by_difficulty["Implicit"],
     );
 
-    let filtered_base_links = filter_links(
-        &app_data.game_data.links,
-        &app_data.game_data,
-        &difficulty_tiers[0],
-    );
-    let filtered_base_links_data = LinksDataGroup::new(
-        filtered_base_links,
-        app_data.game_data.vertex_isv.keys.len(),
-        0,
-    );
     let map_layout = settings.map_layout.clone();
     let max_attempts = 2000;
     let attempts_timeout = Duration::from_secs(25);
@@ -591,14 +581,39 @@ fn handle_randomize_request(
             &objectives,
             door_randomization_seed,
         );
+        let (water_ctx, water_assignments) = RandomizerContext::prepare(
+            &app_data.game_data,
+            &map,
+            &settings,
+            door_randomization_seed,
+            |gd| {
+                let global = get_full_global(gd);
+                gd.make_links_data(&|link, game_data| {
+                    get_link_difficulty_length(link, game_data, &app_data.preset_data, &global)
+                });
+            },
+        )
+        .expect("Unable to prepare water environment overlay");
+        let effective_game_data = water_ctx.effective_game_data(&app_data.game_data);
+        let filtered_links = filter_links(
+            &effective_game_data.links,
+            effective_game_data,
+            &difficulty_tiers[0],
+        );
+        let effective_links_data = LinksDataGroup::new(
+            filtered_links,
+            effective_game_data.vertex_isv.keys.len(),
+            0,
+        );
         let randomizer = Randomizer::new(
             &map,
             &locked_door_data,
             objectives.clone(),
             &settings,
             &difficulty_tiers,
-            &app_data.game_data,
-            &filtered_base_links_data,
+            effective_game_data,
+            &effective_links_data,
+            water_assignments,
             &mut rng,
         );
         for _ in 0..max_attempts_per_map {

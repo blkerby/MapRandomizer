@@ -11,8 +11,8 @@ use maprando::patch::Rom;
 use maprando::patch::make_rom;
 use maprando::preset::PresetData;
 use maprando::randomize::{
-    Randomization, Randomizer, assign_map_areas, get_difficulty_tiers, get_objectives,
-    randomize_doors,
+    Randomization, Randomizer, RandomizerContext, assign_map_areas, get_difficulty_tiers,
+    get_objectives, randomize_doors,
 };
 use maprando::settings::{
     ItemProgressionSettings, QualityOfLifeSettings, RandomizerSettings, SkillAssumptionSettings,
@@ -164,14 +164,22 @@ fn get_randomization(
         }
         let objectives = get_objectives(&settings, Some(&map), game_data, &mut rng);
         let locked_door_data = randomize_doors(game_data, &map, &settings, &objectives, door_seed);
+        let (ctx, water_assignments) = RandomizerContext::prepare(game_data, &map, &settings, door_seed, |gd| {
+            let global = get_full_global(gd);
+            gd.make_links_data(&|link, game_data| {
+                get_link_difficulty_length(link, game_data, &app.preset_data, &global)
+            });
+        })?;
+        let effective_game_data = ctx.effective_game_data(game_data);
         let randomizer = Randomizer::new(
             &map,
             &locked_door_data,
             objectives,
             &settings,
             &difficulty_tiers,
-            game_data,
-            &game_data.base_links_data,
+            effective_game_data,
+            &effective_game_data.base_links_data,
+            water_assignments,
             &mut rng,
         );
         for _ in 0..max_attempts_per_map {

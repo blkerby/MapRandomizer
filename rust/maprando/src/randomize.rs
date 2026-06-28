@@ -2,6 +2,9 @@ pub mod escape_timer;
 mod run_speed;
 
 use crate::helpers::get_item_priorities;
+use crate::water_environment::{
+    WaterAssignment, generate_water_assignments, prepare_game_data_with_water,
+};
 use crate::patch::NUM_AREAS;
 use crate::patch::map_tiles::get_objective_tiles;
 use crate::settings::{
@@ -298,6 +301,7 @@ pub struct Randomizer<'a> {
     pub seed_links_data: LinksDataGroup,
     pub initial_items_remaining: Vec<usize>, // Corresponds to GameData.items_isv (one count per distinct item name)
     pub next_traversal_number: RefCell<usize>,
+    pub water_assignments: HashMap<RoomId, WaterAssignment>,
 }
 
 #[derive(Clone)]
@@ -390,6 +394,8 @@ pub struct Randomization {
     pub seed: usize,
     pub display_seed: usize,
     pub seed_name: String,
+    #[serde(default)]
+    pub water_assignments: std::collections::HashMap<RoomId, WaterAssignment>,
 }
 
 struct SelectItemsOutput {
@@ -3660,6 +3666,7 @@ impl<'r> Randomizer<'r> {
         difficulty_tiers: &'r [DifficultyConfig],
         game_data: &'r GameData,
         base_links_data: &'r LinksDataGroup,
+        water_assignments: HashMap<RoomId, WaterAssignment>,
         _rng: &mut R,
     ) -> Randomizer<'r> {
         let mut available_items: usize = 0;
@@ -3804,6 +3811,7 @@ impl<'r> Randomizer<'r> {
             ),
             difficulty_tiers,
             next_traversal_number: RefCell::new(0),
+            water_assignments,
         }
     }
 
@@ -4916,6 +4924,7 @@ impl<'r> Randomizer<'r> {
             display_seed,
             seed_name: self.get_seed_name(seed),
             start_location: state.start_location.clone(),
+            water_assignments: self.water_assignments.clone().into_iter().collect(),
         };
         Ok((randomization, spoiler_log))
     }
@@ -5406,6 +5415,7 @@ impl<'r> Randomizer<'r> {
             seed_name: self.get_seed_name(seed),
             display_seed,
             start_location: StartLocation::default(),
+            water_assignments: self.water_assignments.clone().into_iter().collect(),
         };
         Ok((randomization, spoiler_log))
     }
@@ -5669,5 +5679,42 @@ impl<'r> Randomizer<'r> {
             false,
             rebuild_traversals,
         )
+    }
+}
+
+pub struct RandomizerContext {
+    pub owned_game_data: Option<GameData>,
+}
+
+impl RandomizerContext {
+    pub fn effective_game_data<'a>(&'a self, base: &'a GameData) -> &'a GameData {
+        self.owned_game_data.as_ref().unwrap_or(base)
+    }
+
+    pub fn prepare<F>(
+        base: &GameData,
+        map: &Map,
+        settings: &RandomizerSettings,
+        water_seed: usize,
+        rebuild_links: F,
+    ) -> Result<(Self, HashMap<RoomId, WaterAssignment>)>
+    where
+        F: FnOnce(&mut GameData),
+    {
+        let water_assignments = generate_water_assignments(
+            map,
+            base,
+            &settings.experimental_settings,
+            water_seed,
+        );
+        let mut owned_game_data = None;
+        if !water_assignments.is_empty()
+            && !settings.experimental_settings.water_visual_only
+        {
+            let mut gd = prepare_game_data_with_water(base, &water_assignments)?;
+            rebuild_links(&mut gd);
+            owned_game_data = Some(gd);
+        }
+        Ok((Self { owned_game_data }, water_assignments))
     }
 }

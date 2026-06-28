@@ -502,7 +502,7 @@ pub fn render_tile(
 
     let liquid_colors = match (tile.liquid_type, tile.heated) {
         (MapLiquidType::None, _) => (bg_color, bg_color),
-        (MapLiquidType::Water, false) => (5, 1),
+        (MapLiquidType::Water, false) | (MapLiquidType::Water, true) => (5, 1),
         (MapLiquidType::Lava, true) => (2, 1),
         (MapLiquidType::Acid, false) => (1, 2),
         (MapLiquidType::Acid, true) => (2, 1),
@@ -3155,6 +3155,39 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    fn apply_water_environment_map_tiles(&mut self) -> Result<()> {
+        use crate::water_environment::tile_liquid_level_for_room;
+
+        for room in &self.game_data.map_tile_data {
+            let Some(assignment) = self.randomization.water_assignments.get(&room.room_id) else {
+                continue;
+            };
+            let room_idx = self.game_data.room_idx_by_id[&room.room_id];
+            if !self.map.room_mask[room_idx] {
+                continue;
+            }
+            for tile_template in &room.map_tiles {
+                let Some(tile_liquid_level) = tile_liquid_level_for_room(
+                    assignment.liquid_level,
+                    tile_template.coords.1 as f32,
+                ) else {
+                    continue;
+                };
+                let Some(room_tile) = self.get_room_tile(
+                    room.room_id,
+                    tile_template.coords.0 as isize,
+                    tile_template.coords.1 as isize,
+                ) else {
+                    continue;
+                };
+                room_tile.heated = false;
+                room_tile.liquid_type = MapLiquidType::Water;
+                room_tile.liquid_level = Some(tile_liquid_level);
+            }
+        }
+        Ok(())
+    }
+
     fn write_map_station_bitmasks(&mut self) -> Result<()> {
         const FULL_MASK_ADDR: usize = 0x829727;
         const PARTIAL_MASK_ADDR: usize = 0x89B200;
@@ -3333,6 +3366,7 @@ impl<'a> MapPatcher<'a> {
             self.write_disabled_etank_tile()?;
         }
         self.apply_room_tiles()?;
+        self.apply_water_environment_map_tiles()?;
         self.indicate_objective_tiles()?;
         if self
             .settings

@@ -7,6 +7,7 @@ pub mod ips_write;
 pub mod map_tiles;
 pub mod suffix_tree;
 pub mod title;
+mod water_fx;
 
 use std::path::Path;
 
@@ -3727,6 +3728,7 @@ pub fn make_rom(
         samus_sprite_categories,
         mosaic_themes,
     )?;
+    water_fx::WaterFxPatcher::new(patcher.rom, game_data, randomization).apply()?;
 
     // ROM Checksum: Do not modify the ROM contents after this point
     fix_snes_checksum(patcher.rom);

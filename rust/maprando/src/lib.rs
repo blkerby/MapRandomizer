@@ -15,3 +15,5 @@ pub mod settings;
 pub mod spoiler_log;
 pub mod spoiler_map;
 pub mod traverse;
+pub mod water_environment;
+pub use water_environment::{WaterAssignment, water_enabled};
