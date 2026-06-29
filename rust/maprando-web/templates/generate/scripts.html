@@ -228,6 +228,24 @@ function buildEnhancedMapSettings(formData) {
     }
 }
 
+function buildExperimentalSettings(formData) {
+    return {
+        "randomize_water_environments": formData.get("randomize_water_environments") == "true",
+        "randomize_heat_environments": formData.get("randomize_heat_environments") == "true",
+    };
+}
+
+function applyExperimentalSettings(exp) {
+    if (exp === null || exp === undefined) {
+        exp = {
+            randomize_water_environments: false,
+            randomize_heat_environments: false,
+        };
+    }
+    applyRadioValue("randomizeWaterEnvironments", exp.randomize_water_environments);
+    applyRadioValue("randomizeHeatEnvironments", exp.randomize_heat_environments);
+}
+
 function emptyToNull(s) {
     if (s == "") {
         return null;
@@ -353,6 +371,7 @@ function buildSettingsObject() {
         },
         "start_location_settings": buildStartLocationSettings(formData),
         "save_animals": formData.get("save_animals"),
+        "experimental_settings": buildExperimentalSettings(formData),
         "other_settings": {
             "wall_jump": formData.get("wall_jump"),
             "speed_booster": formData.get("split_speed"),
@@ -675,6 +694,7 @@ function applyFullSettingsPreset(preset) {
     applyRadioValue("mapLayout", preset.map_layout);
     applyStartLocationSettings(preset.start_location_settings);
     applyRadioValue("saveAnimals", preset.save_animals);
+    applyExperimentalSettings(preset.experimental_settings);
 
     let other = preset.other_settings;
     applyRadioValue("wallJump", other.wall_jump);

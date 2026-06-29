@@ -5,13 +5,15 @@ use maprando::customize::samus_sprite::{SamusSpriteCategory, SamusSpriteInfo};
 use maprando::customize::{
     ControllerConfig, CustomizeSettings, MusicSettings, StatuesHallwayAudio, StatuesHallwayTiling,
 };
+use maprando::environment_logic::MAX_ENVIRONMENT_SOLVABILITY_ATTEMPTS;
 use maprando::difficulty::{get_full_global, get_link_difficulty_length};
+use maprando::map_repository::MapRepository;
 use maprando::patch::Rom;
 use maprando::patch::make_rom;
 use maprando::preset::PresetData;
 use maprando::randomize::{
-    Randomization, Randomizer, RandomizerContext, get_difficulty_tiers, get_objectives,
-    randomize_doors,
+    Randomization, Randomizer, RandomizerContext, assign_map_areas, get_difficulty_tiers,
+    get_objectives, randomize_doors,
 };
 use maprando::settings::{DoorsSettings, RandomizerSettings, StartLocationMode};
 use maprando::spoiler_log::SpoilerLog;
@@ -22,8 +24,13 @@ use std::path::{Path, PathBuf};
 
 #[derive(Parser)]
 struct Args {
+    /// Fixed map JSON file or directory (Vanilla layout only). Ignored for Standard/Wild/Small.
     #[arg(long)]
-    map: PathBuf,
+    map: Option<PathBuf>,
+
+    /// Map pool: Standard (scrambled rooms), Wild, Small, or Vanilla (fixed layout).
+    #[arg(long)]
+    map_layout: Option<String>,
 
     #[arg(long)]
     preset: Option<String>,
@@ -79,6 +86,23 @@ struct Args {
     /// logic changes so seed generation stays fast; swim physics and pause-map water apply.
     #[arg(long)]
     flood_near_spawn: bool,
+
+    /// Experimental: heat random dry rooms (logic, ROM FX, and pause map).
+    #[arg(long)]
+    randomize_heat_environments: bool,
+
+    /// Number of rooms to heat when --randomize-heat-environments is set (default: 5).
+    #[arg(long, default_value_t = 5)]
+    heat_room_count: u32,
+
+    /// Heat dry rooms near the ship spawn (for testing). Uses blue doors only, skips
+    /// logic changes so seed generation stays fast; heat FX and pause-map heat apply.
+    #[arg(long)]
+    heat_near_spawn: bool,
+
+    /// Randomize the start location (instead of always starting at the ship).
+    #[arg(long)]
+    random_start: bool,
 }
 
 fn get_settings(args: &Args, preset_data: &PresetData) -> Result<RandomizerSettings> {
@@ -105,12 +129,20 @@ fn get_settings(args: &Args, preset_data: &PresetData) -> Result<RandomizerSetti
         settings.quality_of_life_settings = serde_json::from_str(&s)?;
     }
     settings.other_settings.random_seed = args.random_seed;
+    if let Some(map_layout) = &args.map_layout {
+        settings.map_layout = map_layout.clone();
+    }
     settings.experimental_settings.randomize_water_environments =
         args.randomize_water_environments || args.flood_near_spawn;
     settings.experimental_settings.water_room_count = args.water_room_count;
     settings.experimental_settings.water_flood_near_spawn = args.flood_near_spawn;
     settings.experimental_settings.water_visual_only = args.flood_near_spawn;
-    if args.flood_near_spawn {
+    settings.experimental_settings.randomize_heat_environments =
+        args.randomize_heat_environments || args.heat_near_spawn;
+    settings.experimental_settings.heat_room_count = args.heat_room_count;
+    settings.experimental_settings.heat_flood_near_spawn = args.heat_near_spawn;
+    settings.experimental_settings.heat_visual_only = args.heat_near_spawn;
+    if args.flood_near_spawn || args.heat_near_spawn {
         settings.doors_settings = DoorsSettings {
             preset: Some("Blue".to_string()),
             red_doors_count: 0,
@@ -123,7 +155,22 @@ fn get_settings(args: &Args, preset_data: &PresetData) -> Result<RandomizerSetti
             plasma_doors_count: 0,
         };
     }
+    if args.random_start {
+        settings.start_location_settings.mode = StartLocationMode::Random;
+    }
     Ok(settings)
+}
+
+fn map_repository_for_layout(map_layout: &str) -> Result<MapRepository> {
+    let path = match map_layout {
+        "Standard" => Path::new("../maps/v119-standard-avro"),
+        "Wild" => Path::new("../maps/v119-wild-avro"),
+        "Small" => Path::new("../maps/v119-small-avro"),
+        "Vanilla" => Path::new("../maps/vanilla"),
+        other => bail!("Unknown map layout {other:?}; expected Standard, Wild, Small, or Vanilla"),
+    };
+    MapRepository::new(map_layout, path)
+        .with_context(|| format!("Unable to load {map_layout} map repository at {}", path.display()))
 }
 
 fn get_randomization(
@@ -141,27 +188,47 @@ fn get_randomization(
         implicit_tech,
         implicit_notables,
     );
-    let mut filenames: Vec<String> = Vec::new();
-    let single_map: Option<Map> = if args.map.is_dir() {
-        for path in std::fs::read_dir(&args.map)
-            .with_context(|| format!("Unable to read maps in directory {}", args.map.display()))?
-        {
-            filenames.push(path?.file_name().into_string().unwrap());
-        }
-        filenames.sort();
-        info!(
-            "{} maps available ({})",
-            filenames.len(),
-            args.map.display()
-        );
-        None
+    let map_layout = settings.map_layout.as_str();
+    let use_map_repository = matches!(map_layout, "Standard" | "Wild" | "Small");
+    let map_repository = if use_map_repository {
+        Some(map_repository_for_layout(map_layout)?)
     } else {
-        let map_string = std::fs::read_to_string(&args.map)
-            .with_context(|| format!("Unable to read map file at {}", args.map.display()))?;
-        Some(
-            serde_json::from_str(&map_string)
-                .with_context(|| format!("Unable to parse map file at {}", args.map.display()))?,
-        )
+        None
+    };
+
+    let mut json_map_filenames: Vec<String> = Vec::new();
+    let single_json_map: Option<Map> = if use_map_repository {
+        if args.map.is_some() {
+            info!(
+                "Ignoring --map because map_layout={map_layout} uses the scrambled map pool"
+            );
+        }
+        None
+    } else if let Some(map_path) = &args.map {
+        if map_path.is_dir() {
+            for path in std::fs::read_dir(map_path)
+                .with_context(|| format!("Unable to read maps in directory {}", map_path.display()))?
+            {
+                json_map_filenames.push(path?.file_name().into_string().unwrap());
+            }
+            json_map_filenames.sort();
+            info!(
+                "{} maps available ({})",
+                json_map_filenames.len(),
+                map_path.display()
+            );
+            None
+        } else {
+            let map_string = std::fs::read_to_string(map_path)
+                .with_context(|| format!("Unable to read map file at {}", map_path.display()))?;
+            Some(serde_json::from_str(&map_string).with_context(|| {
+                format!("Unable to parse map file at {}", map_path.display())
+            })?)
+        }
+    } else {
+        bail!(
+            "Vanilla map layout requires --map pointing to a map JSON file or directory"
+        );
     };
     let root_seed = match args.random_seed {
         Some(s) => s,
@@ -185,33 +252,57 @@ fn get_randomization(
     };
     let max_map_attempts = max_attempts / max_attempts_per_map;
     let mut attempt_num = 0;
+    let mut map_batch: Vec<Map> = vec![];
     for _ in 0..max_map_attempts {
         let map_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
-        let map = match single_map {
-            Some(ref m) => m.clone(),
-            None => {
-                let idx = map_seed % filenames.len();
-                let path = args.map.join(&filenames[idx]);
-                let map_string = std::fs::read_to_string(&path)
-                    .with_context(|| format!("Unable to read map file at {}", path.display()))?;
-                info!("[attempt {attempt_num}] Map: {}", path.display());
-                serde_json::from_str(&map_string).with_context(|| {
-                    format!("Unable to parse map file at {}", args.map.display())
-                })?
+        let mut map = if let Some(map_repo) = &map_repository {
+            if map_batch.is_empty() {
+                map_batch = map_repo.get_map_batch(map_seed, game_data)?;
             }
+            map_batch.pop().context("Map batch exhausted")?
+        } else if let Some(ref m) = single_json_map {
+            m.clone()
+        } else {
+            let map_path = args
+                .map
+                .as_ref()
+                .context("Expected --map when using JSON map directory")?;
+            let idx = map_seed % json_map_filenames.len();
+            let path = map_path.join(&json_map_filenames[idx]);
+            let map_string = std::fs::read_to_string(&path)
+                .with_context(|| format!("Unable to read map file at {}", path.display()))?;
+            info!("[attempt {attempt_num}] Map: {}", path.display());
+            serde_json::from_str(&map_string).with_context(|| {
+                format!("Unable to parse map file at {}", path.display())
+            })?
         };
+        if !assign_map_areas(&mut map, settings, map_seed, game_data) {
+            info!("[attempt {attempt_num}] Area assignment failed for map seed={map_seed}");
+            continue;
+        }
         let door_seed = match args.item_placement_seed {
             Some(s) => s,
             None => (rng.next_u64() & 0xFFFFFFFF) as usize,
         };
         let objectives = get_objectives(settings, Some(&map), game_data, &mut rng);
         let locked_door_data = randomize_doors(game_data, &map, settings, &objectives, door_seed);
-        let (ctx, water_assignments) = RandomizerContext::prepare(game_data, &map, settings, door_seed, |gd| {
-            let global = get_full_global(gd);
-            gd.make_links_data(&|link, game_data| {
-                get_link_difficulty_length(link, game_data, preset_data, &global)
-            });
-        })?;
+        let (ctx, water_assignments, heat_assignments, dry_water_assignments, dry_heat_assignments) =
+            RandomizerContext::prepare_solvable(
+                game_data,
+                &map,
+                settings,
+                &locked_door_data,
+                &objectives,
+                &difficulty_tiers,
+                door_seed,
+                |gd| {
+                    let global = get_full_global(gd);
+                    gd.make_links_data(&|link, game_data| {
+                        get_link_difficulty_length(link, game_data, preset_data, &global)
+                    });
+                },
+            MAX_ENVIRONMENT_SOLVABILITY_ATTEMPTS,
+            )?;
         let effective_game_data = ctx.effective_game_data(game_data);
         let randomizer = Randomizer::new(
             &map,
@@ -222,6 +313,9 @@ fn get_randomization(
             effective_game_data,
             &effective_game_data.base_links_data,
             water_assignments,
+            heat_assignments,
+            dry_water_assignments,
+            dry_heat_assignments,
             &mut rng,
         );
         for _ in 0..max_attempts_per_map {
@@ -233,7 +327,7 @@ fn get_randomization(
             info!(
                 "Attempt {attempt_num}/{max_attempts}: Map seed={map_seed}, door randomization seed={door_seed}, item placement seed={item_seed}"
             );
-            match randomizer.randomize(attempt_num, item_seed, 1, true) {
+            match randomizer.randomize(attempt_num, item_seed, 1, true, false) {
                 Ok(randomization) => {
                     return Ok(randomization);
                 }

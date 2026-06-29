@@ -15,5 +15,8 @@ pub mod settings;
 pub mod spoiler_log;
 pub mod spoiler_map;
 pub mod traverse;
+pub mod environment_logic;
+pub mod heat_environment;
 pub mod water_environment;
+pub use heat_environment::{HeatAssignment, heat_enabled};
 pub use water_environment::{WaterAssignment, water_enabled};

@@ -1,9 +1,19 @@
 pub mod escape_timer;
 mod run_speed;
 
+use crate::environment_logic::{
+    environment_needs_solvability_probe, environment_probe_settings_variants,
+    environment_reduced_pair_attempt, ENVIRONMENT_PROBE_ITEM_SEEDS,
+    MAX_ENVIRONMENT_SOLVABILITY_ATTEMPTS,
+};
 use crate::helpers::get_item_priorities;
+use crate::heat_environment::{
+    HeatAssignment, DryHeatAssignment, apply_dry_heat_overlay, apply_heat_overlay,
+    generate_balanced_heat_environment_assignments,
+};
 use crate::water_environment::{
-    WaterAssignment, generate_water_assignments, prepare_game_data_with_water,
+    DryWaterAssignment, WaterAssignment, apply_dry_water_overlay, apply_water_overlay,
+    generate_balanced_water_environment_assignments,
 };
 use crate::patch::NUM_AREAS;
 use crate::patch::map_tiles::get_objective_tiles;
@@ -302,6 +312,9 @@ pub struct Randomizer<'a> {
     pub initial_items_remaining: Vec<usize>, // Corresponds to GameData.items_isv (one count per distinct item name)
     pub next_traversal_number: RefCell<usize>,
     pub water_assignments: HashMap<RoomId, WaterAssignment>,
+    pub heat_assignments: HashMap<RoomId, HeatAssignment>,
+    pub dry_water_assignments: HashMap<RoomId, DryWaterAssignment>,
+    pub dry_heat_assignments: HashMap<RoomId, DryHeatAssignment>,
 }
 
 #[derive(Clone)]
@@ -396,6 +409,12 @@ pub struct Randomization {
     pub seed_name: String,
     #[serde(default)]
     pub water_assignments: std::collections::HashMap<RoomId, WaterAssignment>,
+    #[serde(default)]
+    pub heat_assignments: std::collections::HashMap<RoomId, HeatAssignment>,
+    #[serde(default)]
+    pub dry_water_assignments: std::collections::HashMap<RoomId, DryWaterAssignment>,
+    #[serde(default)]
+    pub dry_heat_assignments: std::collections::HashMap<RoomId, DryHeatAssignment>,
 }
 
 struct SelectItemsOutput {
@@ -3667,6 +3686,9 @@ impl<'r> Randomizer<'r> {
         game_data: &'r GameData,
         base_links_data: &'r LinksDataGroup,
         water_assignments: HashMap<RoomId, WaterAssignment>,
+        heat_assignments: HashMap<RoomId, HeatAssignment>,
+        dry_water_assignments: HashMap<RoomId, DryWaterAssignment>,
+        dry_heat_assignments: HashMap<RoomId, DryHeatAssignment>,
         _rng: &mut R,
     ) -> Randomizer<'r> {
         let mut available_items: usize = 0;
@@ -3812,6 +3834,9 @@ impl<'r> Randomizer<'r> {
             difficulty_tiers,
             next_traversal_number: RefCell::new(0),
             water_assignments,
+            heat_assignments,
+            dry_water_assignments,
+            dry_heat_assignments,
         }
     }
 
@@ -4925,6 +4950,9 @@ impl<'r> Randomizer<'r> {
             seed_name: self.get_seed_name(seed),
             start_location: state.start_location.clone(),
             water_assignments: self.water_assignments.clone().into_iter().collect(),
+            heat_assignments: self.heat_assignments.clone().into_iter().collect(),
+            dry_water_assignments: self.dry_water_assignments.clone().into_iter().collect(),
+            dry_heat_assignments: self.dry_heat_assignments.clone().into_iter().collect(),
         };
         Ok((randomization, spoiler_log))
     }
@@ -5416,6 +5444,9 @@ impl<'r> Randomizer<'r> {
             display_seed,
             start_location: StartLocation::default(),
             water_assignments: self.water_assignments.clone().into_iter().collect(),
+            heat_assignments: self.heat_assignments.clone().into_iter().collect(),
+            dry_water_assignments: self.dry_water_assignments.clone().into_iter().collect(),
+            dry_heat_assignments: self.dry_heat_assignments.clone().into_iter().collect(),
         };
         Ok((randomization, spoiler_log))
     }
@@ -5431,12 +5462,24 @@ impl<'r> Randomizer<'r> {
         false
     }
 
+    /// Quick check whether item placement can succeed with the current environment overlay.
+    pub fn probe_solvability(&self, item_seed: usize) -> bool {
+        match self.randomize(0, item_seed, 0, false, true) {
+            Ok(_) => true,
+            Err(e) => {
+                log::debug!("Environment solvability probe failed: {e}");
+                false
+            }
+        }
+    }
+
     pub fn randomize(
         &self,
         attempt_num_rando: usize,
         seed: usize,
         display_seed: usize,
         rebuild_traversals: bool,
+        tolerate_escape_failure: bool,
     ) -> Result<(Randomization, SpoilerLog)> {
         let mut rng_seed = [0u8; 32];
         rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
@@ -5676,7 +5719,7 @@ impl<'r> Randomizer<'r> {
             &mut rng,
             &mut traverser_pair,
             &start_location_data,
-            false,
+            tolerate_escape_failure,
             rebuild_traversals,
         )
     }
@@ -5695,26 +5738,195 @@ impl RandomizerContext {
         base: &GameData,
         map: &Map,
         settings: &RandomizerSettings,
-        water_seed: usize,
+        environment_seed: usize,
+        blocked_rooms: &HashSet<RoomId>,
         rebuild_links: F,
-    ) -> Result<(Self, HashMap<RoomId, WaterAssignment>)>
+    ) -> Result<(
+        Self,
+        HashMap<RoomId, WaterAssignment>,
+        HashMap<RoomId, HeatAssignment>,
+        HashMap<RoomId, DryWaterAssignment>,
+        HashMap<RoomId, DryHeatAssignment>,
+    )>
     where
         F: FnOnce(&mut GameData),
     {
-        let water_assignments = generate_water_assignments(
-            map,
-            base,
-            &settings.experimental_settings,
-            water_seed,
-        );
+        let exp = &settings.experimental_settings;
+        let (water_assignments, dry_water_assignments) =
+            generate_balanced_water_environment_assignments(
+                map,
+                base,
+                exp,
+                environment_seed,
+                blocked_rooms,
+            );
+        let water_room_ids: HashSet<RoomId> = water_assignments.keys().copied().collect();
+        let dry_water_room_ids: HashSet<RoomId> =
+            dry_water_assignments.keys().copied().collect();
+        let mut heat_exclude = water_room_ids.clone();
+        heat_exclude.extend(&dry_water_room_ids);
+        let (heat_assignments, dry_heat_assignments) =
+            generate_balanced_heat_environment_assignments(
+                map,
+                base,
+                exp,
+                environment_seed,
+                &heat_exclude,
+                blocked_rooms,
+            );
+        let needs_water_logic =
+            !water_assignments.is_empty() && !exp.water_visual_only;
+        let needs_heat_logic = !heat_assignments.is_empty() && !exp.heat_visual_only;
+        let needs_dry_water_logic =
+            !dry_water_assignments.is_empty() && !exp.water_visual_only;
+        let needs_dry_heat_logic = !dry_heat_assignments.is_empty() && !exp.heat_visual_only;
         let mut owned_game_data = None;
-        if !water_assignments.is_empty()
-            && !settings.experimental_settings.water_visual_only
+        if needs_water_logic
+            || needs_heat_logic
+            || needs_dry_water_logic
+            || needs_dry_heat_logic
         {
-            let mut gd = prepare_game_data_with_water(base, &water_assignments)?;
+            let mut gd = base.clone();
+            if needs_dry_water_logic {
+                apply_dry_water_overlay(&mut gd, &dry_water_assignments)?;
+            }
+            if needs_water_logic {
+                apply_water_overlay(&mut gd, &water_assignments)?;
+            }
+            if needs_dry_heat_logic {
+                apply_dry_heat_overlay(&mut gd, &dry_heat_assignments)?;
+            }
+            if needs_heat_logic {
+                apply_heat_overlay(&mut gd, &heat_assignments)?;
+            }
             rebuild_links(&mut gd);
             owned_game_data = Some(gd);
         }
-        Ok((Self { owned_game_data }, water_assignments))
+        Ok((
+            Self { owned_game_data },
+            water_assignments,
+            heat_assignments,
+            dry_water_assignments,
+            dry_heat_assignments,
+        ))
+    }
+
+    pub fn prepare_solvable<'a, F>(
+        base: &'a GameData,
+        map: &'a Map,
+        settings: &'a RandomizerSettings,
+        locked_door_data: &'a LockedDoorData,
+        objectives: &[Objective],
+        difficulty_tiers: &'a [DifficultyConfig],
+        environment_seed: usize,
+        mut rebuild_links: F,
+        max_environment_attempts: usize,
+    ) -> Result<(
+        Self,
+        HashMap<RoomId, WaterAssignment>,
+        HashMap<RoomId, HeatAssignment>,
+        HashMap<RoomId, DryWaterAssignment>,
+        HashMap<RoomId, DryHeatAssignment>,
+    )>
+    where
+        F: FnMut(&mut GameData),
+    {
+        let needs_probe = environment_needs_solvability_probe(settings);
+        let max_attempts = if needs_probe {
+            max_environment_attempts.min(MAX_ENVIRONMENT_SOLVABILITY_ATTEMPTS)
+        } else {
+            1
+        };
+        let blocked_rooms = HashSet::new();
+
+        let reduced_pair_after = max_attempts / 2;
+        for env_attempt in 0..max_attempts {
+            let env_seed = environment_seed.wrapping_add(env_attempt.wrapping_mul(9973));
+            let attempt_settings = if env_attempt >= reduced_pair_after {
+                environment_reduced_pair_attempt(settings)
+            } else {
+                settings.clone()
+            };
+            let (
+                ctx,
+                water_assignments,
+                heat_assignments,
+                dry_water_assignments,
+                dry_heat_assignments,
+            ) = Self::prepare(base, map, &attempt_settings, env_seed, &blocked_rooms, |gd| {
+                rebuild_links(gd);
+            })?;
+            if !needs_probe {
+                return Ok((
+                    ctx,
+                    water_assignments,
+                    heat_assignments,
+                    dry_water_assignments,
+                    dry_heat_assignments,
+                ));
+            }
+
+            let effective_game_data = ctx.effective_game_data(base);
+            let filtered_links = filter_links(
+                &effective_game_data.links,
+                effective_game_data,
+                &difficulty_tiers[0],
+            );
+            let probe_links_data = LinksDataGroup::new(
+                filtered_links,
+                effective_game_data.vertex_isv.keys.len(),
+                0,
+            );
+            let probe_settings_variants = environment_probe_settings_variants(settings);
+            let mut solvable = false;
+            'probe: for probe_settings in &probe_settings_variants {
+                let randomizer = Randomizer::new(
+                    map,
+                    locked_door_data,
+                    objectives.to_vec(),
+                    probe_settings,
+                    difficulty_tiers,
+                    effective_game_data,
+                    &probe_links_data,
+                    water_assignments.clone(),
+                    heat_assignments.clone(),
+                    dry_water_assignments.clone(),
+                    dry_heat_assignments.clone(),
+                    &mut rand::rngs::StdRng::from_seed([0u8; 32]),
+                );
+                for probe_i in 0..ENVIRONMENT_PROBE_ITEM_SEEDS {
+                    let probe_seed = environment_seed
+                        .wrapping_add(env_attempt.wrapping_mul(9973))
+                        .wrapping_add(probe_i.wrapping_mul(7919))
+                        .wrapping_add(1);
+                    if randomizer.probe_solvability(probe_seed) {
+                        solvable = true;
+                        break 'probe;
+                    }
+                }
+            }
+            if solvable {
+                if env_attempt > 0 {
+                    info!(
+                        "Found solvable environment assignments on attempt {}",
+                        env_attempt + 1
+                    );
+                }
+                return Ok((
+                    ctx,
+                    water_assignments,
+                    heat_assignments,
+                    dry_water_assignments,
+                    dry_heat_assignments,
+                ));
+            }
+            info!(
+                "Environment assignment attempt {} did not yield a solvable seed, retrying",
+                env_attempt + 1
+            );
+        }
+        bail!(
+            "Could not find solvable environment assignments after {max_attempts} attempts"
+        )
     }
 }

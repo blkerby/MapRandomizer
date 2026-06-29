@@ -215,6 +215,13 @@ impl SeedHeaderTemplate<'_> {
         if other_settings.all_enemies_respawn {
             game_variations.push("All enemies respawn");
         }
+        let exp = &self.settings.experimental_settings;
+        if exp.randomize_water_environments {
+            game_variations.push("Balanced water environments");
+        }
+        if exp.randomize_heat_environments {
+            game_variations.push("Balanced heat environments");
+        }
         game_variations
     }
 }

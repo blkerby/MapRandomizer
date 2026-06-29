@@ -1,0 +1,26 @@
+<div class="form-group row my-3" onchange="fullSettingsChanged()">
+    <div class="col-lg-3 ml-0 mt-1 mb-1 align-items-center">
+        {% include "help/experimental/water_environments.html" %}
+        <label for="randomize_water_environments">Randomize water</label>
+    </div>
+    <div id="randomizeWaterEnvironments" class="col-lg-4 btn-group my-2" role="group">
+        <input type="radio" class="btn-check" name="randomize_water_environments" id="randomizeWaterEnvironmentsNo" value="false" checked>
+        <label class="btn btn-outline-primary" for="randomizeWaterEnvironmentsNo">No</label>
+        <input type="radio" class="btn-check" name="randomize_water_environments" id="randomizeWaterEnvironmentsYes" value="true">
+        <label class="btn btn-outline-primary" for="randomizeWaterEnvironmentsYes">Yes</label>
+    </div>
+    <div class="col-lg-5 my-2 text-muted small align-self-center">Flood random dry rooms; dry the same number of vanilla water rooms</div>
+</div>
+<div class="form-group row my-3" onchange="fullSettingsChanged()">
+    <div class="col-lg-3 ml-0 mt-1 mb-1 align-items-center">
+        {% include "help/experimental/heat_environments.html" %}
+        <label for="randomize_heat_environments">Randomize heat</label>
+    </div>
+    <div id="randomizeHeatEnvironments" class="col-lg-4 btn-group my-2" role="group">
+        <input type="radio" class="btn-check" name="randomize_heat_environments" id="randomizeHeatEnvironmentsNo" value="false" checked>
+        <label class="btn btn-outline-primary" for="randomizeHeatEnvironmentsNo">No</label>
+        <input type="radio" class="btn-check" name="randomize_heat_environments" id="randomizeHeatEnvironmentsYes" value="true">
+        <label class="btn btn-outline-primary" for="randomizeHeatEnvironmentsYes">Yes</label>
+    </div>
+    <div class="col-lg-5 my-2 text-muted small align-self-center">Heat random dry rooms; cool the same number of vanilla heated rooms</div>
+</div>

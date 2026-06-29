@@ -17,7 +17,7 @@ use actix_web::{
 };
 use askama::Template;
 use clap::Parser;
-use hashbrown::HashMap;
+use hashbrown::{HashMap, HashSet};
 use log::{error, info};
 use rand::{RngCore, SeedableRng};
 use serde_derive::{Deserialize, Serialize};
@@ -52,7 +52,7 @@ const VISUALIZER_PATH: &str = "../visualizer/";
 
 #[derive(Parser)]
 struct Args {
-    #[arg(long)]
+    #[arg(long, default_value = "mem")]
     seed_repository_url: String,
     #[arg(long, default_value = "https://map-rando-videos.b-cdn.net")]
     video_storage_url: String,
@@ -537,7 +537,13 @@ fn handle_randomize_request(
 
     let map_layout = settings.map_layout.clone();
     let max_attempts = 2000;
-    let attempts_timeout = Duration::from_secs(25);
+    let attempts_timeout = if settings.experimental_settings.randomize_water_environments
+        || settings.experimental_settings.randomize_heat_environments
+    {
+        Duration::from_secs(120)
+    } else {
+        Duration::from_secs(25)
+    };
     let max_attempts_per_map = if settings.start_location_settings.mode == StartLocationMode::Random
     {
         10
@@ -581,10 +587,21 @@ fn handle_randomize_request(
             &objectives,
             door_randomization_seed,
         );
-        let (water_ctx, water_assignments) = RandomizerContext::prepare(
+        if time_start_attempts.elapsed() > attempts_timeout {
+            return Err(AttemptError::TimedOut);
+        }
+        let remaining = attempts_timeout.saturating_sub(time_start_attempts.elapsed());
+        // Environment probing rebuilds links and runs placement trials (~0.3–1.2s each).
+        const MAX_ENV_ATTEMPTS_PER_MAP: usize = 32;
+        let max_env_attempts = (remaining.as_millis() / 600)
+            .clamp(1, MAX_ENV_ATTEMPTS_PER_MAP as u128) as usize;
+        let environment_overlay = RandomizerContext::prepare_solvable(
             &app_data.game_data,
             &map,
             &settings,
+            &locked_door_data,
+            &objectives,
+            &difficulty_tiers,
             door_randomization_seed,
             |gd| {
                 let global = get_full_global(gd);
@@ -592,8 +609,49 @@ fn handle_randomize_request(
                     get_link_difficulty_length(link, game_data, &app_data.preset_data, &global)
                 });
             },
-        )
-        .expect("Unable to prepare water environment overlay");
+            max_env_attempts,
+        );
+        let (
+            water_ctx,
+            water_assignments,
+            heat_assignments,
+            dry_water_assignments,
+            dry_heat_assignments,
+        ) = match environment_overlay {
+            Ok(x) => x,
+            Err(e) => {
+                info!(
+                    "No solvable environment overlay for map seed={map_seed}: {e}; using unverified overlay"
+                );
+                match RandomizerContext::prepare(
+                    &app_data.game_data,
+                    &map,
+                    &settings,
+                    door_randomization_seed,
+                    &HashSet::new(),
+                    |gd| {
+                        let global = get_full_global(gd);
+                        gd.make_links_data(&|link, game_data| {
+                            get_link_difficulty_length(
+                                link,
+                                game_data,
+                                &app_data.preset_data,
+                                &global,
+                            )
+                        });
+                    },
+                ) {
+                    Ok(x) => x,
+                    Err(e2) => {
+                        info!("Environment overlay failed: {e2}; trying another map");
+                        if time_start_attempts.elapsed() > attempts_timeout {
+                            return Err(AttemptError::TimedOut);
+                        }
+                        continue;
+                    }
+                }
+            }
+        };
         let effective_game_data = water_ctx.effective_game_data(&app_data.game_data);
         let filtered_links = filter_links(
             &effective_game_data.links,
@@ -614,6 +672,9 @@ fn handle_randomize_request(
             effective_game_data,
             &effective_links_data,
             water_assignments,
+            heat_assignments,
+            dry_water_assignments,
+            dry_heat_assignments,
             &mut rng,
         );
         for _ in 0..max_attempts_per_map {
@@ -623,8 +684,15 @@ fn handle_randomize_request(
             info!(
                 "Attempt {attempt_num}/{max_attempts}: Map seed={map_seed}, door randomization seed={door_randomization_seed}, item placement seed={item_placement_seed}"
             );
-            let randomization_result =
-                randomizer.randomize(attempt_num, item_placement_seed, display_seed, true);
+            let tolerate_escape_failure = settings.experimental_settings.randomize_water_environments
+                || settings.experimental_settings.randomize_heat_environments;
+            let randomization_result = randomizer.randomize(
+                attempt_num,
+                item_placement_seed,
+                display_seed,
+                true,
+                tolerate_escape_failure,
+            );
             let (randomization, spoiler_log) = match randomization_result {
                 Ok(x) => x,
                 Err(e) => {

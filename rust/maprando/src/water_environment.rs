@@ -1,13 +1,14 @@
-use std::collections::{HashSet, VecDeque};
+use std::collections::VecDeque;
 
 use anyhow::{Result, ensure};
-use hashbrown::HashMap;
+use hashbrown::{HashMap, HashSet};
 use json;
 use log::info;
 use maprando_game::{GameData, Item, ItemId, Map, Requirement, RoomId};
 use rand::{SeedableRng, rngs::StdRng, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
 
+use crate::environment_logic::effective_environment_pair_count;
 use crate::settings::{ExperimentalSettings, RandomizerSettings};
 
 /// Default donor room for water FX: Fish Tank (fully underwater).
@@ -61,7 +62,7 @@ const EXCLUDED_ROOM_NAMES: &[&str] = &[
     "Mama Turtle Room",
 ];
 
-fn room_name(game_data: &GameData, room_id: RoomId) -> String {
+pub fn room_name(game_data: &GameData, room_id: RoomId) -> String {
     game_data.room_json_map[&room_id]["name"]
         .as_str()
         .unwrap_or("")
@@ -85,7 +86,16 @@ pub fn room_has_water(game_data: &GameData, room_id: RoomId) -> bool {
     false
 }
 
-fn is_room_eligible(game_data: &GameData, room_id: RoomId, room_idx: usize, map: &Map) -> bool {
+fn is_room_eligible(
+    game_data: &GameData,
+    room_id: RoomId,
+    room_idx: usize,
+    map: &Map,
+    blocked: &HashSet<RoomId>,
+) -> bool {
+    if blocked.contains(&room_id) {
+        return false;
+    }
     if !map.room_mask[room_idx] {
         return false;
     }
@@ -160,7 +170,7 @@ pub fn get_eligible_rooms_near_spawn(
             }
             let room_id = room.room_id;
             if chosen.insert(room_id)
-                && is_room_eligible(game_data, room_id, room_idx, map)
+                && is_room_eligible(game_data, room_id, room_idx, map, &HashSet::new())
             {
                 result.push((room_id, room_idx));
             }
@@ -182,7 +192,7 @@ pub fn get_eligible_rooms_near_spawn(
         let room_idx = game_data.room_idx_by_id[&room_id];
         if depth > 0
             && chosen.insert(room_id)
-            && is_room_eligible(game_data, room_id, room_idx, map)
+            && is_room_eligible(game_data, room_id, room_idx, map, &HashSet::new())
         {
             result.push((room_id, room_idx));
             if result.len() >= max_count {
@@ -200,11 +210,15 @@ pub fn get_eligible_rooms_near_spawn(
     result
 }
 
-pub fn get_eligible_water_rooms(game_data: &GameData, map: &Map) -> Vec<(RoomId, usize)> {
+pub fn get_eligible_water_rooms(
+    game_data: &GameData,
+    map: &Map,
+    blocked: &HashSet<RoomId>,
+) -> Vec<(RoomId, usize)> {
     let mut eligible = vec![];
     for (room_idx, room) in game_data.room_geometry.iter().enumerate() {
         let room_id = room.room_id;
-        if is_room_eligible(game_data, room_id, room_idx, map) {
+        if is_room_eligible(game_data, room_id, room_idx, map, blocked) {
             eligible.push((room_id, room_idx));
         }
     }
@@ -216,6 +230,7 @@ pub fn generate_water_assignments(
     game_data: &GameData,
     settings: &ExperimentalSettings,
     seed: usize,
+    blocked: &HashSet<RoomId>,
 ) -> HashMap<RoomId, WaterAssignment> {
     if !settings.randomize_water_environments {
         return HashMap::new();
@@ -225,7 +240,7 @@ pub fn generate_water_assignments(
         let count = settings.water_room_count as usize;
         get_eligible_rooms_near_spawn(game_data, map, count)
     } else {
-        let mut eligible = get_eligible_water_rooms(game_data, map);
+        let mut eligible = get_eligible_water_rooms(game_data, map, blocked);
         if eligible.is_empty() {
             return HashMap::new();
         }
@@ -259,6 +274,8 @@ pub fn generate_water_assignments(
             eligible.len(),
             names.join(", ")
         );
+    } else if !eligible.is_empty() && !settings.water_flood_near_spawn {
+        info!("Flooding {} rooms across the map", eligible.len());
     }
 
     let mut assignments = HashMap::new();
@@ -272,6 +289,80 @@ pub fn generate_water_assignments(
         );
     }
     assignments
+}
+
+/// Flood random dry rooms and dry the same number of vanilla water rooms (1:1 balance).
+pub fn generate_balanced_water_environment_assignments(
+    map: &Map,
+    game_data: &GameData,
+    settings: &ExperimentalSettings,
+    seed: usize,
+    blocked: &HashSet<RoomId>,
+) -> (
+    HashMap<RoomId, WaterAssignment>,
+    HashMap<RoomId, DryWaterAssignment>,
+) {
+    if !settings.randomize_water_environments {
+        return (HashMap::new(), HashMap::new());
+    }
+    if settings.water_flood_near_spawn {
+        return (
+            generate_water_assignments(map, game_data, settings, seed, blocked),
+            HashMap::new(),
+        );
+    }
+
+    let mut flood_eligible = get_eligible_water_rooms(game_data, map, blocked);
+    let mut dry_eligible = get_eligible_dry_water_rooms(game_data, map, blocked);
+    let pair_count = effective_environment_pair_count(settings, settings.water_room_count)
+        .min(flood_eligible.len() as u32)
+        .min(dry_eligible.len() as u32) as usize;
+    if pair_count == 0 {
+        return (HashMap::new(), HashMap::new());
+    }
+
+    let mut rng_seed = [0u8; 32];
+    rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
+    let mut flood_rng = StdRng::from_seed(rng_seed);
+    flood_eligible.shuffle(&mut flood_rng);
+    flood_eligible.truncate(pair_count);
+
+    rng_seed[..8].copy_from_slice(&seed.wrapping_add(7919).to_le_bytes());
+    let mut dry_rng = StdRng::from_seed(rng_seed);
+    dry_eligible.shuffle(&mut dry_rng);
+    dry_eligible.truncate(pair_count);
+
+    info!(
+        "Balanced water: flooding {} dry rooms and drying {} vanilla water rooms",
+        pair_count, pair_count
+    );
+
+    let flood_assignments = flood_eligible
+        .into_iter()
+        .map(|(room_id, _room_idx)| {
+            (
+                room_id,
+                WaterAssignment {
+                    liquid_level: FULL_FLOOD_MAP_LIQUID_LEVEL,
+                    donor_room_ptr: DEFAULT_WATER_DONOR_ROOM_PTR,
+                },
+            )
+        })
+        .collect();
+
+    let dry_assignments = dry_eligible
+        .into_iter()
+        .map(|(room_id, _room_idx)| {
+            (
+                room_id,
+                DryWaterAssignment {
+                    donor_room_ptr: DEFAULT_DRY_DONOR_ROOM_PTR,
+                },
+            )
+        })
+        .collect();
+
+    (flood_assignments, dry_assignments)
 }
 
 /// Pause-map liquid surface Y in room screen-row coordinates (`0.0` = fully flooded).
@@ -303,15 +394,14 @@ fn set_door_physics_water(node_json: &mut json::JsonValue) {
     }
 }
 
-pub fn prepare_game_data_with_water(
-    base: &GameData,
+pub fn apply_water_overlay(
+    game_data: &mut GameData,
     assignments: &HashMap<RoomId, WaterAssignment>,
-) -> Result<GameData> {
+) -> Result<()> {
     if assignments.is_empty() {
-        return Ok(base.clone());
+        return Ok(());
     }
 
-    let mut game_data = base.clone();
     let flooded: HashSet<RoomId> = assignments.keys().copied().collect();
 
     for &room_id in &flooded {
@@ -330,7 +420,20 @@ pub fn prepare_game_data_with_water(
         }
     }
 
-    patch_links_for_water(&mut game_data, &flooded);
+    patch_links_for_water(game_data, &flooded);
+    Ok(())
+}
+
+pub fn prepare_game_data_with_water(
+    base: &GameData,
+    assignments: &HashMap<RoomId, WaterAssignment>,
+) -> Result<GameData> {
+    if assignments.is_empty() {
+        return Ok(base.clone());
+    }
+
+    let mut game_data = base.clone();
+    apply_water_overlay(&mut game_data, assignments)?;
     Ok(game_data)
 }
 
@@ -361,4 +464,97 @@ fn requirement_implies_gravity(req: &Requirement) -> bool {
 
 pub fn water_enabled(settings: &RandomizerSettings) -> bool {
     settings.experimental_settings.randomize_water_environments
+}
+
+/// Default donor for dry FX: Fish Tank (same template source as water FX).
+/// `build_dry_fx_bytes` clears liquid/heat fields; Terminator Room has no default FX entry.
+pub const DEFAULT_DRY_DONOR_ROOM_PTR: usize = DEFAULT_WATER_DONOR_ROOM_PTR;
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub struct DryWaterAssignment {
+    pub donor_room_ptr: usize,
+}
+
+fn is_dry_water_eligible(
+    game_data: &GameData,
+    room_id: RoomId,
+    room_idx: usize,
+    map: &Map,
+    blocked: &HashSet<RoomId>,
+) -> bool {
+    if blocked.contains(&room_id) {
+        return false;
+    }
+    if !map.room_mask[room_idx] {
+        return false;
+    }
+    let name = room_name(game_data, room_id);
+    if EXCLUDED_ROOM_NAMES.contains(&name.as_str()) {
+        return false;
+    }
+    if !room_has_water(game_data, room_id) {
+        return false;
+    }
+    let geometry = &game_data.room_geometry[room_idx];
+    if geometry.map.len() == 1 && geometry.map[0].len() == 1 {
+        return false;
+    }
+    true
+}
+
+pub fn get_eligible_dry_water_rooms(
+    game_data: &GameData,
+    map: &Map,
+    blocked: &HashSet<RoomId>,
+) -> Vec<(RoomId, usize)> {
+    let mut eligible = vec![];
+    for (room_idx, room) in game_data.room_geometry.iter().enumerate() {
+        let room_id = room.room_id;
+        if is_dry_water_eligible(game_data, room_id, room_idx, map, blocked) {
+            eligible.push((room_id, room_idx));
+        }
+    }
+    eligible
+}
+
+fn set_door_physics_air(node_json: &mut json::JsonValue) {
+    if node_json["nodeType"].as_str() != Some("door") {
+        return;
+    }
+    if !node_json.has_key("doorEnvironments") {
+        node_json["doorEnvironments"] = json::array![];
+    }
+    if node_json["doorEnvironments"].is_empty() {
+        node_json["doorEnvironments"]
+            .push(json::object! { "physics" => "air" })
+            .unwrap();
+    } else {
+        node_json["doorEnvironments"][0]["physics"] = "air".into();
+    }
+}
+
+pub fn apply_dry_water_overlay(
+    game_data: &mut GameData,
+    assignments: &HashMap<RoomId, DryWaterAssignment>,
+) -> Result<()> {
+    if assignments.is_empty() {
+        return Ok(());
+    }
+
+    for &room_id in assignments.keys() {
+        ensure!(
+            game_data.room_json_map.contains_key(&room_id),
+            "Unknown room id {room_id} in dry water assignment"
+        );
+
+        let room_json = game_data.room_json_map.get_mut(&room_id).unwrap();
+        for node_json in room_json["nodes"].members_mut() {
+            set_door_physics_air(node_json);
+            let node_id = node_json["id"].as_usize().unwrap();
+            if let Some(stored) = game_data.node_json_map.get_mut(&(room_id, node_id)) {
+                set_door_physics_air(stored);
+            }
+        }
+    }
+    Ok(())
 }

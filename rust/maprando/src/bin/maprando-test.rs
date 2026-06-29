@@ -5,6 +5,7 @@ use maprando::customize::samus_sprite::SamusSpriteCategory;
 use maprando::customize::{
     ControllerConfig, CustomizeSettings, MusicSettings, StatuesHallwayAudio, StatuesHallwayTiling,
 };
+use maprando::environment_logic::MAX_ENVIRONMENT_SOLVABILITY_ATTEMPTS;
 use maprando::difficulty::{get_full_global, get_link_difficulty_length};
 use maprando::map_repository::MapRepository;
 use maprando::patch::Rom;
@@ -164,12 +165,23 @@ fn get_randomization(
         }
         let objectives = get_objectives(&settings, Some(&map), game_data, &mut rng);
         let locked_door_data = randomize_doors(game_data, &map, &settings, &objectives, door_seed);
-        let (ctx, water_assignments) = RandomizerContext::prepare(game_data, &map, &settings, door_seed, |gd| {
-            let global = get_full_global(gd);
-            gd.make_links_data(&|link, game_data| {
-                get_link_difficulty_length(link, game_data, &app.preset_data, &global)
-            });
-        })?;
+        let (ctx, water_assignments, heat_assignments, dry_water_assignments, dry_heat_assignments) =
+            RandomizerContext::prepare_solvable(
+                game_data,
+                &map,
+                &settings,
+                &locked_door_data,
+                &objectives,
+                &difficulty_tiers,
+                door_seed,
+                |gd| {
+                    let global = get_full_global(gd);
+                    gd.make_links_data(&|link, game_data| {
+                        get_link_difficulty_length(link, game_data, &app.preset_data, &global)
+                    });
+                },
+            MAX_ENVIRONMENT_SOLVABILITY_ATTEMPTS,
+            )?;
         let effective_game_data = ctx.effective_game_data(game_data);
         let randomizer = Randomizer::new(
             &map,
@@ -180,6 +192,9 @@ fn get_randomization(
             effective_game_data,
             &effective_game_data.base_links_data,
             water_assignments,
+            heat_assignments,
+            dry_water_assignments,
+            dry_heat_assignments,
             &mut rng,
         );
         for _ in 0..max_attempts_per_map {
@@ -188,7 +203,7 @@ fn get_randomization(
             info!(
                 "Attempt {attempt_num}/{max_attempts}: Map seed={map_seed}, door randomization seed={door_seed}, item placement seed={item_seed}"
             );
-            match randomizer.randomize(attempt_num, item_seed, 1, app.rebuild_traversals) {
+            match randomizer.randomize(attempt_num, item_seed, 1, app.rebuild_traversals, false) {
                 Ok((randomization, spoiler_log)) => {
                     return Ok((settings, randomization, spoiler_log, output_file_prefix));
                 }

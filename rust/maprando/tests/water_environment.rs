@@ -29,7 +29,7 @@ fn generate_water_assignments_respects_eligibility() -> anyhow::Result<()> {
         water_room_count: 1,
         ..Default::default()
     };
-    let assignments = generate_water_assignments(&map, &game_data, &settings, 12345);
+    let assignments = generate_water_assignments(&map, &game_data, &settings, 12345, &hashbrown::HashSet::new());
     assert_eq!(assignments.len(), 1);
     assert!(assignments.contains_key(&7));
     assert!(!room_has_water(&game_data, 7));
@@ -45,7 +45,7 @@ fn generate_water_assignments_skips_existing_water_rooms() -> anyhow::Result<()>
         water_room_count: 1,
         ..Default::default()
     };
-    let assignments = generate_water_assignments(&map, &game_data, &settings, 999);
+    let assignments = generate_water_assignments(&map, &game_data, &settings, 999, &hashbrown::HashSet::new());
     assert!(assignments.is_empty());
     assert!(room_has_water(&game_data, 173));
     Ok(())
@@ -68,7 +68,7 @@ fn generate_water_assignments_near_spawn() -> anyhow::Result<()> {
         water_room_count: 5,
         ..Default::default()
     };
-    let assignments = generate_water_assignments(&map, &game_data, &settings, 0);
+    let assignments = generate_water_assignments(&map, &game_data, &settings, 0, &hashbrown::HashSet::new());
     assert!(!assignments.is_empty());
     let names: Vec<_> = assignments
         .keys()
@@ -140,6 +140,41 @@ fn prepare_game_data_with_water_updates_door_physics_and_links() -> anyhow::Resu
                 assert!(reqs.iter().any(|r| r == &gravity_req));
             }
         }
+    }
+    Ok(())
+}
+
+#[test]
+fn generate_balanced_water_assignments_pairs_flood_and_dry() -> anyhow::Result<()> {
+    use maprando::water_environment::generate_balanced_water_environment_assignments;
+
+    let game_data = GameData::load(std::path::Path::new(".."))?;
+    let map = Map {
+        area: vec![0; game_data.room_geometry.len()],
+        subarea: vec![0; game_data.room_geometry.len()],
+        subsubarea: vec![0; game_data.room_geometry.len()],
+        rooms: vec![(0, 0); game_data.room_geometry.len()],
+        room_mask: vec![true; game_data.room_geometry.len()],
+        doors: vec![],
+    };
+    let settings = ExperimentalSettings {
+        randomize_water_environments: true,
+        ..Default::default()
+    };
+    let (flood, dry) = generate_balanced_water_environment_assignments(
+        &map,
+        &game_data,
+        &settings,
+        4242,
+        &hashbrown::HashSet::new(),
+    );
+    assert!(!flood.is_empty());
+    assert_eq!(flood.len(), dry.len());
+    for room_id in flood.keys() {
+        assert!(!room_has_water(&game_data, *room_id));
+    }
+    for room_id in dry.keys() {
+        assert!(room_has_water(&game_data, *room_id));
     }
     Ok(())
 }

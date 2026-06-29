@@ -3188,6 +3188,86 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    fn apply_heat_environment_map_tiles(&mut self) -> Result<()> {
+        for room in &self.game_data.map_tile_data {
+            if !self.randomization.heat_assignments.contains_key(&room.room_id) {
+                continue;
+            }
+            let room_idx = self.game_data.room_idx_by_id[&room.room_id];
+            if !self.map.room_mask[room_idx] {
+                continue;
+            }
+            for tile_template in &room.map_tiles {
+                let Some(room_tile) = self.get_room_tile(
+                    room.room_id,
+                    tile_template.coords.0 as isize,
+                    tile_template.coords.1 as isize,
+                ) else {
+                    continue;
+                };
+                room_tile.heated = true;
+            }
+        }
+        Ok(())
+    }
+
+    fn apply_dry_water_environment_map_tiles(&mut self) -> Result<()> {
+        use maprando_game::MapLiquidType;
+
+        for room in &self.game_data.map_tile_data {
+            if !self
+                .randomization
+                .dry_water_assignments
+                .contains_key(&room.room_id)
+            {
+                continue;
+            }
+            let room_idx = self.game_data.room_idx_by_id[&room.room_id];
+            if !self.map.room_mask[room_idx] {
+                continue;
+            }
+            for tile_template in &room.map_tiles {
+                let Some(room_tile) = self.get_room_tile(
+                    room.room_id,
+                    tile_template.coords.0 as isize,
+                    tile_template.coords.1 as isize,
+                ) else {
+                    continue;
+                };
+                room_tile.liquid_type = MapLiquidType::None;
+                room_tile.liquid_level = None;
+            }
+        }
+        Ok(())
+    }
+
+    fn apply_dry_heat_environment_map_tiles(&mut self) -> Result<()> {
+        for room in &self.game_data.map_tile_data {
+            if !self
+                .randomization
+                .dry_heat_assignments
+                .contains_key(&room.room_id)
+            {
+                continue;
+            }
+            let room_idx = self.game_data.room_idx_by_id[&room.room_id];
+            if !self.map.room_mask[room_idx] {
+                continue;
+            }
+            for tile_template in &room.map_tiles {
+                let Some(room_tile) = self.get_room_tile(
+                    room.room_id,
+                    tile_template.coords.0 as isize,
+                    tile_template.coords.1 as isize,
+                ) else {
+                    continue;
+                };
+                room_tile.heated = false;
+            }
+        }
+        Ok(())
+    }
+
     fn write_map_station_bitmasks(&mut self) -> Result<()> {
         const FULL_MASK_ADDR: usize = 0x829727;
         const PARTIAL_MASK_ADDR: usize = 0x89B200;
@@ -3367,6 +3447,9 @@ impl<'a> MapPatcher<'a> {
         }
         self.apply_room_tiles()?;
         self.apply_water_environment_map_tiles()?;
+        self.apply_heat_environment_map_tiles()?;
+        self.apply_dry_water_environment_map_tiles()?;
+        self.apply_dry_heat_environment_map_tiles()?;
         self.indicate_objective_tiles()?;
         if self
             .settings

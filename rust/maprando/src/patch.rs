@@ -7,6 +7,9 @@ pub mod ips_write;
 pub mod map_tiles;
 pub mod suffix_tree;
 pub mod title;
+mod environment_fx;
+mod dry_fx;
+mod heat_fx;
 mod water_fx;
 
 use std::path::Path;
@@ -3728,7 +3731,13 @@ pub fn make_rom(
         samus_sprite_categories,
         mosaic_themes,
     )?;
-    water_fx::WaterFxPatcher::new(patcher.rom, game_data, randomization).apply()?;
+    let mut fx_allocator = environment_fx::FxAllocator::new();
+    water_fx::WaterFxPatcher::new(patcher.rom, game_data, randomization, &mut fx_allocator)
+        .apply()?;
+    heat_fx::HeatFxPatcher::new(patcher.rom, game_data, randomization, &mut fx_allocator)
+        .apply()?;
+    dry_fx::DryFxPatcher::new(patcher.rom, game_data, randomization, &mut fx_allocator)
+        .apply()?;
 
     // ROM Checksum: Do not modify the ROM contents after this point
     fix_snes_checksum(patcher.rom);

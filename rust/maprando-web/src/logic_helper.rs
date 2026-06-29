@@ -900,6 +900,9 @@ fn get_vanilla_randomization(vanilla_map: &Map) -> Randomization {
         display_seed: 0,
         seed_name: "".to_string(),
         water_assignments: std::collections::HashMap::new(),
+        heat_assignments: std::collections::HashMap::new(),
+        dry_water_assignments: std::collections::HashMap::new(),
+        dry_heat_assignments: std::collections::HashMap::new(),
     }
 }
 

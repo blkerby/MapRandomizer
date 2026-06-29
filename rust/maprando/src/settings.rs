@@ -32,7 +32,7 @@ pub struct RandomizerSettings {
 pub struct ExperimentalSettings {
     #[serde(default)]
     pub randomize_water_environments: bool,
-    #[serde(default = "default_water_room_count")]
+    #[serde(default = "default_environment_room_count")]
     pub water_room_count: u32,
     /// Flood dry rooms near the ship spawn instead of picking randomly across the map.
     #[serde(default)]
@@ -40,21 +40,35 @@ pub struct ExperimentalSettings {
     /// Apply ROM FX and pause-map water only; skip logic overlay (Gravity on links).
     #[serde(default)]
     pub water_visual_only: bool,
+    #[serde(default)]
+    pub randomize_heat_environments: bool,
+    #[serde(default = "default_environment_room_count")]
+    pub heat_room_count: u32,
+    /// Heat dry rooms near the ship spawn instead of picking randomly across the map.
+    #[serde(default)]
+    pub heat_flood_near_spawn: bool,
+    /// Apply ROM FX and pause-map heat only; skip logic overlay (Varia / heat frames on links).
+    #[serde(default)]
+    pub heat_visual_only: bool,
 }
 
 impl Default for ExperimentalSettings {
     fn default() -> Self {
         Self {
             randomize_water_environments: false,
-            water_room_count: default_water_room_count(),
+            water_room_count: default_environment_room_count(),
             water_flood_near_spawn: false,
             water_visual_only: false,
+            randomize_heat_environments: false,
+            heat_room_count: default_environment_room_count(),
+            heat_flood_near_spawn: false,
+            heat_visual_only: false,
         }
     }
 }
 
-fn default_water_room_count() -> u32 {
-    5
+fn default_environment_room_count() -> u32 {
+    3
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
