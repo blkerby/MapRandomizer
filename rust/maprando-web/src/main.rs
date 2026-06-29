@@ -17,7 +17,7 @@ use actix_web::{
 };
 use askama::Template;
 use clap::Parser;
-use hashbrown::{HashMap, HashSet};
+use hashbrown::HashMap;
 use log::{error, info};
 use rand::{RngCore, SeedableRng};
 use serde_derive::{Deserialize, Serialize};
@@ -537,18 +537,33 @@ fn handle_randomize_request(
 
     let map_layout = settings.map_layout.clone();
     let max_attempts = 2000;
-    let attempts_timeout = if settings.experimental_settings.randomize_water_environments
-        || settings.experimental_settings.randomize_heat_environments
-    {
+    let env_enabled = settings.experimental_settings.randomize_water_environments
+        || settings.experimental_settings.randomize_heat_environments;
+    let attempts_timeout = if env_enabled {
         Duration::from_secs(120)
     } else {
         Duration::from_secs(25)
     };
+    let env_timeout_budget = if env_enabled {
+        Duration::from_secs(60)
+    } else {
+        Duration::ZERO
+    };
+    const ENV_PROBE_MS_PER_ATTEMPT: u128 = 600;
+    const MIN_ENV_ATTEMPTS_PER_MAP: usize = 16;
+    const MAX_ENV_ATTEMPTS_PER_MAP: usize = 32;
+    const MAX_ITEM_ATTEMPTS_BEFORE_ENV_REROLL: usize = 10;
+    const MAX_ENV_OVERLAY_REROLLS_PER_MAP: usize = 4;
     let max_attempts_per_map = if settings.start_location_settings.mode == StartLocationMode::Random
     {
         10
     } else {
         1
+    };
+    let max_item_attempts_per_overlay = if env_enabled {
+        MAX_ITEM_ATTEMPTS_BEFORE_ENV_REROLL.max(max_attempts_per_map)
+    } else {
+        max_attempts_per_map
     };
     let max_map_attempts = max_attempts / max_attempts_per_map;
     info!(
@@ -557,9 +572,10 @@ fn handle_randomize_request(
     );
 
     let time_start_attempts = Instant::now();
+    let mut env_time_spent = Duration::ZERO;
     let mut attempt_num = 0;
     let mut map_batch: Vec<Map> = vec![];
-    for _ in 0..max_map_attempts {
+    'map: for _ in 0..max_map_attempts {
         let map_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
         let door_randomization_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
 
@@ -590,138 +606,142 @@ fn handle_randomize_request(
         if time_start_attempts.elapsed() > attempts_timeout {
             return Err(AttemptError::TimedOut);
         }
-        let remaining = attempts_timeout.saturating_sub(time_start_attempts.elapsed());
-        // Environment probing rebuilds links and runs placement trials (~0.3–1.2s each).
-        const MAX_ENV_ATTEMPTS_PER_MAP: usize = 32;
-        let max_env_attempts = (remaining.as_millis() / 600)
-            .clamp(1, MAX_ENV_ATTEMPTS_PER_MAP as u128) as usize;
-        let environment_overlay = RandomizerContext::prepare_solvable(
-            &app_data.game_data,
-            &map,
-            &settings,
-            &locked_door_data,
-            &objectives,
-            &difficulty_tiers,
-            door_randomization_seed,
-            |gd| {
-                let global = get_full_global(gd);
-                gd.make_links_data(&|link, game_data| {
-                    get_link_difficulty_length(link, game_data, &app_data.preset_data, &global)
-                });
-            },
-            max_env_attempts,
-        );
-        let (
-            water_ctx,
-            water_assignments,
-            heat_assignments,
-            dry_water_assignments,
-            dry_heat_assignments,
-        ) = match environment_overlay {
-            Ok(x) => x,
-            Err(e) => {
+        let env_budget_remaining = env_timeout_budget.saturating_sub(env_time_spent);
+        let budget_attempts =
+            (env_budget_remaining.as_millis() / ENV_PROBE_MS_PER_ATTEMPT) as usize;
+        let max_env_attempts = if env_enabled {
+            let capped = budget_attempts.clamp(1, MAX_ENV_ATTEMPTS_PER_MAP);
+            if budget_attempts >= MIN_ENV_ATTEMPTS_PER_MAP {
+                capped.max(MIN_ENV_ATTEMPTS_PER_MAP).min(MAX_ENV_ATTEMPTS_PER_MAP)
+            } else {
+                capped
+            }
+        } else {
+            1
+        };
+
+        let mut overlay_reroll = 0usize;
+        'overlay: while overlay_reroll <= MAX_ENV_OVERLAY_REROLLS_PER_MAP {
+            if time_start_attempts.elapsed() > attempts_timeout {
+                return Err(AttemptError::TimedOut);
+            }
+            let overlay_seed = door_randomization_seed.wrapping_add(overlay_reroll.wrapping_mul(7919));
+            let env_probe_start = Instant::now();
+            let environment_overlay = RandomizerContext::prepare_solvable(
+                &app_data.game_data,
+                &map,
+                &settings,
+                &locked_door_data,
+                &objectives,
+                &difficulty_tiers,
+                overlay_seed,
+                |gd| {
+                    let global = get_full_global(gd);
+                    gd.make_links_data(&|link, game_data| {
+                        get_link_difficulty_length(link, game_data, &app_data.preset_data, &global)
+                    });
+                },
+                max_env_attempts,
+            );
+            env_time_spent += env_probe_start.elapsed();
+            let (
+                water_ctx,
+                water_assignments,
+                heat_assignments,
+                dry_water_assignments,
+                dry_heat_assignments,
+            ) = match environment_overlay {
+                Ok(x) => x,
+                Err(e) => {
+                    info!(
+                        "No solvable environment overlay for map seed={map_seed} (overlay reroll {overlay_reroll}): {e}; trying another map"
+                    );
+                    continue 'map;
+                }
+            };
+            let effective_game_data = water_ctx.effective_game_data(&app_data.game_data);
+            let filtered_links = filter_links(
+                &effective_game_data.links,
+                effective_game_data,
+                &difficulty_tiers[0],
+            );
+            let effective_links_data = LinksDataGroup::new(
+                filtered_links,
+                effective_game_data.vertex_isv.keys.len(),
+                0,
+            );
+            let randomizer = Randomizer::new(
+                &map,
+                &locked_door_data,
+                objectives.clone(),
+                &settings,
+                &difficulty_tiers,
+                effective_game_data,
+                &effective_links_data,
+                water_assignments,
+                heat_assignments,
+                dry_water_assignments,
+                dry_heat_assignments,
+                &mut rng,
+            );
+            let mut consecutive_item_failures = 0usize;
+            for _ in 0..max_item_attempts_per_overlay {
+                let item_placement_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
+                attempt_num += 1;
+
                 info!(
-                    "No solvable environment overlay for map seed={map_seed}: {e}; using unverified overlay"
+                    "Attempt {attempt_num}/{max_attempts}: Map seed={map_seed}, door randomization seed={door_randomization_seed}, item placement seed={item_placement_seed}, overlay reroll={overlay_reroll}"
                 );
-                match RandomizerContext::prepare(
-                    &app_data.game_data,
-                    &map,
-                    &settings,
-                    door_randomization_seed,
-                    &HashSet::new(),
-                    |gd| {
-                        let global = get_full_global(gd);
-                        gd.make_links_data(&|link, game_data| {
-                            get_link_difficulty_length(
-                                link,
-                                game_data,
-                                &app_data.preset_data,
-                                &global,
-                            )
-                        });
-                    },
-                ) {
+                let tolerate_escape_failure = settings.experimental_settings.randomize_water_environments
+                    || settings.experimental_settings.randomize_heat_environments;
+                let randomization_result = randomizer.randomize(
+                    attempt_num,
+                    item_placement_seed,
+                    display_seed,
+                    true,
+                    tolerate_escape_failure,
+                );
+                let (randomization, spoiler_log) = match randomization_result {
                     Ok(x) => x,
-                    Err(e2) => {
-                        info!("Environment overlay failed: {e2}; trying another map");
+                    Err(e) => {
+                        info!("Attempt {attempt_num}/{max_attempts}: Randomization failed: {e}");
                         if time_start_attempts.elapsed() > attempts_timeout {
                             return Err(AttemptError::TimedOut);
                         }
+                        consecutive_item_failures += 1;
+                        if env_enabled
+                            && consecutive_item_failures >= MAX_ITEM_ATTEMPTS_BEFORE_ENV_REROLL
+                        {
+                            info!(
+                                "{MAX_ITEM_ATTEMPTS_BEFORE_ENV_REROLL} item attempts failed on overlay reroll {overlay_reroll}, re-rolling environment"
+                            );
+                            overlay_reroll += 1;
+                            continue 'overlay;
+                        }
                         continue;
                     }
-                }
+                };
+                info!(
+                    "Successful attempt {attempt_num}/{attempt_num}/{max_attempts}: display_seed={}, random_seed={random_seed}, map_seed={map_seed}, door_randomization_seed={door_randomization_seed}, item_placement_seed={item_placement_seed}",
+                    randomization.display_seed,
+                );
+
+                info!(
+                    "Wall-clock time for attempts: {:?} sec",
+                    time_start_attempts.elapsed().as_secs_f32()
+                );
+                let output_result = Ok(AttemptOutput {
+                    random_seed,
+                    map_seed,
+                    door_randomization_seed,
+                    item_placement_seed,
+                    randomization,
+                    spoiler_log,
+                    difficulty_tiers,
+                });
+                return output_result;
             }
-        };
-        let effective_game_data = water_ctx.effective_game_data(&app_data.game_data);
-        let filtered_links = filter_links(
-            &effective_game_data.links,
-            effective_game_data,
-            &difficulty_tiers[0],
-        );
-        let effective_links_data = LinksDataGroup::new(
-            filtered_links,
-            effective_game_data.vertex_isv.keys.len(),
-            0,
-        );
-        let randomizer = Randomizer::new(
-            &map,
-            &locked_door_data,
-            objectives.clone(),
-            &settings,
-            &difficulty_tiers,
-            effective_game_data,
-            &effective_links_data,
-            water_assignments,
-            heat_assignments,
-            dry_water_assignments,
-            dry_heat_assignments,
-            &mut rng,
-        );
-        for _ in 0..max_attempts_per_map {
-            let item_placement_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
-            attempt_num += 1;
-
-            info!(
-                "Attempt {attempt_num}/{max_attempts}: Map seed={map_seed}, door randomization seed={door_randomization_seed}, item placement seed={item_placement_seed}"
-            );
-            let tolerate_escape_failure = settings.experimental_settings.randomize_water_environments
-                || settings.experimental_settings.randomize_heat_environments;
-            let randomization_result = randomizer.randomize(
-                attempt_num,
-                item_placement_seed,
-                display_seed,
-                true,
-                tolerate_escape_failure,
-            );
-            let (randomization, spoiler_log) = match randomization_result {
-                Ok(x) => x,
-                Err(e) => {
-                    info!("Attempt {attempt_num}/{max_attempts}: Randomization failed: {e}");
-                    if time_start_attempts.elapsed() > attempts_timeout {
-                        return Err(AttemptError::TimedOut);
-                    }
-                    continue;
-                }
-            };
-            info!(
-                "Successful attempt {attempt_num}/{attempt_num}/{max_attempts}: display_seed={}, random_seed={random_seed}, map_seed={map_seed}, door_randomization_seed={door_randomization_seed}, item_placement_seed={item_placement_seed}",
-                randomization.display_seed,
-            );
-
-            info!(
-                "Wall-clock time for attempts: {:?} sec",
-                time_start_attempts.elapsed().as_secs_f32()
-            );
-            let output_result = Ok(AttemptOutput {
-                random_seed,
-                map_seed,
-                door_randomization_seed,
-                item_placement_seed,
-                randomization,
-                spoiler_log,
-                difficulty_tiers,
-            });
-            return output_result;
+            break 'overlay;
         }
     }
     Err(AttemptError::TooManyAttempts)

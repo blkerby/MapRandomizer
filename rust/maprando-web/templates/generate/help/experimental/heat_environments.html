@@ -9,8 +9,9 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p>Heat random dry rooms and cool the same number of random vanilla heated rooms, keeping overall heat coverage balanced.</p>
-        <p>Logic is updated on affected routes (Varia Suit or heat frames may be required in newly heated areas). The generator retries until it finds a solvable seed.</p>
+        <p><strong>Experimental.</strong> Heat random dry rooms and cool the same number of random vanilla heated rooms, keeping overall heat coverage balanced.</p>
+        <p>ROM FX and the pause map are updated. Logic overlay is <em>partial</em>: heated rooms get the <code>heated</code> room flag in logic JSON, but heat frame costs on individual links and strats are not rebuilt. The generator probes for solvable seeds but results may still be imperfect.</p>
+        <p>When both water and heat are enabled, at most one balanced pair per axis is used to improve reliability.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

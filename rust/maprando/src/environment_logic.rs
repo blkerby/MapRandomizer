@@ -22,23 +22,29 @@ pub const ENVIRONMENT_PROBE_ITEM_SEEDS: usize = 8;
 
 /// Cap balanced flood/dry (or heat/cool) pairs — fewer pairs means higher solvability on scrambled maps.
 pub fn effective_environment_pair_count(settings: &ExperimentalSettings, base: u32) -> u32 {
-    if settings.randomize_water_environments || settings.randomize_heat_environments {
+    if settings.randomize_water_environments && settings.randomize_heat_environments {
+        base.min(1)
+    } else if settings.randomize_water_environments || settings.randomize_heat_environments {
         base.min(2)
     } else {
         base
     }
 }
 
-/// Probe variants: user's start mode without early-save (Random tries 10 starts per trial),
+/// Probe variants: user's start mode (early-save kept when both water and heat are on),
 /// plus Ship as a fallback when the player uses random start.
 pub fn environment_probe_settings_variants(
     settings: &RandomizerSettings,
 ) -> Vec<RandomizerSettings> {
-    let mut no_early_save = settings.clone();
-    no_early_save.quality_of_life_settings.early_save = false;
-    let mut variants = vec![no_early_save.clone()];
+    let both_env = settings.experimental_settings.randomize_water_environments
+        && settings.experimental_settings.randomize_heat_environments;
+    let mut probe_settings = settings.clone();
+    if !both_env {
+        probe_settings.quality_of_life_settings.early_save = false;
+    }
+    let mut variants = vec![probe_settings.clone()];
     if settings.start_location_settings.mode == StartLocationMode::Random {
-        let mut ship = no_early_save;
+        let mut ship = probe_settings;
         ship.start_location_settings.mode = StartLocationMode::Ship;
         variants.push(ship);
     }

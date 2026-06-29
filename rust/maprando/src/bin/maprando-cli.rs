@@ -78,8 +78,8 @@ struct Args {
     #[arg(long)]
     randomize_water_environments: bool,
 
-    /// Number of rooms to flood when --randomize-water-environments is set (default: 5).
-    #[arg(long, default_value_t = 5)]
+    /// Number of rooms to flood when --randomize-water-environments is set (default: 3).
+    #[arg(long, default_value_t = 3)]
     water_room_count: u32,
 
     /// Flood dry rooms near the ship spawn (for testing). Uses blue doors only, skips
@@ -91,8 +91,8 @@ struct Args {
     #[arg(long)]
     randomize_heat_environments: bool,
 
-    /// Number of rooms to heat when --randomize-heat-environments is set (default: 5).
-    #[arg(long, default_value_t = 5)]
+    /// Number of rooms to heat when --randomize-heat-environments is set (default: 3).
+    #[arg(long, default_value_t = 3)]
     heat_room_count: u32,
 
     /// Heat dry rooms near the ship spawn (for testing). Uses blue doors only, skips

@@ -178,3 +178,30 @@ fn generate_balanced_water_assignments_pairs_flood_and_dry() -> anyhow::Result<(
     }
     Ok(())
 }
+
+#[test]
+fn effective_pair_count_caps_at_one_when_both_water_and_heat_enabled() {
+    use maprando::environment_logic::effective_environment_pair_count;
+
+    let settings = ExperimentalSettings {
+        randomize_water_environments: true,
+        randomize_heat_environments: true,
+        water_room_count: 3,
+        heat_room_count: 3,
+        ..Default::default()
+    };
+    assert_eq!(effective_environment_pair_count(&settings, 3), 1);
+    assert_eq!(effective_environment_pair_count(&settings, 5), 1);
+}
+
+#[test]
+fn effective_pair_count_caps_at_two_when_single_axis_enabled() {
+    use maprando::environment_logic::effective_environment_pair_count;
+
+    let settings = ExperimentalSettings {
+        randomize_water_environments: true,
+        ..Default::default()
+    };
+    assert_eq!(effective_environment_pair_count(&settings, 3), 2);
+    assert_eq!(effective_environment_pair_count(&settings, 5), 2);
+}

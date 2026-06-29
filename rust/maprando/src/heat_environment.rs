@@ -13,7 +13,7 @@ use crate::water_environment::{
 };
 
 /// Default donor room for heat FX: Volcano Room.
-pub const DEFAULT_HEAT_DONOR_ROOM_PTR: usize = 0x7B032;
+pub const DEFAULT_HEAT_DONOR_ROOM_PTR: usize = 0x7AE32;
 pub const DEFAULT_HEAT_DONOR_ROOM_ID: RoomId = 116;
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -280,6 +280,8 @@ pub fn apply_heat_overlay(
             game_data.room_json_map.contains_key(&room_id),
             "Unknown room id {room_id} in heat assignment"
         );
+        let room_idx = game_data.room_idx_by_id[&room_id];
+        game_data.room_geometry[room_idx].heated = true;
         let room_json = game_data.room_json_map.get_mut(&room_id).unwrap();
         set_room_heated(room_json);
     }

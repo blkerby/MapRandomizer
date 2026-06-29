@@ -110,6 +110,8 @@ fn prepare_game_data_with_heat_updates_room_environments() -> anyhow::Result<()>
         },
     );
     let prepared = prepare_game_data_with_heat(&game_data, &assignments)?;
+    let room_idx = prepared.room_idx_by_id[&room_id];
+    assert!(prepared.room_geometry[room_idx].heated);
     let room_json = &prepared.room_json_map[&room_id];
     assert!(room_json["roomEnvironments"]
         .members()
