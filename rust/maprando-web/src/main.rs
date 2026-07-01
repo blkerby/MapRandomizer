@@ -34,7 +34,7 @@ use maprando::settings::{ObjectiveGroup, get_objective_groups};
 use maprando::{
     customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
     difficulty::{get_full_global, get_link_difficulty_length},
-    map_repository::MapRepository,
+    map_repository::{HttpMapRepository, MapRepository, MapSettings, OfflineMapRepository},
     preset::PresetData,
     randomize::{
         DifficultyConfig, Randomization, Randomizer, assign_map_areas, filter_links,
@@ -66,6 +66,8 @@ struct Args {
     dev: bool,
     #[arg(long, default_value_t = 8080)]
     port: u16,
+    #[arg(long)]
+    map_server: Option<String>,
 }
 
 fn load_visualizer_files() -> Vec<(String, Vec<u8>)> {
@@ -137,30 +139,34 @@ fn build_app_data() -> AppData {
         get_link_difficulty_length(link, game_data, &preset_data, &global)
     });
 
-    let map_repositories: HashMap<String, MapRepository> = vec![
-        (
-            "Vanilla".to_string(),
-            MapRepository::new("Vanilla", vanilla_map_path).unwrap(),
-        ),
-        (
-            "Small".to_string(),
-            MapRepository::new("Small", small_maps_path).unwrap(),
-        ),
-        (
-            "Standard".to_string(),
-            MapRepository::new("Standard", standard_maps_path).unwrap(),
-        ),
-        (
-            "Wild".to_string(),
-            MapRepository::new("Wild", wild_maps_path).unwrap(),
-        ),
-    ]
-    .into_iter()
-    .collect();
-    let vanilla_map = map_repositories["Vanilla"]
-        .get_map_batch(0, &game_data)
+    let vanilla_map_repository =
+        OfflineMapRepository::new(vec![("Vanilla", vanilla_map_path)]).unwrap();
+    let vanilla_map = vanilla_map_repository
+        .get_map_batch(
+            0,
+            MapSettings {
+                vanilla: true,
+                ..Default::default()
+            },
+            &game_data,
+        )
         .unwrap()[0]
         .clone();
+    let map_repository: Box<dyn MapRepository> = match &args.map_server {
+        Some(map_server) => {
+            info!("Using real-time map generation server: {map_server}");
+            Box::new(HttpMapRepository::new(map_server).unwrap())
+        }
+        None => Box::new(
+            OfflineMapRepository::new(vec![
+                ("Vanilla", vanilla_map_path),
+                ("Small", small_maps_path),
+                ("Standard", standard_maps_path),
+                ("Wild", wild_maps_path),
+            ])
+            .unwrap(),
+        ),
+    };
 
     let logic_data = LogicData::new(
         &game_data,
@@ -176,7 +182,7 @@ fn build_app_data() -> AppData {
     let app_data = AppData {
         game_data,
         preset_data,
-        map_repositories,
+        map_repository,
         seed_repository: SeedRepository::new(&args.seed_repository_url).unwrap(),
         visualizer_files: load_visualizer_files(),
         video_storage_url,
@@ -545,7 +551,7 @@ fn handle_randomize_request(
         app_data.game_data.vertex_isv.keys.len(),
         0,
     );
-    let map_layout = settings.map_layout.clone();
+    let map_settings = MapSettings::from_map_layout(&settings.map_layout).unwrap();
     let max_attempts = 2000;
     let attempts_timeout = Duration::from_secs(25);
     let max_attempts_per_map = if settings.start_location_settings.mode == StartLocationMode::Random
@@ -567,14 +573,10 @@ fn handle_randomize_request(
         let map_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
         let door_randomization_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
 
-        if !app_data.map_repositories.contains_key(&map_layout) {
-            // TODO: it doesn't make sense to panic on things like this.
-            panic!("Unrecognized map layout option: {map_layout}");
-        }
-
         if map_batch.is_empty() {
-            map_batch = app_data.map_repositories[&map_layout]
-                .get_map_batch(map_seed, &app_data.game_data)
+            map_batch = app_data
+                .map_repository
+                .get_map_batch(map_seed, map_settings, &app_data.game_data)
                 .unwrap();
         }
 

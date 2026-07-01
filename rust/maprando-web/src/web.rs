@@ -1,5 +1,4 @@
 use crate::logic_helper::LogicData;
-use hashbrown::HashMap;
 use maprando::{
     customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
     map_repository::MapRepository,
@@ -20,7 +19,7 @@ pub struct VersionInfo {
 pub struct AppData {
     pub game_data: GameData,
     pub preset_data: PresetData,
-    pub map_repositories: HashMap<String, MapRepository>,
+    pub map_repository: Box<dyn MapRepository>,
     pub seed_repository: SeedRepository,
     pub visualizer_files: Vec<(String, Vec<u8>)>, // (path, contents)
     pub video_storage_url: String,

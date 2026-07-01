@@ -6,7 +6,7 @@ use maprando::customize::{
     ControllerConfig, CustomizeSettings, MusicSettings, StatuesHallwayAudio, StatuesHallwayTiling,
 };
 use maprando::difficulty::{get_full_global, get_link_difficulty_length};
-use maprando::map_repository::MapRepository;
+use maprando::map_repository::{MapRepository, MapSettings, OfflineMapRepository};
 use maprando::patch::Rom;
 use maprando::patch::make_rom;
 use maprando::preset::PresetData;
@@ -61,7 +61,7 @@ struct TestAppData {
     output_dir: PathBuf,
     game_data: GameData,
     preset_data: PresetData,
-    map_repos: Vec<MapRepository>,
+    map_repo: OfflineMapRepository,
     base_preset: RandomizerSettings,
     skill_presets: Vec<SkillAssumptionSettings>,
     item_presets: Vec<ItemProgressionSettings>,
@@ -84,17 +84,21 @@ fn get_randomization(
     let preset_idx = rng.next_u64() as usize % app.skill_presets.len();
     let progression_idx = rng.next_u64() as usize % app.item_presets.len();
     let qol_idx = rng.next_u64() as usize % app.qol_presets.len();
-    let repo_idx = rng.next_u64() as usize % app.map_repos.len();
 
     let skill_preset = &app.skill_presets[preset_idx];
     let item_preset = &app.item_presets[progression_idx];
     let qol_preset = &app.qol_presets[qol_idx];
-    let map_repo = &app.map_repos[repo_idx];
-
     let mut settings = app.base_preset.clone();
     settings.skill_assumption_settings = skill_preset.clone();
     settings.item_progression_settings = item_preset.clone();
     settings.quality_of_life_settings = qol_preset.clone();
+    settings.map_layout = match rng.next_u64() % 4 {
+        0 => "Vanilla",
+        1 => "Small",
+        2 => "Standard",
+        _ => "Wild",
+    }
+    .to_string();
 
     let skill_label = match &settings.skill_assumption_settings.preset {
         Some(s) => s.clone(),
@@ -154,7 +158,11 @@ fn get_randomization(
         let door_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
 
         if map_batch.is_empty() {
-            map_batch = map_repo.get_map_batch(map_seed, game_data).unwrap();
+            let map_settings = MapSettings::from_map_layout(&settings.map_layout)?;
+            map_batch = app
+                .map_repo
+                .get_map_batch(map_seed, map_settings, game_data)
+                .unwrap();
         }
 
         let mut map = map_batch.pop().unwrap();
@@ -445,12 +453,12 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
         output_dir: args.output_seeds.clone(),
         game_data,
         preset_data,
-        map_repos: vec![
-            MapRepository::new("Vanilla", vanilla_map_path)?,
-            MapRepository::new("Small", small_maps_path)?,
-            MapRepository::new("Standard", standard_maps_path)?,
-            MapRepository::new("Wild", wild_maps_path)?,
-        ],
+        map_repo: OfflineMapRepository::new(vec![
+            ("Vanilla", vanilla_map_path),
+            ("Small", small_maps_path),
+            ("Standard", standard_maps_path),
+            ("Wild", wild_maps_path),
+        ])?,
         base_preset,
         skill_presets,
         item_presets,
