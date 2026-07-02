@@ -253,7 +253,7 @@ impl HttpMapRepository {
         })
     }
 
-    fn generate_request(_settings: MapSettings) -> GenerateRequest {
+    fn generate_request(settings: MapSettings) -> GenerateRequest {
         GenerateRequest {
             episode_length: 253,
             recommended_candidates: 4,
@@ -270,7 +270,7 @@ impl HttpMapRepository {
             reward_graph_diameter: 0.1,
             reward_save_distance: 0.1,
             reward_refill_distance: 0.1,
-            reward_missing_connect_utility: 0.5,
+            reward_missing_connect_utility: if settings.wild { 0.0 } else { 1.0 },
         }
     }
 
