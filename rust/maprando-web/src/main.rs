@@ -34,7 +34,10 @@ use maprando::settings::{ObjectiveGroup, get_objective_groups};
 use maprando::{
     customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
     difficulty::{get_full_global, get_link_difficulty_length},
-    map_repository::{HttpMapRepository, MapRepository, MapSettings, OfflineMapRepository},
+    map_repository::{
+        HttpMapRepository, LocalVanillaMapRepository, MapRepository, MapSettings,
+        OfflineMapRepository,
+    },
     preset::PresetData,
     randomize::{
         DifficultyConfig, Randomization, Randomizer, assign_map_areas, filter_links,
@@ -155,7 +158,10 @@ fn build_app_data() -> AppData {
     let map_repository: Box<dyn MapRepository> = match &args.map_server {
         Some(map_server) => {
             info!("Using real-time map generation server: {map_server}");
-            Box::new(HttpMapRepository::new(map_server).unwrap())
+            Box::new(LocalVanillaMapRepository::new(
+                OfflineMapRepository::new(vec![("Vanilla", vanilla_map_path)]).unwrap(),
+                Box::new(HttpMapRepository::new(map_server).unwrap()),
+            ))
         }
         None => Box::new(
             OfflineMapRepository::new(vec![

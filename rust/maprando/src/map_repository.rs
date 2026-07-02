@@ -51,6 +51,40 @@ pub trait MapRepository: Send + Sync {
     ) -> Result<Vec<Map>>;
 }
 
+pub struct LocalVanillaMapRepository {
+    vanilla_repository: Box<dyn MapRepository>,
+    other_repository: Box<dyn MapRepository>,
+}
+
+impl LocalVanillaMapRepository {
+    pub fn new(
+        vanilla_repository: OfflineMapRepository,
+        other_repository: Box<dyn MapRepository>,
+    ) -> Self {
+        Self {
+            vanilla_repository: Box::new(vanilla_repository),
+            other_repository,
+        }
+    }
+}
+
+impl MapRepository for LocalVanillaMapRepository {
+    fn get_map_batch(
+        &self,
+        seed: usize,
+        settings: MapSettings,
+        game_data: &GameData,
+    ) -> Result<Vec<Map>> {
+        if settings.vanilla {
+            self.vanilla_repository
+                .get_map_batch(seed, settings, game_data)
+        } else {
+            self.other_repository
+                .get_map_batch(seed, settings, game_data)
+        }
+    }
+}
+
 pub struct OfflineMapRepository {
     pools: HashMap<String, OfflineMapPool>,
 }
