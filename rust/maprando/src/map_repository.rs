@@ -238,6 +238,10 @@ struct GenerateRequest {
     reward_save_distance: f64,
     reward_refill_distance: f64,
     reward_missing_connect_utility: f64,
+    small_map: bool,
+    min_rooms: Option<usize>,
+    max_rooms: Option<usize>,
+    target_rooms: Option<usize>,
 }
 
 #[derive(Deserialize)]
@@ -305,6 +309,10 @@ impl HttpMapRepository {
             reward_save_distance: 0.1,
             reward_refill_distance: 0.1,
             reward_missing_connect_utility: if settings.wild { 0.0 } else { 1.0 },
+            small_map: settings.small,
+            min_rooms: settings.small.then_some(120),
+            max_rooms: settings.small.then_some(180),
+            target_rooms: settings.small.then_some(150),
         }
     }
 
