@@ -158,7 +158,9 @@ fn get_randomization(
         let door_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
 
         if map_batch.is_empty() {
-            let map_settings = MapSettings::from_map_layout(&settings.map_layout)?;
+            let mut map_settings = MapSettings::from_map_layout(&settings.map_layout)?;
+            map_settings.area_assignment_base_order =
+                settings.other_settings.area_assignment.base_order;
             map_batch = app
                 .map_repo
                 .get_map_batch(map_seed, map_settings, game_data)

@@ -557,7 +557,11 @@ fn handle_randomize_request(
         app_data.game_data.vertex_isv.keys.len(),
         0,
     );
-    let map_settings = MapSettings::from_map_layout(&settings.map_layout).unwrap();
+    let mut map_settings = MapSettings::from_map_layout(&settings.map_layout).unwrap();
+    map_settings.area_assignment_base_order = settings.other_settings.area_assignment.base_order;
+    let requires_area_assignment = app_data
+        .map_repository
+        .requires_area_assignment(map_settings);
     let max_attempts = 2000;
     let attempts_timeout = Duration::from_secs(25);
     let max_attempts_per_map = if settings.start_location_settings.mode == StartLocationMode::Random
@@ -587,7 +591,9 @@ fn handle_randomize_request(
         }
 
         let mut map = map_batch.pop().unwrap();
-        if !assign_map_areas(&mut map, &settings, map_seed, &app_data.game_data) {
+        if requires_area_assignment
+            && !assign_map_areas(&mut map, &settings, map_seed, &app_data.game_data)
+        {
             info!("Area assignment failed for map seed={map_seed}");
             continue;
         }

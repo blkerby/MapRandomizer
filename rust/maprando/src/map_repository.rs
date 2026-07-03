@@ -12,13 +12,26 @@ use std::{
 };
 
 use crate::randomize::Randomizer;
+use crate::settings::AreaAssignmentBaseOrder;
 use maprando_game::{GameData, Map, NodeId, RoomId};
 
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Copy, Debug)]
 pub struct MapSettings {
     pub small: bool,
     pub wild: bool,
     pub vanilla: bool,
+    pub area_assignment_base_order: AreaAssignmentBaseOrder,
+}
+
+impl Default for MapSettings {
+    fn default() -> Self {
+        Self {
+            small: false,
+            wild: false,
+            vanilla: false,
+            area_assignment_base_order: AreaAssignmentBaseOrder::Size,
+        }
+    }
 }
 
 impl MapSettings {
@@ -49,6 +62,10 @@ pub trait MapRepository: Send + Sync {
         settings: MapSettings,
         game_data: &GameData,
     ) -> Result<Vec<Map>>;
+
+    fn requires_area_assignment(&self, _settings: MapSettings) -> bool {
+        true
+    }
 }
 
 pub struct LocalVanillaMapRepository {
@@ -81,6 +98,14 @@ impl MapRepository for LocalVanillaMapRepository {
         } else {
             self.other_repository
                 .get_map_batch(seed, settings, game_data)
+        }
+    }
+
+    fn requires_area_assignment(&self, settings: MapSettings) -> bool {
+        if settings.vanilla {
+            self.vanilla_repository.requires_area_assignment(settings)
+        } else {
+            self.other_repository.requires_area_assignment(settings)
         }
     }
 }
@@ -242,6 +267,25 @@ struct GenerateRequest {
     min_rooms: Option<usize>,
     max_rooms: Option<usize>,
     target_rooms: Option<usize>,
+    area_assignment_base_order: GenerateAreaAssignmentBaseOrder,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Serialize)]
+#[serde(rename_all = "lowercase")]
+enum GenerateAreaAssignmentBaseOrder {
+    Size,
+    Depth,
+    Random,
+}
+
+impl From<AreaAssignmentBaseOrder> for GenerateAreaAssignmentBaseOrder {
+    fn from(value: AreaAssignmentBaseOrder) -> Self {
+        match value {
+            AreaAssignmentBaseOrder::Size => Self::Size,
+            AreaAssignmentBaseOrder::Depth => Self::Depth,
+            AreaAssignmentBaseOrder::Random => Self::Random,
+        }
+    }
 }
 
 #[derive(Deserialize)]
@@ -313,6 +357,7 @@ impl HttpMapRepository {
             min_rooms: settings.small.then_some(120),
             max_rooms: settings.small.then_some(180),
             target_rooms: settings.small.then_some(150),
+            area_assignment_base_order: settings.area_assignment_base_order.into(),
         }
     }
 
@@ -381,6 +426,10 @@ impl MapRepository for HttpMapRepository {
         }
         shuffle_maps(&mut maps, seed);
         Ok(maps)
+    }
+
+    fn requires_area_assignment(&self, _settings: MapSettings) -> bool {
+        false
     }
 }
 
@@ -670,6 +719,58 @@ fn shuffle_maps(map_vec: &mut [Map], seed: usize) {
     rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
     let mut rng = StdRng::from_seed(rng_seed);
     map_vec.shuffle(&mut rng);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn serialize_generate_request(settings: MapSettings) -> serde_json::Value {
+        serde_json::to_value(HttpMapRepository::generate_request(settings)).unwrap()
+    }
+
+    #[test]
+    fn generate_request_serializes_lowercase_area_assignment_base_order() {
+        let cases = [
+            (AreaAssignmentBaseOrder::Size, "size"),
+            (AreaAssignmentBaseOrder::Depth, "depth"),
+            (AreaAssignmentBaseOrder::Random, "random"),
+        ];
+
+        for (base_order, expected) in cases {
+            let request = serialize_generate_request(MapSettings {
+                area_assignment_base_order: base_order,
+                ..Default::default()
+            });
+            assert_eq!(request["area_assignment_base_order"], expected);
+        }
+    }
+
+    #[test]
+    fn repository_area_assignment_capability_matches_source() {
+        let settings = MapSettings::default();
+        let offline_repository = OfflineMapRepository {
+            pools: HashMap::new(),
+        };
+        let http_repository = HttpMapRepository::new("localhost:1234").unwrap();
+
+        assert!(offline_repository.requires_area_assignment(settings));
+        assert!(!http_repository.requires_area_assignment(settings));
+
+        let local_vanilla_repository = LocalVanillaMapRepository::new(
+            OfflineMapRepository {
+                pools: HashMap::new(),
+            },
+            Box::new(http_repository),
+        );
+        assert!(!local_vanilla_repository.requires_area_assignment(settings));
+        assert!(
+            local_vanilla_repository.requires_area_assignment(MapSettings {
+                vanilla: true,
+                ..Default::default()
+            })
+        );
+    }
 }
 
 fn validate_response_lengths(response: &GenerateResponse, map_count: usize) -> Result<()> {
