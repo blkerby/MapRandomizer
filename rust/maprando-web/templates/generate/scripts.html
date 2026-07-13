@@ -272,9 +272,9 @@ function buildSettingsObject() {
             "starting_items": buildStartingItems(),
             "key_item_priority": buildItemPriorities(),
             "filler_items": buildFillerItems(),
-            "missile_size": tryParseInt(formData.get("tank_size_Missile")),
-            "super_size": tryParseInt(formData.get("tank_size_Super")),
-            "powerbomb_size": tryParseInt(formData.get("tank_size_PowerBomb")),
+            "missile_size": tryParseInt(formData.get("ammo_size_Missile")),
+            "super_size": tryParseInt(formData.get("ammo_size_Super")),
+            "powerbomb_size": tryParseInt(formData.get("ammo_size_PowerBomb")),
         },
         "quality_of_life_settings": {
             "preset": formData.get("quality_of_life_preset"),
@@ -1145,9 +1145,9 @@ function applyItemProgressionPreset(preset) {
         }
     }
 
-    document.getElementById("tankSizeMissile").value = preset.missile_size;
-    document.getElementById("tankSizeSuper").value = preset.super_size;
-    document.getElementById("tankSizePowerBomb").value = preset.powerbomb_size;
+    document.getElementById("ammoSizeMissile").value = preset.missile_size;
+    document.getElementById("ammoSizeSuper").value = preset.super_size;
+    document.getElementById("ammoSizePowerBomb").value = preset.powerbomb_size;
 
     processItemPoolPreset();
     applyRadioValue("startingItemsPreset", preset.starting_items_preset);
@@ -1267,6 +1267,9 @@ function processItemPoolPreset() {
         {% for item in item_names_single %}
         document.getElementById("itemPool{{+ item }}Yes").checked = true;
         {% endfor %}
+        document.getElementById("ammoSizeMissile").value = "5";
+        document.getElementById("ammoSizeSuper").value = "5";
+        document.getElementById("ammoSizePowerBomb").value = "5";
     }
     if (document.getElementById("itemPoolPresetReduced").checked) {
         document.getElementById("stopItemPlacementEarlyYes").checked = true;
@@ -1278,23 +1281,26 @@ function processItemPoolPreset() {
         {% for item in item_names_single %}
         document.getElementById("itemPool{{+ item }}Yes").checked = true;
         {% endfor %}
+        document.getElementById("ammoSizeMissile").value = "5";
+        document.getElementById("ammoSizeSuper").value = "5";
+        document.getElementById("ammoSizePowerBomb").value = "5";
     }
 }
-function validateTankSize() {
-    if (parseInt(document.getElementById("tankSizeMissile").value) < 1) {
-        document.getElementById("tankSizeMissile").value = "5";
+function validateAmmoSize() {
+    if (parseInt(document.getElementById("ammoSizeMissile").value) < 1) {
+        document.getElementById("ammoSizeMissile").value = "5";
     }
-    if (parseInt(document.getElementById("tankSizeMissile").value) > 999) {
-        document.getElementById("tankSizeMissile").value = "999";
+    if (parseInt(document.getElementById("ammoSizeMissile").value) > 999) {
+        document.getElementById("ammoSizeMissile").value = "999";
     }
-    if (parseInt(document.getElementById("tankSizeSuper").value) < 1) {
-        document.getElementById("tankSizeSuper").value = "5";
+    if (parseInt(document.getElementById("ammoSizeSuper").value) < 1) {
+        document.getElementById("ammoSizeSuper").value = "5";
     }
-    if (parseInt(document.getElementById("tankSizeSuper").value) > 99) {
-        document.getElementById("tankSizeSuper").value = "99";
+    if (parseInt(document.getElementById("ammoSizeSuper").value) > 99) {
+        document.getElementById("ammoSizeSuper").value = "99";
     }
-    if (parseInt(document.getElementById("tankSizePowerBomb").value) < 1) {
-        document.getElementById("tankSizePowerBomb").value = "5";
+    if (parseInt(document.getElementById("ammoSizePowerBomb").value) < 1) {
+        document.getElementById("ammoSizePowerBomb").value = "5";
     }
 }
 
@@ -1336,14 +1342,11 @@ function itemPoolPresetChanged() {
     processItemPoolPreset();
     itemProgressionChanged();
 }
-function tankSizeChanged() {
-    validateTankSize();
-    itemProgressionChanged();
-}
 function itemPoolChanged() {
     document.getElementById("itemPoolPresetFull").checked = false;
     document.getElementById("itemPoolPresetReduced").checked = false;
     validateItemPool();
+    validateAmmoSize();
     itemProgressionChanged();
 }
 
