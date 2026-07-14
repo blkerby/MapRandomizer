@@ -2275,10 +2275,6 @@ impl Patcher<'_> {
         let mut starting_supers = 0;
         let mut starting_powerbombs = 0;
 
-        if starting_energy < 1 {
-            bail!("E-Tank size is too low".to_string());
-        }
-
         let item_bitmask_map: HashMap<Item, u16> = vec![
             (Item::Varia, 0x0001),
             (Item::SpringBall, 0x0002),

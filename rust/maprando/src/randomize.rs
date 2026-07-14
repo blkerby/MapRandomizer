@@ -3641,6 +3641,7 @@ pub fn get_starting_items(settings: &RandomizerSettings) -> Vec<ItemCount> {
             continue;
         }
         // Enforce HUD-based limits for starting ammo
+        // TODO: eliminate this in favor of an in-game patch to cap ammo capacity to HUD limits.
         match x.item {
             Item::Missile => {
                 while x.count * settings.item_progression_settings.missile_size as usize > 999 {
@@ -3718,12 +3719,14 @@ impl<'r> Randomizer<'r> {
             }
         }
 
+        // Although ETanks and Reserve Tanks are fixed to 100 energy, the following
+        // code is written in a generic way that could support changing this in the future.
         let mut minimal_energy = get_minimal_energy(&difficulty_tiers[0]);
         for x in &starting_items {
             initial_items_remaining[x.item as usize] -=
                 usize::min(x.count, initial_items_remaining[x.item as usize]);
             if x.item == Item::ETank || x.item == Item::ReserveTank {
-                minimal_energy = minimal_energy.saturating_sub(100);
+                minimal_energy = minimal_energy.saturating_sub(100 * x.count as Capacity);
             }
         }
 
