@@ -8,11 +8,13 @@
 8438 - 844A: ; self_check.asm
 8455 - 8458: ; stats.asm
 84B3 - 84B7: ; stats.asm
+8564 - 8567: ; msu1.asm
 858F - 8591: ; map_area.asm
 85A7 - 85A9: ; map_area.asm
 85C9 - 85CB: ; map_area.asm
 85E6 - 85E8: ; map_area.asm
 875D - 875E: ; stats.asm
+8F0C - 8F11: ; msu1.asm
 8F27 - 8F29: ; msu1.asm
 8FA3 - 8FBE: ; stats.asm
 9382 - 9384: SpriteSomething
@@ -1461,9 +1463,14 @@ F0E2 - F0E7: ; map_area.asm
 86CA - 86CF: ; tourian_map.asm
 86DF - 89B4: ; tourian_map.asm
 
+[BANK CF]
+83A1 - 83A3: ; msu1.asm (encoded SPC song command hook)
+
+[BANK D0]
+9439 - 9484: ; msu1.asm (encoded SPC song command handler)
+
 [BANK DA]
 D63B - FFFF: ; intro_song.asm
 
 [BANK DB]
 8000 - A40E: ; intro_song.asm
-

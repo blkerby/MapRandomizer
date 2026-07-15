@@ -7,11 +7,13 @@ D240 - D301: ; stats.asm
 D310 - D32D: ; fast_reload.asm
 D330 - D33D: ; crash_handle_base.asm
 D340 - D71F: ; reserve_hud.asm
-DA00 - DB80: ; msu1.asm
+DA00 - DC5B: ; msu1.asm
+DC5C - DCFF: [FREE]
 DD00 - E0FF: Palette pointer table for Mosaic
 E100 - E136: ; area_palettes.asm
 E180 - E1A7: ; fix_horiz_doors.asm
-E1B0 - E29F: [FREE]
+E1B0 - E25D: ; msu1.asm (MSU cache initialization)
+E25E - E29F: [FREE]
 E2A0 - E396: ; decompression.asm
 E3C0 - E40A: ; disableable_etanks.asm
 E440 - E50D: ; load_plms_early.asm

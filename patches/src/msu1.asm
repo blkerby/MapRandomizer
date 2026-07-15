@@ -1,6 +1,6 @@
 ; Track List:
 ;
-; 1 - Apperance fanfare
+; 1 - Appearance fanfare
 ; 2 - Item acquired (Unused)
 ; 3 - Item/elevator room
 ; 4 - Opening with intro
@@ -23,7 +23,7 @@
 ; 21 - Chozo statue awakens
 ; 22 - Big Boss Battle 2 (Crocomire, Kraid, Phantoon, Baby Metroid)
 ; 23 - Tension/Hostile Incoming (before Kraid, Phantoon, and Baby Metroid. Played in between Croc segments)
-; 24 - Plant miniboss (Sporespawn and Botwoon)
+; 24 - Plant miniboss (Spore Spawn and Botwoon)
 ; 25 - Ceres Station (Unused)
 ; 26 - Wrecked Ship Powered Off
 ; 27 - Wrecked Ship Powered On
@@ -42,17 +42,19 @@
 ; 36 - Ridley battle (falls back to 19)
 ; 37 - Baby incoming (falls back to 23)
 ; 38 - The baby (falls back to 22)
-; 39 - Hyper beam (falls back 10)
+; 39 - Hyper beam (falls back to 10)
 
 ;;; Based on https://github.com/theonlydude/RandomMetroidSolver/blob/771edd125b2f46de1c3489c3be91994f9183a2e3/patches/common/src/supermetroid_msu1.asm
 ;;; Extension based on https://github.com/Vivelin/SMZ3Randomizer/blob/8db3ec4cc13d89993e0b523ff26f29b9d2a983c0/alttp_sm_combo_randomizer_rom/src/sm/msu.asm
-;;; assemble with asar v1.81 (https://github.com/RPGHacker/asar/releases/tag/v1.81)
+;;; Assemble with Asar v1.81 or later (https://github.com/RPGHacker/asar/releases/tag/v1.81)
 
 lorom
 arch 65816
 
 !bank_80_free_space_start = $80DA00
 !bank_80_free_space_end = $80DD00
+!bank_80_init_space_start = $80E1B0
+!bank_80_init_space_end = $80E260
 
 ;;; MSU memory map I/O
 !MSU_STATUS = $2000
@@ -65,14 +67,21 @@ arch 65816
 ;;; SPC communication ports
 !SPC_COMM_0 = $2140
 
-;;; MSU_STATUS possible values
+;;; MSU_STATUS bit masks
 !MSU_STATUS_TRACK_MISSING = $8
-!MSU_STATUS_AUDIO_PLAYING = %00010000
-!MSU_STATUS_AUDIO_REPEAT = %00100000
 !MSU_STATUS_AUDIO_BUSY = $40
-!MSU_STATUS_DATA_BUSY = %10000000
 
 ;;; Constants
+!MSU_CACHE_MAGIC_VALUE = $4D01
+!MSU_CACHE_MAGIC = $70260E
+!MSU_CACHE_SEED = $702610
+!MSU_TRACK_CACHE = $702614
+!MSU_TRACK_COUNT = 41
+
+!SPC_MUTE_CODE = $B210
+!SPC_MUTE_STATE = $0D         ; Vanilla-unused SPC direct-page byte
+!SPC_MUTED_TRACK = $40        ; Wire flag; SM song indices are below $40
+
 if defined("EMULATOR_VOLUME")
 !FULL_VOLUME = $60
 else
@@ -84,19 +93,200 @@ endif
 !CurrentMusic = $064C
 !MusicBank = $07F3
 
-;;; **********
-;;; * Macros *
-;;; **********
-macro CheckMSUPresence(labelToJump)
-	lda.w !MSU_ID
-	cmp.b #'S'
-	bne <labelToJump>
-endmacro
+;;; PendingMSUTrack and PendingSPCTrack form a service word so the idle hook can
+;;; check the entire asynchronous MSU request with a single load and branch.
+!PendingMSUTrack = $7EF4E0
+!PendingSPCTrack = $7EF4E1
+!SelectedMSUTrack = $7EF4E2
+!PendingMSUControl = $7EF4E3
 
 org $808F27
     jsr MSU_Main
 
+org $808F0C
+    jml MSU_PollHook
+    nop : nop
+
+; Initialize the per-seed track cache during boot. This replaces the original
+; JSL $808261, which MSU_Init calls after restoring the caller's state.
+org $808564
+    jsl MSU_Init
+
+org !bank_80_init_space_start
+MSU_Init:
+	php
+	rep #$30
+	pha
+	phx
+
+	; The SPC engine starts unmuted, and no MSU request survives a reset.
+	lda #$0000
+	sta.l !PendingMSUTrack       ; Also clears PendingSPCTrack
+	sta.l !SelectedMSUTrack      ; Also clears PendingMSUControl
+	sep #$20
+	stz.w !MSU_AUDIO_TRACK_LO
+	stz.w !MSU_AUDIO_TRACK_HI
+	stz.w !MSU_AUDIO_CONTROL
+	stz.w !MSU_AUDIO_VOLUME
+	rep #$20
+
+	; Check the full first two bytes of the MSU-1 signature ("S-").
+	lda.w !MSU_ID
+	cmp #$2D53
+	bne .restore
+
+	; A matching version marker and seed hash means the cache is complete.
+	lda.l !MSU_CACHE_MAGIC
+	cmp #!MSU_CACHE_MAGIC_VALUE
+	bne .scan
+	lda.l $DFFF00
+	cmp.l !MSU_CACHE_SEED
+	bne .scan
+	lda.l $DFFF02
+	cmp.l !MSU_CACHE_SEED+2
+	beq .restore
+
+.scan:
+	; Invalidate first so a reset during the scan cannot expose partial data.
+	lda #$0000
+	sta.l !MSU_CACHE_MAGIC
+	sep #$30
+	sta.l !MSU_TRACK_CACHE       ; Track 0 is unused
+	sta.l !MSU_TRACK_CACHE+40    ; Track 40 is unused
+	sta.w !MSU_AUDIO_CONTROL
+	sta.w !MSU_AUDIO_VOLUME
+
+	ldx #$01
+.next_track:
+	cpx #$28                     ; Skip unused track 40
+	bne .select_track
+	inx
+.select_track:
+	txa
+	sta.w !MSU_AUDIO_TRACK_LO
+	stz.w !MSU_AUDIO_TRACK_HI
+.wait:
+	lda.w !MSU_STATUS
+	and #!MSU_STATUS_AUDIO_BUSY
+	bne .wait
+	lda.w !MSU_STATUS
+	and #!MSU_STATUS_TRACK_MISSING
+	beq .present
+	lda #$00
+	bra .store
+.present:
+	lda #$01
+.store:
+	sta.l !MSU_TRACK_CACHE,x
+	inx
+	cpx #!MSU_TRACK_COUNT+1
+	bne .next_track
+
+	stz.w !MSU_AUDIO_CONTROL
+	stz.w !MSU_AUDIO_VOLUME
+	rep #$30
+	lda.l $DFFF00
+	sta.l !MSU_CACHE_SEED
+	lda.l $DFFF02
+	sta.l !MSU_CACHE_SEED+2
+	; Commit the valid marker last.
+	lda #!MSU_CACHE_MAGIC_VALUE
+	sta.l !MSU_CACHE_MAGIC
+
+.restore:
+	plx
+	pla
+	plp
+	jsl $808261
+	rtl
+
+assert pc() <= !bank_80_init_space_end
+
 org !bank_80_free_space_start
+
+; Advance pending MSU work from the music queue handler.
+MSU_PollHook:
+	php
+	rep #$20
+	pha
+	lda.l !PendingMSUTrack
+	beq .idle
+	jsl MSU_Service
+.idle:
+	pla
+	dec $063F
+	jml $808F12
+
+MSU_Service:
+	php
+	rep #$10
+	phx
+	sep #$30
+	lda.l !PendingMSUTrack
+	beq .done
+	tax
+	lda.w !MSU_STATUS
+	and #!MSU_STATUS_AUDIO_BUSY
+	bne .done
+
+	txa
+	cmp.l !SelectedMSUTrack
+	beq .selected
+
+	; The previous selection is ready but obsolete. Start the latest request and
+	; defer its status check until the next music-service call.
+	stz.w !MSU_AUDIO_VOLUME
+	sta.w !MSU_AUDIO_TRACK_LO
+	stz.w !MSU_AUDIO_TRACK_HI
+	sta.l !SelectedMSUTrack
+	bra .done
+
+.selected:
+	lda.w !MSU_STATUS
+	and #!MSU_STATUS_TRACK_MISSING
+	bne .missing
+
+	; Wait for the SPC to load the track with muted output before starting MSU-1.
+	; This prevents SPC music and MSU-1 music from overlapping.
+	lda.l !PendingSPCTrack
+	cmp.w !SPC_COMM_0
+	bne .done
+
+	lda.l !PendingMSUControl
+	sta.w !MSU_AUDIO_CONTROL
+	lda #!FULL_VOLUME
+	sta.w !MSU_AUDIO_VOLUME
+	lda #$00
+	sta.l !PendingMSUTrack
+	sta.l !PendingSPCTrack
+	bra .done
+.missing:
+	; Fallback to the original SPC command when the requested MSU track is missing.
+	lda #$00
+	sta.l !MSU_TRACK_CACHE,x
+	sta.l !PendingMSUTrack
+	sta.l !SelectedMSUTrack
+	sta.w !MSU_AUDIO_CONTROL
+	sta.w !MSU_AUDIO_VOLUME
+	lda.l !PendingSPCTrack
+	and #$3F                     ; Strip the muted bit
+	sta.w !SPC_COMM_0
+	lda #$00
+	sta.l !PendingSPCTrack
+
+	; Restart the downtime because this fallback command is sent after the
+	; original eight-frame window began.
+	rep #$20
+	lda #$0008
+	sta.w $0686
+	sep #$20
+
+.done:
+	rep #$10
+	plx
+	plp
+	rtl
+
 MSU_Main:
 	php
 	rep #$30
@@ -104,42 +294,46 @@ MSU_Main:
 	phx
 	phy
 	phb
-	
+
 	sep #$30
-	
-	;; Make sure the data bank is set to $80
+
+	; Make sure the data bank is set to $80.
 	lda #$80
 	pha
 	plb
-	
-	%CheckMSUPresence(OriginalCode)
-	
-	;; Load current requested music
+
+	; Check the first two bytes of the MSU-1 signature ("S-").
+	rep #$20
+	lda.w !MSU_ID
+	cmp #$2D53
+	sep #$20
+	beq +
+	jmp OriginalCode
++
+
+	; Load the current requested music.
 	lda.w !RequestedMusic
 	and.b #$7F
 	beq StopMSUMusic
-	
-	;; $04 is usually ambience, call original code
+
+	; $04 is usually ambience, so use the original SPC command.
 	cmp.b #$04
 	beq StopMSUMusic
-	
-	;; Check if the song is already playing
+
+	; Ignore a request that is already current or being handled.
 	cmp.w !CurrentMusic
 	beq MSU_Exit
-	
-	;; If the requested music is less than 4
-	;; it's the common music, skip to play music
+
+	; Tracks below 5 are common music and need no bank mapping.
 	cmp.b #$05
 	bmi PlayMusic
-	
-	;; If requested music is greater or equal to 5
-	;; Figure out which music to play depending of
-	;; the current music bank
+
+	; Map tracks 5 and above according to the current music bank.
 	sec
 	sbc.b #$05
 	tay
-	
-	;; Load music bank and divide it by 3
+
+	; Divide the music-bank index by 3.
 	lda.w !MusicBank
 	ldx.b #$00
 	sec
@@ -149,54 +343,45 @@ MSU_Main:
 	inx
 	bne -
 +
-	;; Load music mapping pointer for current bank
+	; Load the mapping for the current music bank.
 	txa
 	asl
 	tax
 	rep #$20
 	lda.l MusicMappingPointers,x
 	sta.b $00
-	;; Load music to play from pointer
+	; Load the mapped MSU track.
 	sep #$20
 	lda ($00),y
-	
-	;; Loading $00 means calling the original code
-	beq OriginalCode
+
+	; A zero mapping means to use the original SPC command.
+	beq StopMSUMusic
 PlayMusic:
 	tay
-    
-    ; If the non-extended track number is one of the special room songs,
-    ; like item/elevator (3), resume track when returning
-    cpy.b #03 : beq +
-    cpy.b #19 : beq +
-    cpy.b #22 : beq +
-    cpy.b #23 : beq +
-    cpy.b #24 : beq +
-        bra ++
-    +
-    lda.b #$04
-    sta.w !MSU_AUDIO_CONTROL
-    ++
-    
-    jsr TryExtended
-    ; If extended track does not exist
-    beq +
-        tya
-        jsr TryToPlayMusic
-        bne StopMSUMusic
-    +
-	
-	;; Play the song and add repeat if needed
-	jsr TrackNeedLooping
+
+	; Save the background position before special room tracks so it can resume.
+	cpy.b #03 : beq +
+	cpy.b #19 : beq +
+	cpy.b #22 : beq +
+	cpy.b #23 : beq +
+	cpy.b #24 : beq +
+	bra ++
++
+	lda.b #$04
 	sta.w !MSU_AUDIO_CONTROL
-	
-	;; Set volume
-	lda.b #!FULL_VOLUME
-	sta.w !MSU_AUDIO_VOLUME
-	
-	;; Stop SPC music
-	stz !SPC_COMM_0
-	
+	lda.b #$00
+	sta.l !SelectedMSUTrack       ; Force a select so resume state is applied
+++
+
+	jsr TryExtended
+	; Use the extended track when it was successfully queued.
+	beq MSU_Exit
+	; Otherwise fall back to the normal track.
+	tya
+	jsr TryToPlayMusic
+	bne StopMSUMusic
+	bra MSU_Exit
+
 MSU_Exit:
 	rep #$30
 	plb
@@ -205,11 +390,17 @@ MSU_Exit:
 	pla
 	plp
 	rts
-	
+
 StopMSUMusic:
 	lda.b #$00
 	sta.w !MSU_AUDIO_CONTROL
 	sta.w !MSU_AUDIO_VOLUME
+	sta.l !PendingMSUTrack
+	sta.l !PendingSPCTrack
+	sta.l !SelectedMSUTrack
+	; Restore the caller and send the original, unencoded SPC song command. The
+	; SPC handler restores normal music output before loading it.
+	jmp OriginalCode
 
 OriginalCode:
 	rep #$30
@@ -270,20 +461,48 @@ TryExtended:
     jmp ..Return
 
 ; Tries to play track at index of A
-; Returns 0 in A if success
+; Returns 0 in A if the cached track exists and was queued, non-zero otherwise.
 TryToPlayMusic:
-	sta !MSU_AUDIO_TRACK_LO
-	stz !MSU_AUDIO_TRACK_HI
-    
--
-	lda !MSU_STATUS
+	tax
+	lda.l !MSU_TRACK_CACHE,x
+	beq .missing
+
+	txa
+	sta.l !PendingMSUTrack
+
+	; Send the vanilla song command immediately, using bit 6 to request muted
+	; output. The code following MSU_Main supplies the normal eight-frame downtime.
+	lda.w !RequestedMusic
+	and #$3F
+	ora #!SPC_MUTED_TRACK
+	sta.l !PendingSPCTrack
+	sta.w !SPC_COMM_0
+	jsr TrackNeedLooping
+	sta.l !PendingMSUControl
+
+	; Avoid touching the MSU track registers when the resolved track is already
+	; selected (different SPC tracks can map to the same MSU track).
+	txa
+	cmp.l !SelectedMSUTrack
+	beq .queued
+
+	; Never write a new selection while the previous one is busy. MSU_Service will
+	; select the latest pending track as soon as the device is ready.
+	lda.w !MSU_STATUS
 	and #!MSU_STATUS_AUDIO_BUSY
-	bne -
-	
-	;; Check if track is missing
-	lda !MSU_STATUS
-	and #!MSU_STATUS_TRACK_MISSING
-    rts
+	bne .queued
+	stz.w !MSU_AUDIO_VOLUME
+	txa
+	sta.w !MSU_AUDIO_TRACK_LO
+	stz.w !MSU_AUDIO_TRACK_HI
+	sta.l !SelectedMSUTrack
+.queued:
+	lda #$00
+	rts
+
+.missing:
+	lda #!MSU_STATUS_TRACK_MISSING
+	rts
 
 MusicMappingPointers:
 	dw bank_00
@@ -312,8 +531,7 @@ MusicMappingPointers:
 	dw bank_45
 	dw bank_48
 
-MusicMapping:
-;; 00 means use SPC music
+; 00 means use SPC music
 bank_00: ;; Opening
 	db 04,05,00
 bank_03: ;; Opening
@@ -324,7 +542,7 @@ bank_09: ;; Crateria
 	db 08,09
 bank_0C: ;; Samus's Ship
 	db 10
-bank_0F: ;; Brinstar with vegatation
+bank_0F: ;; Brinstar with vegetation
 	db 11
 bank_12: ;; Brinstar Red Soil
 	db 12
@@ -366,10 +584,10 @@ bank_48: ;; Samus's Ship (Mother Brain)
 	db 10
 
 BossTwoExtendedThemes:
-db #00,#32,#00,#34,#00,#38
+	db 00,32,00,34,00,38
 
 TensionExtendedThemes:
-db #00,#31,#00,#33,#00,#37
+	db 00,31,00,33,00,37
 
 TrackNeedLooping:
 ;; Samus Aran's Appearance fanfare
@@ -391,4 +609,68 @@ NoLooping:
 	lda.b #$01
 	rts
 
-warnpc !bank_80_free_space_end
+assert pc() <= !bank_80_free_space_end
+
+; Extend the SPC command handler with commands that mute only music output. The
+; SPC song continues to run, keeping its sequencing and music-driven timing in
+; sync with MSU playback while leaving sound effects audible.
+org $CF8108+($1799-$1500)
+	db $5F
+	dw !SPC_MUTE_CODE
+
+pushpc
+org $D09439                 ; Unused sample data uploaded to SPC $B210
+arch spc700
+base !SPC_MUTE_CODE
+SPC_MuteHandler:
+	CMP A,#$F0               ; Replaced original command check
+	BNE +
+		JMP $1750             ; SilenceSong
+	+
+	; Preserve vanilla special commands before interpreting bit 6 as the mute bit.
+	CMP A,#$F1
+	BEQ .original
+	CMP A,#$FF
+	BEQ .original
+	BBC6 $00,.unmuted         ; $00 is the cached CPU IO 0 input
+
+	; An unchanged encoded command means this song is already loaded and muted.
+	CMP Y,$00
+	BEQ .continue
+	MOV A,!SPC_MUTE_STATE
+	BNE .load_muted
+	MOV A,#$E8
+	MOV $1E15,A               ; MUL YA -> MOV A,#$00
+	MOV A,#$00
+	MOV $1E16,A
+	MOV !SPC_MUTE_STATE,#$01
+
+.load_muted:
+	; Load the song using the low six bits, but echo the encoded command so the
+	; CPU knows that muting and song loading have both been applied.
+	MOV A,$00
+	PUSH A
+	AND A,#$3F
+	CALL $1740                ; LoadNewMusicTrack, then SilenceSong
+	POP A
+	MOV $04,A
+	RET
+
+.unmuted:
+	MOV A,!SPC_MUTE_STATE
+	BEQ .original
+	MOV A,#$CF
+	MOV $1E15,A               ; Restore MUL YA
+	MOV A,#$DD
+	MOV $1E16,A               ; Restore MOV A,Y
+	MOV !SPC_MUTE_STATE,#$00
+
+.original:
+	MOV A,$00                 ; Restore the cached CPU command after state checks
+	JMP $179D                 ; Continue vanilla command handling
+
+.continue:
+	JMP $17A9                 ; Command unchanged; continue playing the song
+assert pc() <= $B515
+arch 65816
+pullpc

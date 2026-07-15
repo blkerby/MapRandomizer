@@ -22,7 +22,10 @@ $701FE0-702000: Save slot selection, etc.
 $702000-702600: Map revealed bits (map_progress_maintain.asm)
 $702600-702602: Area explored bitmask, determines if an area map can show in pause map with Select (map_area.asm)
 $702602-70260E: Save slot map markers (map_area.asm)
-$70260E-702700: [FREE]
+$70260E-702610: MSU track cache format/valid marker (msu1.asm)
+$702610-702614: MSU track cache seed hash (msu1.asm)
+$702614-70263E: MSU track availability bytes, indexed by track number 0-41 (msu1.asm)
+$70263E-702700: [FREE]
 $702700-702D00: Map partially revealed bits (map_progress_maintain.asm)
 $702D00-702E00: HUD current minimap tile graphics (map_area.asm)
 $702E00-703000: [FREE]
