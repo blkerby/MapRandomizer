@@ -3405,15 +3405,15 @@ pub fn filter_links(
     out
 }
 
-fn get_minimal_tank_count(difficulty: &DifficultyConfig) -> usize {
+fn get_minimal_energy(difficulty: &DifficultyConfig) -> Capacity {
     if difficulty.ridley_proficiency < 0.3 {
-        12
+        1200
     } else if difficulty.ridley_proficiency < 0.8 {
-        9
+        900
     } else if difficulty.ridley_proficiency < 0.9 {
-        7
+        700
     } else {
-        3
+        300
     }
 }
 
@@ -3529,7 +3529,7 @@ pub fn get_objectives<R: Rng>(
 }
 
 pub fn get_starting_items(settings: &RandomizerSettings) -> Vec<ItemCount> {
-    let starting_items = if settings.start_location_settings.mode == StartLocationMode::Escape {
+    let mut starting_items = if settings.start_location_settings.mode == StartLocationMode::Escape {
         vec![
             ItemCount {
                 item: Item::ETank,
@@ -3635,10 +3635,30 @@ pub fn get_starting_items(settings: &RandomizerSettings) -> Vec<ItemCount> {
     };
 
     let mut out = vec![];
-    for x in &starting_items {
+    for x in &mut starting_items {
         // If collectible wall jump is not enabled, do not place it as a starting item.
         if x.item == Item::WallJump && settings.other_settings.wall_jump == WallJump::Vanilla {
             continue;
+        }
+        // Enforce HUD-based limits for starting ammo
+        // TODO: eliminate this in favor of an in-game patch to cap ammo capacity to HUD limits.
+        match x.item {
+            Item::Missile => {
+                while x.count * settings.item_progression_settings.missile_size as usize > 999 {
+                    x.count -= 1;
+                }
+            }
+            Item::Super => {
+                while x.count * settings.item_progression_settings.super_size as usize > 99 {
+                    x.count -= 1;
+                }
+            }
+            Item::PowerBomb => {
+                while x.count * settings.item_progression_settings.powerbomb_size as usize > 99 {
+                    x.count -= 1;
+                }
+            }
+            _ => {}
         }
         // Depending on if Split Speed Booster is enabled, do not place inapplicable booster items.
         match (x.item, settings.other_settings.speed_booster) {
@@ -3699,20 +3719,50 @@ impl<'r> Randomizer<'r> {
             }
         }
 
-        let mut minimal_tank_count = get_minimal_tank_count(&difficulty_tiers[0]);
+        // Although ETanks and Reserve Tanks are fixed to 100 energy, the following
+        // code is written in a generic way that could support changing this in the future.
+        let mut minimal_energy = get_minimal_energy(&difficulty_tiers[0]);
         for x in &starting_items {
             initial_items_remaining[x.item as usize] -=
                 usize::min(x.count, initial_items_remaining[x.item as usize]);
             if x.item == Item::ETank || x.item == Item::ReserveTank {
-                minimal_tank_count = minimal_tank_count.saturating_sub(x.count);
+                minimal_energy = minimal_energy.saturating_sub(100 * x.count as Capacity);
             }
         }
 
-        while initial_items_remaining[Item::ETank as usize]
-            + initial_items_remaining[Item::ReserveTank as usize]
-            < minimal_tank_count
+        while ((initial_items_remaining[Item::ETank as usize] * 100) as Capacity
+            + (initial_items_remaining[Item::ReserveTank as usize] * 100) as Capacity)
+            < minimal_energy
         {
-            initial_items_remaining[Item::ETank as usize] += 1;
+            if (initial_items_remaining[Item::ETank as usize] < 14)
+                && ((initial_items_remaining[Item::ETank as usize] + 1) * 100 <= 1400)
+            {
+                initial_items_remaining[Item::ETank as usize] += 1;
+            } else if initial_items_remaining[Item::ReserveTank as usize] < 4 {
+                initial_items_remaining[Item::ReserveTank as usize] += 1;
+            } else {
+                panic!("Can't ensure enough energy!");
+            }
+        }
+
+        // Enforce HUD-based total resource limits (999 missile, 99 super, 99 PB)
+        while initial_items_remaining[Item::Missile as usize]
+            * settings.item_progression_settings.missile_size as usize
+            > 999
+        {
+            initial_items_remaining[Item::Missile as usize] -= 1;
+        }
+        while initial_items_remaining[Item::Super as usize]
+            * settings.item_progression_settings.super_size as usize
+            > 99
+        {
+            initial_items_remaining[Item::Super as usize] -= 1;
+        }
+        while initial_items_remaining[Item::PowerBomb as usize]
+            * settings.item_progression_settings.powerbomb_size as usize
+            > 99
+        {
+            initial_items_remaining[Item::PowerBomb as usize] -= 1;
         }
 
         let target_initial_items = initial_items_remaining.clone();
@@ -3728,10 +3778,11 @@ impl<'r> Randomizer<'r> {
             .sum::<usize>()
             .saturating_sub(available_items)
         {
-            let tank_count = initial_items_remaining[Item::ETank as usize]
-                + initial_items_remaining[Item::ReserveTank as usize];
+            let energy_left_to_place = ((initial_items_remaining[Item::ETank as usize] * 100)
+                as Capacity)
+                + ((initial_items_remaining[Item::ReserveTank as usize] * 100) as Capacity);
             let mut removal_options = ammo_shortage_weight.clone();
-            if tank_count > minimal_tank_count {
+            if energy_left_to_place > minimal_energy {
                 removal_options.extend(tank_shortage_weight.clone());
             }
             let mut best_removal_item: Option<Item> = None;
@@ -4400,6 +4451,9 @@ impl<'r> Randomizer<'r> {
                 self.settings
                     .item_progression_settings
                     .ammo_collect_fraction,
+                self.settings.item_progression_settings.missile_size,
+                self.settings.item_progression_settings.super_size,
+                self.settings.item_progression_settings.powerbomb_size,
                 &self.difficulty_tiers[0].tech,
             );
         }
@@ -5250,9 +5304,12 @@ impl<'r> Randomizer<'r> {
                 .collect(),
             max_energy: (99 + collectible_etanks * 100) as Capacity,
             max_reserves: (collectible_reserve_tanks * 100) as Capacity,
-            max_missiles: (acf * collectible_missile_packs as f32).round() as Capacity * 5,
-            max_supers: (acf * collectible_super_packs as f32).round() as Capacity * 5,
-            max_power_bombs: (acf * collectible_pb_packs as f32).round() as Capacity * 5,
+            max_missiles: (acf * collectible_missile_packs as f32).round() as Capacity
+                * (self.settings.item_progression_settings.missile_size as i16),
+            max_supers: (acf * collectible_super_packs as f32).round() as Capacity
+                * (self.settings.item_progression_settings.super_size as i16),
+            max_power_bombs: (acf * collectible_pb_packs as f32).round() as Capacity
+                * (self.settings.item_progression_settings.powerbomb_size as i16),
             collectible_missile_packs: collectible_missile_packs as Capacity,
             collectible_super_packs: collectible_super_packs as Capacity,
             collectible_power_bomb_packs: collectible_pb_packs as Capacity,
@@ -5291,6 +5348,9 @@ impl<'r> Randomizer<'r> {
                     self.settings
                         .item_progression_settings
                         .ammo_collect_fraction,
+                    self.settings.item_progression_settings.missile_size,
+                    self.settings.item_progression_settings.super_size,
+                    self.settings.item_progression_settings.powerbomb_size,
                     &self.difficulty_tiers[0].tech,
                 );
             }
@@ -5361,6 +5421,9 @@ impl<'r> Randomizer<'r> {
                 x: StartLocation::default().x,
                 y: StartLocation::default().y,
             },
+            missile_size: self.settings.item_progression_settings.missile_size as i32,
+            super_size: self.settings.item_progression_settings.super_size as i32,
+            powerbomb_size: self.settings.item_progression_settings.powerbomb_size as i32,
             hub_location_name: String::new(),
             hub_obtain_route: vec![],
             hub_return_route: vec![],

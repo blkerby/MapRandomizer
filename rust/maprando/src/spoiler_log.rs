@@ -196,6 +196,9 @@ pub struct SpoilerTraversal {
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerLog {
     pub item_priority: Vec<String>,
+    pub missile_size: i32,
+    pub super_size: i32,
+    pub powerbomb_size: i32,
     pub summary: Vec<SpoilerSummary>,
     pub objectives: Vec<String>,
     pub escape: SpoilerEscape,
@@ -514,9 +517,12 @@ fn get_spoiler_start_state(
         max_missiles: global_state.inventory.max_missiles,
         max_supers: global_state.inventory.max_supers,
         max_power_bombs: global_state.inventory.max_power_bombs,
-        collectible_missiles: global_state.inventory.collectible_missile_packs * 5,
-        collectible_supers: global_state.inventory.collectible_super_packs * 5,
-        collectible_power_bombs: global_state.inventory.collectible_power_bomb_packs * 5,
+        collectible_missiles: global_state.inventory.collectible_missile_packs
+            * randomizer.settings.item_progression_settings.missile_size as i16,
+        collectible_supers: global_state.inventory.collectible_super_packs
+            * randomizer.settings.item_progression_settings.super_size as i16,
+        collectible_power_bombs: global_state.inventory.collectible_power_bomb_packs
+            * randomizer.settings.item_progression_settings.powerbomb_size as i16,
         items,
         flags,
     }
@@ -1321,6 +1327,9 @@ pub fn get_spoiler_log(
             .iter()
             .map(|x| format!("{x:?}"))
             .collect(),
+        missile_size: randomizer.settings.item_progression_settings.missile_size as i32,
+        super_size: randomizer.settings.item_progression_settings.super_size as i32,
+        powerbomb_size: randomizer.settings.item_progression_settings.powerbomb_size as i32,
         summary: spoiler_summaries,
         objectives: spoiler_objectives,
         start_location: SpoilerStartLocation {

@@ -319,7 +319,8 @@ async fn customize_seed(
         },
         door_theme: match req.door_theme.0.as_str() {
             "vanilla" => DoorTheme::Vanilla,
-            "alternate" => DoorTheme::Alternate,
+            "vibrant" => DoorTheme::Vibrant,
+            "contrast" => DoorTheme::Contrast,
             _ => panic!(
                 "Unexpected door_theme option: {}",
                 req.door_theme.0.as_str()

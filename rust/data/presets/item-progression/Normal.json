@@ -8,6 +8,9 @@
     "item_pool_preset": "Full",
     "stop_item_placement_early": false,
     "ammo_collect_fraction": 0.7,
+    "missile_size": 5,
+    "super_size": 5,
+    "powerbomb_size": 5,
     "item_pool": [
         {
             "item": "Missile",

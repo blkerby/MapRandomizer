@@ -288,6 +288,9 @@ function buildSettingsObject() {
             "starting_items": buildStartingItems(),
             "key_item_priority": buildItemPriorities(),
             "filler_items": buildFillerItems(),
+            "missile_size": tryParseInt(formData.get("ammo_size_Missile")),
+            "super_size": tryParseInt(formData.get("ammo_size_Super")),
+            "powerbomb_size": tryParseInt(formData.get("ammo_size_PowerBomb")),
         },
         "quality_of_life_settings": {
             "preset": formData.get("quality_of_life_preset"),
@@ -1204,13 +1207,18 @@ function applyItemProgressionPreset(preset) {
     for (x of preset.item_pool) {
         let item = x.item;
         let cnt = x.count;
-	let el = document.getElementById(`itemPool${item}`);
-	if (el.classList.contains("item-pool-input-multiple")) {
-		el.value = cnt;
-	} else {
-		applyRadioValue(`itemPool${item}`, cnt > 0 ? "Yes" : "No");
-	}
+        let el = document.getElementById(`itemPool${item}`);
+        if (el.classList.contains("item-pool-input-multiple")) {
+            el.value = cnt;
+        } else {
+            applyRadioValue(`itemPool${item}`, cnt > 0 ? "Yes" : "No");
+        }
     }
+
+    document.getElementById("ammoSizeMissile").value = preset.missile_size;
+    document.getElementById("ammoSizeSuper").value = preset.super_size;
+    document.getElementById("ammoSizePowerBomb").value = preset.powerbomb_size;
+
     processItemPoolPreset();
     applyRadioValue("startingItemsPreset", preset.starting_items_preset);
     for (x of preset.starting_items) {
@@ -1329,6 +1337,9 @@ function processItemPoolPreset() {
         {% for item in item_names_single %}
         document.getElementById("itemPool{{+ item }}Yes").checked = true;
         {% endfor %}
+        document.getElementById("ammoSizeMissile").value = "5";
+        document.getElementById("ammoSizeSuper").value = "5";
+        document.getElementById("ammoSizePowerBomb").value = "5";
     }
     if (document.getElementById("itemPoolPresetReduced").checked) {
         document.getElementById("stopItemPlacementEarlyYes").checked = true;
@@ -1340,11 +1351,32 @@ function processItemPoolPreset() {
         {% for item in item_names_single %}
         document.getElementById("itemPool{{+ item }}Yes").checked = true;
         {% endfor %}
+        document.getElementById("ammoSizeMissile").value = "5";
+        document.getElementById("ammoSizeSuper").value = "5";
+        document.getElementById("ammoSizePowerBomb").value = "5";
     }
 }
+function validateAmmoSize() {
+    if (parseInt(document.getElementById("ammoSizeMissile").value) < 1) {
+        document.getElementById("ammoSizeMissile").value = "5";
+    }
+    if (parseInt(document.getElementById("ammoSizeMissile").value) > 999) {
+        document.getElementById("ammoSizeMissile").value = "999";
+    }
+    if (parseInt(document.getElementById("ammoSizeSuper").value) < 1) {
+        document.getElementById("ammoSizeSuper").value = "5";
+    }
+    if (parseInt(document.getElementById("ammoSizeSuper").value) > 99) {
+        document.getElementById("ammoSizeSuper").value = "99";
+    }
+    if (parseInt(document.getElementById("ammoSizePowerBomb").value) < 1) {
+        document.getElementById("ammoSizePowerBomb").value = "5";
+    }
+}
+
 function validateItemPool() {
-    if (parseInt(document.getElementById("itemPoolMissile").value) > 199) {
-        document.getElementById("itemPoolMissile").value = "199";
+    if (parseInt(document.getElementById("itemPoolMissile").value) > 999) {
+        document.getElementById("itemPoolMissile").value = "999";
     }
     if (parseInt(document.getElementById("itemPoolETank").value) > 14) {
         document.getElementById("itemPoolETank").value = "14";
@@ -1352,11 +1384,11 @@ function validateItemPool() {
     if (parseInt(document.getElementById("itemPoolReserveTank").value) > 4) {
         document.getElementById("itemPoolReserveTank").value = "4";
     }
-    if (parseInt(document.getElementById("itemPoolSuper").value) > 19) {
-        document.getElementById("itemPoolSuper").value = "19";
+    if (parseInt(document.getElementById("itemPoolSuper").value) > 99) {
+        document.getElementById("itemPoolSuper").value = "99";
     }
-    if (parseInt(document.getElementById("itemPoolPowerBomb").value) > 19) {
-        document.getElementById("itemPoolPowerBomb").value = "19";
+    if (parseInt(document.getElementById("itemPoolPowerBomb").value) > 99) {
+        document.getElementById("itemPoolPowerBomb").value = "99";
     }
 
     if (parseInt(document.getElementById("itemPoolMissile").value) < 0) {
@@ -1374,6 +1406,7 @@ function validateItemPool() {
     if (parseInt(document.getElementById("itemPoolPowerBomb").value) < 0) {
         document.getElementById("itemPoolPowerBomb").value = "0";
     }
+    
 }
 function itemPoolPresetChanged() {
     processItemPoolPreset();
@@ -1383,6 +1416,7 @@ function itemPoolChanged() {
     document.getElementById("itemPoolPresetFull").checked = false;
     document.getElementById("itemPoolPresetReduced").checked = false;
     validateItemPool();
+    validateAmmoSize();
     itemProgressionChanged();
 }
 

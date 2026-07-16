@@ -1359,7 +1359,7 @@ write_room_name_tiles:
 assert pc() <= !bank_82_freespace2_end
 
 org !bank_85_freespace2_start
-dw $0000  ; Partially revealed tiles palette value: overwrote by customize.rs if using dark theme
+dw $0000  ; partially revealed tiles palette value: overwrote by customize.rs if using dark theme
 
 !bit_offset = $3a
 !bit_offset_round = $3e
@@ -2185,6 +2185,7 @@ draw_sprite:
 .sprite_disabled
     PLA
     BRA .sprite_is_disabled
+    
 assert pc() <= !bank_85_freespace3_end
 
 ; Fixes FX for rare bug when entering right-sided door through East Pants Room

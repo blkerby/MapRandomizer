@@ -137,7 +137,7 @@
                         id="ammoCollectFraction" value="0.7" min="0.5" max="1.0" step="0.1" onchange="itemProgressionChanged()">
                     </div>
                 </div>
-
+                
                 <div class="form-group row border rounded-3 m-3 p-0">
                     <div class="col-lg-3 ml-0 mt-1 mb-1 align-items-center">
                         <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#itemPoolModal">
@@ -215,6 +215,47 @@
                                         </div>
                                     </div>
                                 {% endfor %}
+                                
+                                <div class="form-group row m-2">
+                                    <div class="col-lg-12">
+                                        <div class="card">
+                                            <div class="card-header px-2">
+                                                <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#ammoSizeModal">
+                                                    <i class="bi bi-question-circle"></i>
+                                                </button>
+                                                <label for="preset">Ammo size</label>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="form-group row m-2">
+                                                    <label class="col-lg-3 col-form-label text-end" for="ammo_size_Missile">Missiles per pack</label>
+                                                    <span class="itemIcon itemIconMissile"></span>
+                                                    <div class="col-lg-2">
+                                                        <input type="text" class="form-control" name="ammo_size_Missile" id="ammoSizeMissile"
+                                                        value="0" onchange="itemPoolChanged()">
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row m-2">
+                                                    <label class="col-lg-3 col-form-label text-end" for="ammo_size_Super">Super Missiles per pack</label>
+                                                    <span class="itemIcon itemIconSuper"></span>
+                                                    <div class="col-lg-2">
+                                                        <input type="text" class="form-control" name="ammo_size_Super" id="ammoSizeSuper"
+                                                        value="0" onchange="itemPoolChanged()">
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row m-2">
+                                                    <label class="col-lg-3 col-form-label text-end" for="ammo_size_PowerBomb">Power Bombs per pack</label>
+                                                    <span class="itemIcon itemIconPowerBomb"></span>
+                                                    <div class="col-lg-2">
+                                                        <input type="text" class="form-control" name="ammo_size_PowerBomb" id="ammoSizePowerBomb"
+                                                        value="0" onchange="itemPoolChanged()">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -477,6 +518,7 @@
 {% include "help/progression/random_tank.html" %}
 {% include "help/progression/spazer_before_plasma.html" %}
 {% include "help/progression/ammo_collect_fraction.html" %}
+{% include "help/progression/ammo_size.html" %}
 {% include "help/progression/item_pool.html" %}
 {% include "help/progression/stop_item_placement_early.html" %}
 {% include "help/progression/starting_items.html" %}

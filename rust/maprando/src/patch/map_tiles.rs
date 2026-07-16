@@ -1,7 +1,7 @@
 use hashbrown::{HashMap, HashSet};
 
 use crate::{
-    customize::{CustomizeSettings, ItemDotChange, MapTheme},
+    customize::{CustomizeSettings, DoorTheme, ItemDotChange, MapTheme},
     randomize::{LockedDoor, Randomization},
     settings::{
         DisableETankSetting, DoorLocksSize, EnhancedMapLevel, EnhancedMapOther, EnhancedMapWalls,
@@ -1300,7 +1300,7 @@ pub fn render_tile(
                 }
             }
             // Set up arrows of different colors (one per area):
-            let area_arrow_colors: Vec<usize> = vec![
+            let mut area_arrow_colors: Vec<usize> = vec![
                 11, // Crateria: purple (defined above)
                 14, // Brinstar: green (defined above)
                 10, // Norfair: red (defined above)
@@ -1308,6 +1308,10 @@ pub fn render_tile(
                 8,  // Maridia: blue (defined above)
                 6,  // Tourian: orange
             ];
+            // Swap the T and W around if using the Contrast theme
+            if customize_settings.door_theme == DoorTheme::Contrast {
+                area_arrow_colors.swap(3, 5);
+            }
 
             let color_number = area_arrow_colors[area_idx] as u8;
             data = data.map(|row| row.map(|c| if c == 3 { color_number } else { c }));
@@ -2299,15 +2303,36 @@ impl<'a> MapPatcher<'a> {
             (b << 10) | (g << 5) | r
         }
 
+        let (color6, color7, color9, color14) = match self.customize_settings.door_theme {
+            DoorTheme::Contrast => (
+                rgb(31, 29, 0),
+                rgb(29, 0, 7),
+                rgb(31, 17, 0),
+                rgb(1, 31, 22),
+            ),
+            DoorTheme::Vibrant => (
+                rgb(30, 12, 0),
+                rgb(31, 0, 31),
+                rgb(23, 24, 9),
+                rgb(16, 31, 16),
+            ),
+            DoorTheme::Vanilla => (
+                rgb(31, 17, 0),
+                rgb(27, 2, 18),
+                rgb(23, 24, 9),
+                rgb(9, 31, 5),
+            ),
+        };
+
         let extended_map_palette: Vec<(u8, u16)> = vec![
-            (14, rgb(7, 31, 7)),   // Brinstar green (and green doors)
+            (14, color14),         // Brinstar green (and green doors)
             (10, rgb(29, 0, 0)),   // Norfair red
             (8, rgb(4, 13, 31)),   // Maridia blue
-            (9, rgb(23, 24, 9)),   // Wrecked Ship yellow
+            (9, color9),           // Wrecked Ship yellow
             (11, rgb(20, 3, 31)),  // Crateria purple
-            (6, rgb(29, 15, 0)),   // Tourian, (and orange doors)
+            (6, color6),           // Tourian (and orange doors)
             (15, rgb(18, 12, 14)), // Gray door
-            (7, rgb(27, 2, 27)),   // Red (pink) door
+            (7, color7),           // Red (pink) door
             (12, rgb(0, 0, 0)),    // Black (door lock shadows covering wall)
             (5, rgb(0, 0, 0)),     // Black (door lock shadows covering air)
             (13, rgb(31, 31, 31)), // White (item dots)

@@ -89,11 +89,12 @@ pub enum TileTheme {
     Constant(String),
 }
 
-#[derive(Default, Debug, Copy, Clone)]
+#[derive(Default, Debug, Copy, Clone, PartialEq)]
 pub enum DoorTheme {
     #[default]
     Vanilla,
-    Alternate,
+    Vibrant,
+    Contrast,
 }
 
 #[derive(Default, Debug, Copy, Clone)]
@@ -528,8 +529,20 @@ pub fn customize_rom(
 
     match settings.door_theme {
         DoorTheme::Vanilla => {}
-        DoorTheme::Alternate => {
+        DoorTheme::Vibrant => {
             apply_ips_patch(rom, Path::new("../patches/ips/alternate_door_colors.ips"))?;
+        }
+        DoorTheme::Contrast => {
+            apply_ips_patch(rom, Path::new("../patches/ips/alternate_door_colors.ips"))?;
+            rom.write_u16(snes2pc(0xdfe200), 0x03BF)?; // high contrast power bomb door color
+            rom.write_u16(snes2pc(0xdfe202), 0x0278)?; // high contrast power bomb door color
+            rom.write_u16(snes2pc(0xdfe204), 0x00EC)?; // high contrast power bomb door color
+            rom.write_u16(snes2pc(0xdfe206), 0x5BE1)?; // high contrast super door color
+            rom.write_u16(snes2pc(0xdfe208), 0x3AA0)?; // high contrast super door color
+            rom.write_u16(snes2pc(0xdfe20a), 0x1DA0)?; // high contrast super door color
+            rom.write_u16(snes2pc(0xdfe20c), 0x1C1D)?; // high contrast missile door color
+            rom.write_u16(snes2pc(0xdfe20e), 0x1033)?; // high contrast missile bomb door color
+            rom.write_u16(snes2pc(0xdfe210), 0x0829)?; // high contrast missile bomb door color
         }
     }
 

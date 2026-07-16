@@ -505,9 +505,9 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		let non_unique_counts = {
 			"ETank": 1,
 			"ReserveTank": 1,
-			"Missile": 5,
-			"PowerBomb": 5,
-			"Super": 5
+			"Missile": c.missile_size,
+			"PowerBomb": c.powerbomb_size,
+			"Super": c.super_size
 		};
 		let last = null;
 		let added_item = false;

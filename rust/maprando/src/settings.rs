@@ -101,6 +101,9 @@ pub struct ItemProgressionSettings {
     pub starting_items: Vec<ItemCount>,
     pub key_item_priority: Vec<KeyItemPrioritySetting>,
     pub filler_items: Vec<FillerItemPrioritySetting>,
+    pub missile_size: u16,
+    pub super_size: u16,
+    pub powerbomb_size: u16,
 }
 
 #[repr(u8)]
@@ -1099,7 +1102,15 @@ fn upgrade_item_progression_settings(settings: &mut serde_json::Value) -> Result
     if !item_progression_settings.contains_key("ammo_collect_fraction") {
         item_progression_settings.insert("ammo_collect_fraction".to_string(), (0.7).into());
     }
-
+    if !item_progression_settings.contains_key("missile_size") {
+        item_progression_settings.insert("missile_size".to_string(), (5).into());
+    }
+    if !item_progression_settings.contains_key("super_size") {
+        item_progression_settings.insert("super_size".to_string(), (5).into());
+    }
+    if !item_progression_settings.contains_key("powerbomb_size") {
+        item_progression_settings.insert("powerbomb_size".to_string(), (5).into());
+    }
     Ok(())
 }
 

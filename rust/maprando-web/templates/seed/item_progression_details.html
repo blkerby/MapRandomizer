@@ -27,6 +27,12 @@
 </div>
 {% endif %}
 <div class="row">
+    <div class="col-6 col-sm-5 col-md-4 col-lg-3">Ammo Size:</div>
+    <div class="col-6 col-sm-7 col-md-8 col-lg-9">
+        Missile {{+ missile_size }}, Super {{+ super_size }}, PowerBomb {{+ powerbomb_size }}
+    </div>
+</div>
+<div class="row">
     <div class="col-6 col-sm-5 col-md-4 col-lg-3">Stop item placement early:</div>
     <div class="col-6 col-sm-7 col-md-8 col-lg-9">{% if settings.item_progression_settings.stop_item_placement_early %}Yes{% else %}No{% endif %}</div>
 </div>
