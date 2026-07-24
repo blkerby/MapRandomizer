@@ -3640,26 +3640,6 @@ pub fn get_starting_items(settings: &RandomizerSettings) -> Vec<ItemCount> {
         if x.item == Item::WallJump && settings.other_settings.wall_jump == WallJump::Vanilla {
             continue;
         }
-        // Enforce HUD-based limits for starting ammo
-        // TODO: eliminate this in favor of an in-game patch to cap ammo capacity to HUD limits.
-        match x.item {
-            Item::Missile => {
-                while x.count * settings.item_progression_settings.missile_size as usize > 999 {
-                    x.count -= 1;
-                }
-            }
-            Item::Super => {
-                while x.count * settings.item_progression_settings.super_size as usize > 99 {
-                    x.count -= 1;
-                }
-            }
-            Item::PowerBomb => {
-                while x.count * settings.item_progression_settings.powerbomb_size as usize > 99 {
-                    x.count -= 1;
-                }
-            }
-            _ => {}
-        }
         // Depending on if Split Speed Booster is enabled, do not place inapplicable booster items.
         match (x.item, settings.other_settings.speed_booster) {
             (Item::BlueBooster | Item::SparkBooster, SpeedBooster::Vanilla) => continue,
@@ -3743,26 +3723,6 @@ impl<'r> Randomizer<'r> {
             } else {
                 panic!("Can't ensure enough energy!");
             }
-        }
-
-        // Enforce HUD-based total resource limits (999 missile, 99 super, 99 PB)
-        while initial_items_remaining[Item::Missile as usize]
-            * settings.item_progression_settings.missile_size as usize
-            > 999
-        {
-            initial_items_remaining[Item::Missile as usize] -= 1;
-        }
-        while initial_items_remaining[Item::Super as usize]
-            * settings.item_progression_settings.super_size as usize
-            > 99
-        {
-            initial_items_remaining[Item::Super as usize] -= 1;
-        }
-        while initial_items_remaining[Item::PowerBomb as usize]
-            * settings.item_progression_settings.powerbomb_size as usize
-            > 99
-        {
-            initial_items_remaining[Item::PowerBomb as usize] -= 1;
         }
 
         let target_initial_items = initial_items_remaining.clone();
