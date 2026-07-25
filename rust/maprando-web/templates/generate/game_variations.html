@@ -138,15 +138,13 @@
         {% include "help/variations/savestate.html" %}
         <label for="savestate">Enable savestates</label>
     </div>
-    <div id="saveStateMode" class="col-md-2 btn-group my-2" role="group">
-        <input type="radio" class="btn-check savestate-preset-button" name="savestate_preset" id="saveStateModeNo" value="false" checked>
+    <div id="saveStateMode" class="col-md-4 btn-group my-2" role="group">
+        <input type="radio" class="btn-check" name="savestate" id="saveStateModeNo" value="No" checked>
         <label class="btn btn-outline-primary" for="saveStateModeNo">No</label>
-        <input type="radio" class="btn-check savestate-preset-button" name="savestate_preset" id="saveStateModeYes" value="true">
-        <label class="btn btn-outline-primary" for="saveStateModeYes">Yes</label>
-        <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal"
-            data-bs-target="#saveStateModal">
-            <i class="bi bi-gear"></i>
-        </button>
+        <input type="radio" class="btn-check" name="savestate" id="saveStateModeLimited" value="Limited">
+        <label class="btn btn-outline-primary" for="saveStateModeLimited">Limited</label>
+        <input type="radio" class="btn-check" name="savestate" id="saveStateModeUnlimited" value="Unlimited">
+        <label class="btn btn-outline-primary" for="saveStateModeUnlimited">Unlimited</label>
     </div>
 </div>
 
@@ -160,4 +158,3 @@
     </div>
 </div>
 {% include "area_assignment.html" %}
-{% include "savestate.html" %}

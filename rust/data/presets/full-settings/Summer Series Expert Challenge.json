@@ -4785,13 +4785,7 @@
         "energy_free_shinesparks": false,
         "all_enemies_respawn": false,
         "race_mode": true,
-        "savestate": {
-            "preset": false,
-            "savestate_total_saves": 0,
-            "savestate_total_loads": 0,
-            "savestate_checkpoint_saves": 0,
-            "savestate_checkpoint_loads": 0
-        },
+        "savestate": "No",
         "random_seed": null,
         "disable_spikesuit": false,
         "disable_bluesuit": false,

@@ -4788,13 +4788,7 @@
         "enable_major_glitches": false,
         "speed_booster": "Vanilla",
         "race_mode": false,
-        "savestate": {
-            "preset": false,
-            "savestate_total_saves": 0,
-            "savestate_total_loads": 0,
-            "savestate_checkpoint_saves": 0,
-            "savestate_checkpoint_loads": 0
-        },
+        "savestate": "No",
         "random_seed": null
     }
 }

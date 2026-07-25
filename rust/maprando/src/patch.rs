@@ -21,7 +21,7 @@ use crate::{
         AreaAssignmentPreset, CrashFixes, CrashFixesPreset, DisableETankSetting, ETankRefill,
         EnemyDrops, Fanfares, FixMode, ItemCount, MapPreset, MotherBrainFight, ObjPreset,
         Objective, ObjectiveScreen, ProgressionPreset, QolPreset, RandomizerSettings, SaveAnimals,
-        SkillPreset, SpeedBooster, StartLocationMode, WallJump,
+        SaveState, SkillPreset, SpeedBooster, StartLocationMode, WallJump,
     },
 };
 use anyhow::{Context, Result, bail, ensure};
@@ -657,30 +657,18 @@ impl Patcher<'_> {
             patches.push("everything_respawns");
         }
 
-        if self.settings.other_settings.savestate.preset {
+        if self.settings.other_settings.savestate != SaveState::No {
+            let checkpoint_saves = if self.settings.other_settings.savestate == SaveState::Limited {
+                1
+            } else {
+                0
+            };
             patches.push("savestate");
-            self.rom.write_u16(
-                snes2pc(0x85C006),
-                self.settings.other_settings.savestate.savestate_total_saves as isize,
-            )?;
-            self.rom.write_u16(
-                snes2pc(0x85C008),
-                self.settings.other_settings.savestate.savestate_total_loads as isize,
-            )?;
-            self.rom.write_u16(
-                snes2pc(0x85C00A),
-                self.settings
-                    .other_settings
-                    .savestate
-                    .savestate_checkpoint_saves as isize,
-            )?;
-            self.rom.write_u16(
-                snes2pc(0x85C00C),
-                self.settings
-                    .other_settings
-                    .savestate
-                    .savestate_checkpoint_loads as isize,
-            )?;
+            self.rom.write_u16(snes2pc(0x85C006), 0 as isize)?;
+            self.rom.write_u16(snes2pc(0x85C008), 0 as isize)?;
+            self.rom
+                .write_u16(snes2pc(0x85C00A), checkpoint_saves as isize)?;
+            self.rom.write_u16(snes2pc(0x85C00C), 0 as isize)?;
         } else {
             // null controller hooks
             self.rom.write_u8(snes2pc(0x85C000), 0x6B)?; // RTL

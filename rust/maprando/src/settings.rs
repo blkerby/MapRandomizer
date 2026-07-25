@@ -798,13 +798,17 @@ impl AreaAssignment {
     }
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub struct SaveState {
-    pub preset: bool,
-    pub savestate_total_saves: i32,
-    pub savestate_total_loads: i32,
-    pub savestate_checkpoint_saves: i32,
-    pub savestate_checkpoint_loads: i32,
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq)]
+pub enum SaveState {
+    No,
+    Limited,
+    Unlimited,
+}
+
+impl std::fmt::Display for SaveState {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{self:?}")
+    }
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
@@ -1495,17 +1499,8 @@ fn upgrade_other_settings(settings: &mut serde_json::Value) -> Result<()> {
         other_settings.insert("all_enemies_respawn".to_string(), false.into());
     }
 
-    if other_settings.get("savestate").is_none() || !other_settings["savestate"].is_object() {
-        other_settings.insert(
-            "savestate".to_string(),
-            serde_json::json!({
-                "preset": false,
-                "savestate_total_saves": 0,
-                "savestate_total_loads": 0,
-                "savestate_checkpoint_saves": 0,
-                "savestate_checkpoint_loads": 0
-            }),
-        );
+    if other_settings.get("savestate").is_none() {
+        other_settings.insert("savestate".to_string(), "No".into());
     }
 
     if other_settings.get("disable_spikesuit").is_none()
