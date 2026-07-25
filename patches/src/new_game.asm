@@ -189,14 +189,9 @@ startup:
     txa
     bne .copy_revealed
     
-    ; Initialize SRAM savestate counters
+    ; Initialize SRAM savestate state
     lda #$0000
-    tax
-.init_ss_lp
-    sta !savestate_counts, X
-    inx : inx
-    cpx #$0008
-    bne .init_ss_lp
+    sta !savestate_state
 
 .skip_init:
 

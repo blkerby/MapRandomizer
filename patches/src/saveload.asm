@@ -104,10 +104,9 @@ SaveSeed:
 	LDA !seed_value_1 : STA $700008, X
 SaveAreaMapCoord:
     JSL set_save_markers
-SaveClearSaveStateCurrCounts:
+SaveClearSaveState:
     LDA #$0000
-    STA !savestate_counts+4
-    STA !savestate_counts+6
+    STA !savestate_state
 EndSaveGame: PLY : PLX : PLB : PLP : RTL
 
 LoadGame: PHP : REP #$30 : PHB : PHX : PHY
@@ -133,6 +132,10 @@ LoadItems: LDA $D7C0,Y : STA $09A2,Y : DEY : DEY : BPL LoadItems		;Loads current
     LDA #$0000
     STA !last_samus_map_y  ; reset Samus map Y coordinate, to trigger minimap to update
     JSL set_marker_colors
+LoadRefreshSaveState:
+    LDA !savestate_state
+    AND #!savestate_exists_mask  ; Preserve an existing savestate while refreshing Limited mode
+    STA !savestate_state
     PLY : PLX : PLB : PLP : CLC : RTL
 SetupClearSRAM: LDX $16 : LDY #$09FE : LDA #$0000
 ClearSRAM: STA $700000,X : INX : INX : DEY : DEY : BPL ClearSRAM

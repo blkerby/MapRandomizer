@@ -657,22 +657,20 @@ impl Patcher<'_> {
             patches.push("everything_respawns");
         }
 
-        if self.settings.other_settings.savestate != SaveState::No {
-            let checkpoint_saves = if self.settings.other_settings.savestate == SaveState::Limited {
-                1
-            } else {
-                0
-            };
-            patches.push("savestate");
-            self.rom.write_u16(snes2pc(0x85C006), 0 as isize)?;
-            self.rom.write_u16(snes2pc(0x85C008), 0 as isize)?;
-            self.rom
-                .write_u16(snes2pc(0x85C00A), checkpoint_saves as isize)?;
-            self.rom.write_u16(snes2pc(0x85C00C), 0 as isize)?;
-        } else {
-            // null controller hooks
-            self.rom.write_u8(snes2pc(0x85C000), 0x6B)?; // RTL
-            self.rom.write_u8(snes2pc(0x85C003), 0x6B)?; // RTL
+        match self.settings.other_settings.savestate {
+            SaveState::No => {
+                // null controller hooks
+                self.rom.write_u8(snes2pc(0x85C000), 0x6B)?; // RTL
+                self.rom.write_u8(snes2pc(0x85C003), 0x6B)?; // RTL
+            }
+            SaveState::Limited => {
+                patches.push("savestate");
+                self.rom.write_u16(snes2pc(0x85C006), 1)?;
+            }
+            SaveState::Unlimited => {
+                patches.push("savestate");
+                self.rom.write_u16(snes2pc(0x85C006), 0)?;
+            }
         }
 
         if self.settings.other_settings.disable_spikesuit {

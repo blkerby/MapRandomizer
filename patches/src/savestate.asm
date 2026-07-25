@@ -37,11 +37,6 @@ org $80ffd8
 !SRAM_MUSIC_DATA = $707F02
 !SRAM_MUSIC_TRACK = $707F04
 !SRAM_SOUND_TIMER = $707F06
-!SRAM_SAVESTATE_TOTAL_SAVES = !savestate_counts
-!SRAM_SAVESTATE_TOTAL_LOADS = !SRAM_SAVESTATE_TOTAL_SAVES+2
-; Reset after a save at station/ship
-!SRAM_SAVESTATE_CURR_SAVES = !SRAM_SAVESTATE_TOTAL_SAVES+4
-!SRAM_SAVESTATE_CURR_LOADS = !SRAM_SAVESTATE_TOTAL_SAVES+6
 !SRAM_DMA_BANK = $707F80
 
 !MUSIC_ROUTINE = $808FC1
@@ -119,11 +114,8 @@ org !bank_85_free_space_start
 ; These jumps must remain at this address, as the fast_reload.asm controller hook hard references them.
     jmp save_state
     jmp load_state
-; These settings must remain at this address for patch.rs
-savestate_total_saves_max:  skip 2
-savestate_total_loads_max:  skip 2
-savestate_curr_saves_max:   skip 2
-savestate_curr_loads_max:   skip 2
+; This setting must remain at this address for patch.rs (0 = unlimited, 1 = limited)
+savestate_limited:  skip 2
 ; *****************************************
 
 ; These can be modified to do game-specific things before and after saving and loading
@@ -259,15 +251,11 @@ register_restore_return:
 
 save_state:
 {
-    LDA.l savestate_total_saves_max
-    BEQ .skip_total
-    CMP !SRAM_SAVESTATE_TOTAL_SAVES
-    BEQ .no_saves
-.skip_total
-    LDA.l savestate_curr_saves_max
+    LDA.l savestate_limited
     BEQ .saves_left
-    CMP !SRAM_SAVESTATE_CURR_SAVES
-    BNE .saves_left
+    LDA !savestate_state
+    BIT #!savestate_save_used_mask
+    BEQ .saves_left
 .no_saves
     ; Clear inputs
     TDC : STA !IH_CONTROLLER_PRI : STA !IH_CONTROLLER_PRI_NEW
@@ -290,11 +278,12 @@ save_state:
     BRA .save_dma_regs
 
   .done
-    ; inc counters
-    LDA !SRAM_SAVESTATE_TOTAL_SAVES : INC : STA !SRAM_SAVESTATE_TOTAL_SAVES
-    LDA !SRAM_SAVESTATE_CURR_SAVES : INC : STA !SRAM_SAVESTATE_CURR_SAVES
-
     %ai16()
+    ; Mark the savestate as existing and consume Limited mode's save opportunity
+    LDA !savestate_state
+    ORA #!savestate_exists_mask|!savestate_save_used_mask
+    STA !savestate_state
+
     LDX #save_write_table
     ; fallthrough to run_vm
 }
@@ -364,22 +353,9 @@ load_clear_inputs:
     
 load_state:
 {
-    LDA !SRAM_SAVESTATE_CURR_SAVES
+    LDA !savestate_state
+    BIT #!savestate_exists_mask
     BEQ .no_loads
-
-.save_exists
-    LDA.l savestate_total_loads_max
-    BEQ .skip_total
-    CMP !SRAM_SAVESTATE_TOTAL_LOADS
-    BEQ .no_loads
-.skip_total
-    LDA.l savestate_curr_loads_max
-    BEQ .loads_left
-    CMP !SRAM_SAVESTATE_CURR_LOADS
-    BNE .loads_left
-.no_loads
-    JSR load_clear_inputs
-    RTL
 
 .loads_left
     JSR pre_load_state
@@ -389,6 +365,10 @@ load_state:
     TDC : PHA : PLB
     LDX #load_write_table
     JMP run_vm
+
+.no_loads
+    JSR load_clear_inputs
+    RTL
 }
 
 load_write_table:
@@ -461,10 +441,6 @@ load_return:
     %ai16()
     PLB
     JSR post_load_state
-    
-    ; inc counters
-    LDA !SRAM_SAVESTATE_TOTAL_LOADS : INC : STA !SRAM_SAVESTATE_TOTAL_LOADS
-    LDA !SRAM_SAVESTATE_CURR_LOADS : INC : STA !SRAM_SAVESTATE_CURR_LOADS
 
     JMP register_restore_return
 }
