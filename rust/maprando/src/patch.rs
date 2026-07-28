@@ -2306,11 +2306,21 @@ impl Patcher<'_> {
             }
         }
 
-        if starting_energy > 1499 { starting_energy = 1499 }
-        if starting_reserves > 400 { starting_reserves = 400 }
-        if starting_missiles > 999 { starting_missiles = 999 }
-        if starting_supers > 99 { starting_supers = 99 }
-        if starting_powerbombs > 99 { starting_powerbombs = 99 }
+        if starting_energy > 1499 {
+            starting_energy = 1499
+        }
+        if starting_reserves > 400 {
+            starting_reserves = 400
+        }
+        if starting_missiles > 999 {
+            starting_missiles = 999
+        }
+        if starting_supers > 99 {
+            starting_supers = 99
+        }
+        if starting_powerbombs > 99 {
+            starting_powerbombs = 99
+        }
 
         let beam_equipped_mask = if beam_mask & 0x000C == 0x000C {
             // Don't equip Spazer if Plasma equipped
