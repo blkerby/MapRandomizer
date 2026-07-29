@@ -29,9 +29,9 @@ org !bank_84_free_space_start
 
 add_max_energy_capped:
     adc $0000,Y
-    cmp #$05D8 ;1499 energy
+    cmp #$05DB ;1499 energy
     bcc +
-    lda #$05D8
+    lda #$05DB
 +
     rts
 
