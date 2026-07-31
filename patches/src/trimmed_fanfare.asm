@@ -19,7 +19,7 @@ org $848c01
 org $858491
     dw $00F0        ; 4s
 
-org $84f4a0
+org !bank_84_free_space_start
 check_music:
     lda !ram_music_backup
     cmp #$ffff      ; music backup active?
@@ -59,3 +59,5 @@ clear_music:
 .leave_3
     ply
     rtl
+
+assert pc() <= !bank_84_free_space_end
