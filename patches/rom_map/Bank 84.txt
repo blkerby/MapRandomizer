@@ -7,7 +7,7 @@ F300 - F30C: ; escape_items.asm
 F380 - F418: ; escape.asm
 F480 - F489: ; etank_refill_full.asm
 F490 - F499: ; reserve_hud.asm
-F4A0 - F4FF: [FREE]
+F4A0 - F4FF: ; resource_collection_hudcap.asm
 F500 - F550: ; itemsounds.asm
 F580 - F58D: ; mb_left_entrance.asm
 F590 - F59D: ; horizontal_door_fix.asm
