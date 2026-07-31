@@ -713,7 +713,6 @@ impl Patcher<'_> {
                 // reduce fanfare dialogue box duration (240 frames)
                 patches.push("trimmed_fanfare");
                 patches.push("vanilla_fanfare_stop_sounds");
-
             }
             Fanfares::Off => {
                 patches.push("itemsounds");
