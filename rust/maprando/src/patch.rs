@@ -711,7 +711,9 @@ impl Patcher<'_> {
             }
             Fanfares::Trimmed => {
                 // reduce fanfare dialogue box duration (240 frames)
-                self.rom.write_u16(snes2pc(0x858491), 0xF0)?;
+                patches.push("trimmed_fanfare");
+                patches.push("vanilla_fanfare_stop_sounds");
+
             }
             Fanfares::Off => {
                 patches.push("itemsounds");

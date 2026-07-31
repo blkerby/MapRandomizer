@@ -162,6 +162,10 @@ whitelist_dict = {
         ['hud_expansion_opaque', 0xB6CE00, 0xB6D000],
         ['hud_expansion_opaque', 0xB6E800, 0xB6F000]
     ],
+    'trimmed_fanfare': [
+        ['itemsounds', 0x82E126, 0x82E12C],
+        ['itemsounds', 0x858491, 0x858493],
+    ],
 }
 
 failed = False
