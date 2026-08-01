@@ -4,8 +4,8 @@
 
 lorom
 
-!bank_84_free_space_start = $84F4A0
-!bank_84_free_space_end = $84F500
+!bank_84_free_space_start = $84F630
+!bank_84_free_space_end = $84F68F
 
 !ram_music_backup = $7EF59E
 

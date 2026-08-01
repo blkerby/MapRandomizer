@@ -54,30 +54,36 @@ impl GlobalState {
         match item {
             Item::Missile => {
                 self.inventory.collectible_missile_packs += 1;
-                let new_max_missiles = (ammo_collect_fraction
-                    * self.inventory.collectible_missile_packs as f32)
-                    .round() as Capacity
-                    * (missile_size as Capacity);
+                let new_max_missiles = std::cmp::min(
+                    999,
+                    (ammo_collect_fraction * self.inventory.collectible_missile_packs as f32)
+                        .round() as Capacity
+                        * (missile_size as Capacity),
+                );
                 self.inventory.max_missiles = new_max_missiles;
             }
             Item::Super => {
                 self.inventory.collectible_super_packs += 1;
-                let new_max_supers = (ammo_collect_fraction
-                    * self.inventory.collectible_super_packs as f32)
-                    .round() as Capacity
-                    * (super_size as Capacity);
+                let new_max_supers = std::cmp::min(
+                    99,
+                    (ammo_collect_fraction * self.inventory.collectible_super_packs as f32).round()
+                        as Capacity
+                        * (super_size as Capacity),
+                );
                 self.inventory.max_supers = new_max_supers;
             }
             Item::PowerBomb => {
                 self.inventory.collectible_power_bomb_packs += 1;
-                let new_max_power_bombs = (ammo_collect_fraction
-                    * self.inventory.collectible_power_bomb_packs as f32)
-                    .round() as Capacity
-                    * (powerbomb_size as Capacity);
+                let new_max_power_bombs = std::cmp::min(
+                    99,
+                    (ammo_collect_fraction * self.inventory.collectible_power_bomb_packs as f32)
+                        .round() as Capacity
+                        * (powerbomb_size as Capacity),
+                );
                 self.inventory.max_power_bombs = new_max_power_bombs;
             }
             Item::ETank => {
-                self.inventory.max_energy += 100;
+                self.inventory.max_energy = std::cmp::min(1499, self.inventory.max_energy + 100);
                 if !tech[game_data.manage_reserves_tech_idx] {
                     self.inventory.max_reserves =
                         Capacity::min(self.inventory.max_reserves, self.inventory.max_energy);
@@ -85,7 +91,8 @@ impl GlobalState {
             }
             Item::ReserveTank => {
                 self.inventory.collectible_reserve_tanks += 1;
-                self.inventory.max_reserves = self.inventory.collectible_reserve_tanks * 100;
+                self.inventory.max_reserves =
+                    std::cmp::min(400, self.inventory.collectible_reserve_tanks * 100);
                 if !tech[game_data.manage_reserves_tech_idx] {
                     self.inventory.max_reserves =
                         Capacity::min(self.inventory.max_reserves, self.inventory.max_energy);
