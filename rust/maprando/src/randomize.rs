@@ -4414,6 +4414,8 @@ impl<'r> Randomizer<'r> {
                 self.settings.item_progression_settings.missile_size,
                 self.settings.item_progression_settings.super_size,
                 self.settings.item_progression_settings.powerbomb_size,
+                self.settings.item_progression_settings.etank_multiplier,
+                self.settings.item_progression_settings.reserve_multiplier,
                 &self.difficulty_tiers[0].tech,
             );
         }
@@ -5311,6 +5313,8 @@ impl<'r> Randomizer<'r> {
                     self.settings.item_progression_settings.missile_size,
                     self.settings.item_progression_settings.super_size,
                     self.settings.item_progression_settings.powerbomb_size,
+                    self.settings.item_progression_settings.etank_multiplier,
+                    self.settings.item_progression_settings.reserve_multiplier,
                     &self.difficulty_tiers[0].tech,
                 );
             }

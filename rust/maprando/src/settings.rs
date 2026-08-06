@@ -104,6 +104,8 @@ pub struct ItemProgressionSettings {
     pub missile_size: u16,
     pub super_size: u16,
     pub powerbomb_size: u16,
+    pub etank_multiplier: u8,
+    pub reserve_multiplier: u8,
 }
 
 #[repr(u8)]
@@ -1124,6 +1126,12 @@ fn upgrade_item_progression_settings(settings: &mut serde_json::Value) -> Result
     }
     if !item_progression_settings.contains_key("powerbomb_size") {
         item_progression_settings.insert("powerbomb_size".to_string(), (5).into());
+    }
+    if !item_progression_settings.contains_key("etank_multiplier") {
+        item_progression_settings.insert("etank_multiplier".to_string(), (1).into());
+    }
+    if !item_progression_settings.contains_key("reserve_multiplier") {
+        item_progression_settings.insert("reserve_multiplier".to_string(), (1).into());
     }
     Ok(())
 }
