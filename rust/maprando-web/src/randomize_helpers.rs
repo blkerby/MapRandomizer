@@ -43,6 +43,8 @@ pub struct SeedHeaderTemplate<'a> {
     missile_size: i32,
     super_size: i32,
     powerbomb_size: i32,
+    etank_multiplier: i32,
+    reserve_multiplier: i32,
     difficulty: &'a DifficultyConfig,
     quality_of_life_preset: String,
     supers_double: bool,
@@ -442,6 +444,8 @@ pub fn render_seed(
         missile_size: seed_data.settings.item_progression_settings.missile_size as i32,
         super_size: seed_data.settings.item_progression_settings.super_size as i32,
         powerbomb_size: seed_data.settings.item_progression_settings.powerbomb_size as i32,
+        etank_multiplier: seed_data.settings.item_progression_settings.etank_multiplier as i32,
+        reserve_multiplier: seed_data.settings.item_progression_settings.reserve_multiplier as i32,
         filler_items: seed_data
             .settings
             .item_progression_settings
