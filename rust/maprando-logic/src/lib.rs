@@ -85,7 +85,10 @@ impl GlobalState {
                 self.inventory.max_power_bombs = new_max_power_bombs;
             }
             Item::ETank => {
-                self.inventory.max_energy = std::cmp::min(1499, self.inventory.max_energy + (100 * etank_multiplier as Capacity));
+                self.inventory.max_energy = std::cmp::min(
+                    1499,
+                    self.inventory.max_energy + (100 * etank_multiplier as Capacity),
+                );
                 if !tech[game_data.manage_reserves_tech_idx] {
                     self.inventory.max_reserves =
                         Capacity::min(self.inventory.max_reserves, self.inventory.max_energy);
@@ -93,8 +96,11 @@ impl GlobalState {
             }
             Item::ReserveTank => {
                 self.inventory.collectible_reserve_tanks += 1;
-                self.inventory.max_reserves =
-                    std::cmp::min(400, self.inventory.collectible_reserve_tanks * (100 * reserve_multiplier as Capacity));
+                self.inventory.max_reserves = std::cmp::min(
+                    400,
+                    self.inventory.collectible_reserve_tanks
+                        * (100 * reserve_multiplier as Capacity),
+                );
                 if !tech[game_data.manage_reserves_tech_idx] {
                     self.inventory.max_reserves =
                         Capacity::min(self.inventory.max_reserves, self.inventory.max_energy);
