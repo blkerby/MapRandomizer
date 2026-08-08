@@ -816,6 +816,24 @@ impl Patcher<'_> {
             self.rom.write_u16(snes2pc(0x84E9E7), p_sz)?; // PLM EF8B (PB, Shot Block)
             self.rom.write_u16(snes2pc(0x8BE71F), p_sz)?; // Credits, Power Bomb Item % Divisor
         }
+        
+        if self.settings.item_progression_settings.etank_multiplier > 1 {
+            let e_sz = self.settings.item_progression_settings.etank_multiplier as isize * 100;
+            
+            self.rom.write_u16(snes2pc(0x84E0B8), e_sz)?; // PLM EED7 (E-Tank)
+            self.rom.write_u16(snes2pc(0x84E474), e_sz)?; // PLM EF2B (E-Tank, Chozo)
+            self.rom.write_u16(snes2pc(0x84E93F), e_sz)?; // PLM EF7F (E-Tank, Shot Block)
+            self.rom.write_u16(snes2pc(0x88E717), e_sz)?; // Credits, E-Tank Item % Divisor
+        }
+        
+        if self.settings.item_progression_settings.reserve_multiplier > 1 {
+            let r_sz = self.settings.item_progression_settings.reserve_multiplier as isize * 100;
+            
+            self.rom.write_u16(snes2pc(0x84E444), r_sz as isize)?; // PLM EF27 (Reserve Tank)
+            self.rom.write_u16(snes2pc(0x84E909), r_sz as isize)?; // PLM EF7B (Reserve Tank, Chozo)
+            self.rom.write_u16(snes2pc(0x84EE43), r_sz as isize)?; // PLM EFCF (Reserve Tank, Shot Block)
+            self.rom.write_u16(snes2pc(0x88E719), r_sz as isize)?; // Credits, Reserve Tank Item % Divisor
+        }
 
         Ok(())
     }
@@ -2311,9 +2329,9 @@ impl Patcher<'_> {
                 starting_missiles += (x.count as isize)
                     * (self.settings.item_progression_settings.missile_size as isize);
             } else if x.item == Item::ETank {
-                starting_energy += (x.count as isize) * 100;
+                starting_energy += (x.count as isize) * 100 * (self.settings.item_progression_settings.etank_multiplier as isize);
             } else if x.item == Item::ReserveTank {
-                starting_reserves += (x.count as isize) * 100;
+                starting_reserves += (x.count as isize) * 100 * (self.settings.item_progression_settings.reserve_multiplier as isize);
             } else if x.item == Item::Super {
                 starting_supers += (x.count as isize)
                     * (self.settings.item_progression_settings.super_size as isize);

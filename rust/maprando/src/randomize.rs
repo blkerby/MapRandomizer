@@ -3702,24 +3702,35 @@ impl<'r> Randomizer<'r> {
         // Although ETanks and Reserve Tanks are fixed to 100 energy, the following
         // code is written in a generic way that could support changing this in the future.
         let mut minimal_energy = get_minimal_energy(&difficulty_tiers[0]);
+        
+        let mut starting_etank_energy = 0 as Capacity;
+        let mut starting_reserve_energy = 0 as Capacity;
+        
         for x in &starting_items {
             initial_items_remaining[x.item as usize] -=
                 usize::min(x.count, initial_items_remaining[x.item as usize]);
-            if x.item == Item::ETank || x.item == Item::ReserveTank {
-                minimal_energy = minimal_energy.saturating_sub(100 * x.count as Capacity);
+            if x.item == Item::ETank {
+                starting_etank_energy += (100 * x.count * settings.item_progression_settings.etank_multiplier as usize) as Capacity;
+            }
+            else if x.item == Item::ReserveTank {
+                starting_reserve_energy += (100 * x.count * settings.item_progression_settings.reserve_multiplier as usize) as Capacity;
             }
         }
+        minimal_energy = minimal_energy.saturating_sub(std::cmp::min(1400, starting_etank_energy));
+        minimal_energy = minimal_energy.saturating_sub(std::cmp::min(400, starting_reserve_energy));
+        
+        let mut initial_etank_energy = std::cmp::min(1400, (initial_items_remaining[Item::ETank as usize] * settings.item_progression_settings.etank_multiplier as usize * 100) as Capacity);
+        let mut initial_reserve_energy = std::cmp::min(400, (initial_items_remaining[Item::ReserveTank as usize] * settings.item_progression_settings.reserve_multiplier as usize * 100) as Capacity);
 
-        while ((initial_items_remaining[Item::ETank as usize] * 100) as Capacity
-            + (initial_items_remaining[Item::ReserveTank as usize] * 100) as Capacity)
-            < minimal_energy
+        while initial_etank_energy + initial_reserve_energy < minimal_energy
         {
-            if (initial_items_remaining[Item::ETank as usize] < 14)
-                && ((initial_items_remaining[Item::ETank as usize] + 1) * 100 <= 1400)
+            if initial_etank_energy < 1400
             {
                 initial_items_remaining[Item::ETank as usize] += 1;
-            } else if initial_items_remaining[Item::ReserveTank as usize] < 4 {
+                initial_etank_energy = std::cmp::min(1400, initial_etank_energy + 100 * settings.item_progression_settings.etank_multiplier as Capacity);
+            } else if initial_reserve_energy < 400 {
                 initial_items_remaining[Item::ReserveTank as usize] += 1;
+                initial_reserve_energy = std::cmp::min(400, initial_reserve_energy + 100 * settings.item_progression_settings.reserve_multiplier as Capacity);
             } else {
                 panic!("Can't ensure enough energy!");
             }
@@ -3738,9 +3749,9 @@ impl<'r> Randomizer<'r> {
             .sum::<usize>()
             .saturating_sub(available_items)
         {
-            let energy_left_to_place = ((initial_items_remaining[Item::ETank as usize] * 100)
-                as Capacity)
-                + ((initial_items_remaining[Item::ReserveTank as usize] * 100) as Capacity);
+            let etank_energy_left_to_place = (initial_items_remaining[Item::ETank as usize] * 100 * settings.item_progression_settings.etank_multiplier as usize) as Capacity;
+            let reserve_energy_left_to_place = (initial_items_remaining[Item::ReserveTank as usize] * 100 * settings.item_progression_settings.reserve_multiplier as usize) as Capacity;
+            let energy_left_to_place = etank_energy_left_to_place + reserve_energy_left_to_place;
             let mut removal_options = ammo_shortage_weight.clone();
             if energy_left_to_place > minimal_energy {
                 removal_options.extend(tank_shortage_weight.clone());

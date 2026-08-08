@@ -223,7 +223,7 @@
                                                 <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#ammoSizeModal">
                                                     <i class="bi bi-question-circle"></i>
                                                 </button>
-                                                <label for="preset">Ammo size</label>
+                                                <label for="preset">Resource Customization</label>
                                             </div>
                                             <div class="card-body">
                                                 <div class="form-group row m-2">
@@ -249,6 +249,24 @@
                                                     <span class="itemIcon itemIconPowerBomb"></span>
                                                     <div class="col-lg-2">
                                                         <input type="text" class="form-control" name="ammo_size_PowerBomb" id="ammoSizePowerBomb"
+                                                        value="0" onchange="itemPoolChanged()">
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row m-2">
+                                                    <label class="col-lg-3 col-form-label text-end" for="multiplier_ETank">E-Tank Multiplier:</label>
+                                                    <span class="itemIcon itemIconETank"></span>
+                                                    <div class="col-lg-2">
+                                                        <input type="text" class="form-control" name="multiplier_ETank" id="multiplierETank"
+                                                        value="0" onchange="itemPoolChanged()">
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row m-2">
+                                                    <label class="col-lg-3 col-form-label text-end" for="multiplier_ReserveTank">Reserve Tank Multiplier:</label>
+                                                    <span class="itemIcon itemIconReserveTank"></span>
+                                                    <div class="col-lg-2">
+                                                        <input type="text" class="form-control" name="multiplier_ReserveTank" id="multiplierReserveTank"
                                                         value="0" onchange="itemPoolChanged()">
                                                     </div>
                                                 </div>
