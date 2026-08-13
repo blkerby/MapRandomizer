@@ -509,7 +509,11 @@ impl MosaicPatchBuilder {
             for project in project_names {
                 let room: smart_xml::Room = self.load_room_xml(project, room_name)?;
                 let state_xml = &room.states.state[state_idx];
-                let level_data = extract_uncompressed_level_data(state_xml);
+                let mut level_data = extract_uncompressed_level_data(state_xml);
+                // fix Homing Geemer Room + Scrolling Sky
+                if room_ptr == 0x7968F && state_xml.layer1_2 == 0x91C9 {
+                    level_data[0x9602..0x9604].copy_from_slice(&0u16.to_le_bytes());
+                }
                 let compressed_level_data = self.get_compressed_data(&level_data)?;
                 compressed_level_data_vec.push(compressed_level_data);
                 let fx_data = self.get_fx_data(state_xml, false);
