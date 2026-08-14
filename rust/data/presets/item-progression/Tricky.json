@@ -11,8 +11,8 @@
     "missile_size": 5,
     "super_size": 5,
     "powerbomb_size": 5,
-    "etank_multiplier": 1,
-    "reserve_multiplier": 1,
+    "etank_size": 1,
+    "reserve_size": 1,
     "item_pool": [
         {
             "item": "Missile",

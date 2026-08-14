@@ -220,53 +220,53 @@
                                     <div class="col-lg-12">
                                         <div class="card">
                                             <div class="card-header px-2">
-                                                <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#ammoSizeModal">
+                                                <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#pickupSizeModal">
                                                     <i class="bi bi-question-circle"></i>
                                                 </button>
-                                                <label for="preset">Resource Customization</label>
+                                                <label for="preset">Pickup sizes</label>
                                             </div>
                                             <div class="card-body">
                                                 <div class="form-group row m-2">
-                                                    <label class="col-lg-3 col-form-label text-end" for="ammo_size_Missile">Missiles per pack</label>
+                                                    <label class="col-lg-3 col-form-label text-end" for="pickupSizeMissile">Missiles per pickup</label>
                                                     <span class="itemIcon itemIconMissile"></span>
                                                     <div class="col-lg-2">
-                                                        <input type="text" class="form-control" name="ammo_size_Missile" id="ammoSizeMissile"
+                                                        <input type="text" class="form-control" name="pickup_size_Missile" id="pickupSizeMissile"
                                                         value="0" onchange="itemPoolChanged()">
                                                     </div>
                                                 </div>
 
                                                 <div class="form-group row m-2">
-                                                    <label class="col-lg-3 col-form-label text-end" for="ammo_size_Super">Super Missiles per pack</label>
+                                                    <label class="col-lg-3 col-form-label text-end" for="pickupSizeSuper">Supers per pickup</label>
                                                     <span class="itemIcon itemIconSuper"></span>
                                                     <div class="col-lg-2">
-                                                        <input type="text" class="form-control" name="ammo_size_Super" id="ammoSizeSuper"
+                                                        <input type="text" class="form-control" name="pickup_size_Super" id="pickupSizeSuper"
                                                         value="0" onchange="itemPoolChanged()">
                                                     </div>
                                                 </div>
 
                                                 <div class="form-group row m-2">
-                                                    <label class="col-lg-3 col-form-label text-end" for="ammo_size_PowerBomb">Power Bombs per pack</label>
+                                                    <label class="col-lg-3 col-form-label text-end" for="pickupSizePowerBomb">Power Bombs per pickup</label>
                                                     <span class="itemIcon itemIconPowerBomb"></span>
                                                     <div class="col-lg-2">
-                                                        <input type="text" class="form-control" name="ammo_size_PowerBomb" id="ammoSizePowerBomb"
+                                                        <input type="text" class="form-control" name="pickup_size_PowerBomb" id="pickupSizePowerBomb"
                                                         value="0" onchange="itemPoolChanged()">
                                                     </div>
                                                 </div>
 
                                                 <div class="form-group row m-2">
-                                                    <label class="col-lg-3 col-form-label text-end" for="multiplier_ETank">E-Tank Multiplier:</label>
+                                                    <label class="col-lg-3 col-form-label text-end" for="pickupSizeETank">E-Tanks per pickup</label>
                                                     <span class="itemIcon itemIconETank"></span>
                                                     <div class="col-lg-2">
-                                                        <input type="text" class="form-control" name="multiplier_ETank" id="multiplierETank"
+                                                        <input type="text" class="form-control" name="pickup_size_ETank" id="pickupSizeETank"
                                                         value="0" onchange="itemPoolChanged()">
                                                     </div>
                                                 </div>
 
                                                 <div class="form-group row m-2">
-                                                    <label class="col-lg-3 col-form-label text-end" for="multiplier_ReserveTank">Reserve Tank Multiplier:</label>
+                                                    <label class="col-lg-3 col-form-label text-end" for="pickupSizeReserveTank">Reserve Tanks per pickup</label>
                                                     <span class="itemIcon itemIconReserveTank"></span>
                                                     <div class="col-lg-2">
-                                                        <input type="text" class="form-control" name="multiplier_ReserveTank" id="multiplierReserveTank"
+                                                        <input type="text" class="form-control" name="pickup_size_ReserveTank" id="pickupSizeReserveTank"
                                                         value="0" onchange="itemPoolChanged()">
                                                     </div>
                                                 </div>
@@ -536,7 +536,7 @@
 {% include "help/progression/random_tank.html" %}
 {% include "help/progression/spazer_before_plasma.html" %}
 {% include "help/progression/ammo_collect_fraction.html" %}
-{% include "help/progression/ammo_size.html" %}
+{% include "help/progression/pickup_size.html" %}
 {% include "help/progression/item_pool.html" %}
 {% include "help/progression/stop_item_placement_early.html" %}
 {% include "help/progression/starting_items.html" %}

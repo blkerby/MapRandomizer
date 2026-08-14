@@ -48,8 +48,8 @@ impl GlobalState {
         missile_size: u16,
         super_size: u16,
         powerbomb_size: u16,
-        etank_multiplier: u8,
-        reserve_multiplier: u8,
+        etank_size: u8,
+        reserve_size: u8,
         tech: &[bool],
     ) {
         self.inventory.items[item as usize] = true;
@@ -87,7 +87,7 @@ impl GlobalState {
             Item::ETank => {
                 self.inventory.max_energy = std::cmp::min(
                     1499,
-                    self.inventory.max_energy + (100 * etank_multiplier as Capacity),
+                    self.inventory.max_energy + (100 * etank_size as Capacity),
                 );
                 if !tech[game_data.manage_reserves_tech_idx] {
                     self.inventory.max_reserves =
@@ -98,8 +98,7 @@ impl GlobalState {
                 self.inventory.collectible_reserve_tanks += 1;
                 self.inventory.max_reserves = std::cmp::min(
                     400,
-                    self.inventory.collectible_reserve_tanks
-                        * (100 * reserve_multiplier as Capacity),
+                    self.inventory.collectible_reserve_tanks * (100 * reserve_size as Capacity),
                 );
                 if !tech[game_data.manage_reserves_tech_idx] {
                     self.inventory.max_reserves =

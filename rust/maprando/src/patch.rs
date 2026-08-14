@@ -817,8 +817,8 @@ impl Patcher<'_> {
             self.rom.write_u16(snes2pc(0x8BE71F), p_sz)?; // Credits, Power Bomb Item % Divisor
         }
 
-        if self.settings.item_progression_settings.etank_multiplier > 1 {
-            let e_sz = self.settings.item_progression_settings.etank_multiplier as isize * 100;
+        if self.settings.item_progression_settings.etank_size > 1 {
+            let e_sz = self.settings.item_progression_settings.etank_size as isize * 100;
 
             self.rom.write_u16(snes2pc(0x84E0B8), e_sz)?; // PLM EED7 (E-Tank)
             self.rom.write_u16(snes2pc(0x84E474), e_sz)?; // PLM EF2B (E-Tank, Chozo)
@@ -826,8 +826,8 @@ impl Patcher<'_> {
             self.rom.write_u16(snes2pc(0x88E717), e_sz)?; // Credits, E-Tank Item % Divisor
         }
 
-        if self.settings.item_progression_settings.reserve_multiplier > 1 {
-            let r_sz = self.settings.item_progression_settings.reserve_multiplier as isize * 100;
+        if self.settings.item_progression_settings.reserve_size > 1 {
+            let r_sz = self.settings.item_progression_settings.reserve_size as isize * 100;
 
             self.rom.write_u16(snes2pc(0x84E444), r_sz)?; // PLM EF27 (Reserve Tank)
             self.rom.write_u16(snes2pc(0x84E909), r_sz)?; // PLM EF7B (Reserve Tank, Chozo)
@@ -2331,11 +2331,11 @@ impl Patcher<'_> {
             } else if x.item == Item::ETank {
                 starting_energy += (x.count as isize)
                     * 100
-                    * (self.settings.item_progression_settings.etank_multiplier as isize);
+                    * (self.settings.item_progression_settings.etank_size as isize);
             } else if x.item == Item::ReserveTank {
                 starting_reserves += (x.count as isize)
                     * 100
-                    * (self.settings.item_progression_settings.reserve_multiplier as isize);
+                    * (self.settings.item_progression_settings.reserve_size as isize);
             } else if x.item == Item::Super {
                 starting_supers += (x.count as isize)
                     * (self.settings.item_progression_settings.super_size as isize);
