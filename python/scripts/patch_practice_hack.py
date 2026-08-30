@@ -40,7 +40,7 @@ patches = [
     # 'door_hurt',
     # "everest_tube",
     # "fast_pause_menu",
-    # "rng_fix",
+    "rng_fix",
     # "buffed_drops"
     # 'complementary_suits',
     # 'complementary_suits_noheat',
