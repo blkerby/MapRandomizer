@@ -1582,6 +1582,9 @@ impl<'a> Preprocessor<'a> {
                 if min_extra_run_speed > 0.0 || entrance_min_extra_run_speed > 0.0 {
                     reqs.push(Requirement::NoBlueSuit);
                 }
+                if min_extra_run_speed > 2.0 {
+                    reqs.push(Requirement::blue_booster());
+                }
                 let overall_max_extra_run_speed = f32::min(
                     max_extra_run_speed,
                     f32::min(entrance_max_extra_run_speed, runway_max_speed),
@@ -1607,6 +1610,9 @@ impl<'a> Preprocessor<'a> {
                 let effective_length = effective_length.get();
                 if min_extra_run_speed.get() > 0.0 || entrance_min_extra_run_speed > 0.0 {
                     reqs.push(Requirement::NoBlueSuit);
+                }
+                if min_extra_run_speed.get() > 2.0 {
+                    reqs.push(Requirement::blue_booster());
                 }
                 if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
