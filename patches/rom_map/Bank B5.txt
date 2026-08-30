@@ -8,7 +8,7 @@ FE06 - FE07: Initial items equipped (to be copied to $09A2)
 FE08 - FE09: Initial beams collected (to be copied to $09A8)
 FE0A - FE0B: Initial beams equipped (to be copied to $09A6)
 FE0C - FE11: Initial boss bits (to be copied to $7ED828-2E)
-FE12 - FE51: Initial item bits (to be copied to $7ED870-B0)
+FE12 - FE51: Initial item bits (to be copied to $7ED870-B0); [new_game.asm, item_count.asm]
 FE52 - FE53: Initial energy (to be copied to $09C2)
 FE54 - FE55: Initial max energy (to be copied to $09C4)
 FE56 - FE57: Initial reserves (to be copied to $09D6)

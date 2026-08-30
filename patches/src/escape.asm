@@ -11,8 +11,6 @@ arch snes.cpu
 !bank_82_free_space_end = $82FD00
 !bank_84_free_space_start = $84F380
 !bank_84_free_space_end = $84F480
-!bank_8b_free_space_start = $8BF900
-!bank_8b_free_space_end = $8BF940
 !bank_8f_free_space_start = $8FF600
 !bank_8f_free_space_end = $8FF700
 !bank_a1_free_space_start = $a1f000  ; careful moving this, as it must match things in patch.rs
@@ -629,7 +627,6 @@ org !bank_84_free_space_start
     CLC
     RTL
 
-print pc
 assert pc() <= !bank_84_free_space_end
 
 ; hook for when dachora hits block above it
@@ -647,20 +644,6 @@ dachora_hit_top:
     rts
 
 assert pc() <= !bank_a7_free_space_end
-
-
-; Include walljump boots and split-speed in item collection count post-credits
-org $8BE65B
-    LDX #$001A
-
-org $8BE661
-    BIT item_bits,x
-
-org !bank_8b_free_space_start
-item_bits:
-    dw $0001, $0020, $0004, $1000, $0002, $0008, $0100, $0200, $2000, $4000, $8000, $0400, $0040, $0080
-
-assert pc() <= !bank_8b_free_space_end
 
 org $82E026
     jsr enemy_gfx_load_hook

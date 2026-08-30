@@ -5,10 +5,11 @@ E200 - E212: ; alternate_door_colors.asm
 E212 - FEEF: [free]
 FEF0 - FEFF: seed name (null-terminated ASCII string)
 FF00 - FF03: display seed / internal seed hash
-FF04 - FF04: [FREE]
+FF04 - FF04: [free]
 FF05 - FF06: randomizer settings:
   - bitmask $0001: walljump-boots item enabled
   - bitmask $0002: split speedbooster item enabled
 FF07 - FF08: number of frames of artificial lag to add to the unpause black screen
 FF09 - FF0D: randomizer settings: skill/progression/qol/objectives/maplayout (autotracker use)
   - stored as single byte ordinal numbers, if a setting has a custom option then byte is set to 0
+FF0E - FF0F: sum of unplaced / nothing items (used for item credits fractional display with stop item placement early)

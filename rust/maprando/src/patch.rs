@@ -487,6 +487,7 @@ impl Patcher<'_> {
             "fix_dust_torizo",
             "fix_choot",
             "resource_collection_hudcap",
+            "item_count",
         ];
 
         patches.push("new_game");
@@ -839,6 +840,7 @@ impl Patcher<'_> {
     }
 
     fn place_items(&mut self) -> Result<()> {
+        let mut nothing_count: isize = 0;
         for (&item, &loc) in iter::zip(
             &self.randomization.item_placement,
             &self.game_data.item_locations,
@@ -848,6 +850,7 @@ impl Patcher<'_> {
             let new_plm_type = item_to_plm_type(item, orig_plm_type);
             self.rom.write_u16(item_plm_ptr, new_plm_type)?;
             if item == Item::Nothing {
+                nothing_count += 1;
                 let idx = self.rom.read_u16(item_plm_ptr + 4).unwrap() as usize;
                 self.nothing_item_bitmask[idx >> 3] |= 1 << (idx & 7);
 
@@ -859,6 +862,7 @@ impl Patcher<'_> {
                 }
             }
         }
+        self.rom.write_u16(snes2pc(0xdfff0e), nothing_count)?;
         Ok(())
     }
 
@@ -2419,7 +2423,6 @@ impl Patcher<'_> {
             // Use Tourian load station 2, set up in escape_autosave.asm
             self.rom.write_u16(initial_area_addr, 5)?;
             self.rom.write_u16(initial_load_station_addr, 2)?;
-
             // Set all bosses defeated:
             self.rom.write_n(initial_boss_bits, &[7, 7, 7, 7, 7, 7])?;
 
