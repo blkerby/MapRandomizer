@@ -132,6 +132,11 @@ post_load_state:
 {
     JSR post_load_music
     
+    ; Mark the savestate as existing and consume Limited mode's save opportunity
+    LDA !savestate_state
+    ORA #!savestate_exists_mask|!savestate_save_used_mask
+    STA !savestate_state
+    
     ; If sounds are not enabled, the game won't clear the sounds
     LDA !DISABLE_SOUNDS : PHA
     STZ !DISABLE_SOUNDS
