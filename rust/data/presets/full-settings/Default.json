@@ -1108,6 +1108,11 @@
                 "enabled": false
             },
             {
+                "id": 245,
+                "name": "canDoorTransitionXMode",
+                "enabled": false
+            },
+            {
                 "id": 200,
                 "name": "canTrickyGMode",
                 "enabled": false
@@ -1624,6 +1629,13 @@
                 "enabled": false
             },
             {
+                "room_id": 120,
+                "notable_id": 5,
+                "room_name": "Crocomire Speedway",
+                "notable_name": "Heatproof Low Energy Reverse Spark",
+                "enabled": false
+            },
+            {
                 "room_id": 106,
                 "notable_id": 1,
                 "room_name": "Ice Beam Gate Room",
@@ -1933,16 +1945,16 @@
             },
             {
                 "room_id": 230,
-                "notable_id": 2,
-                "room_name": "Tourian Hopper Room",
-                "notable_name": "Screw Attack Jumps",
-                "enabled": false
-            },
-            {
-                "room_id": 230,
                 "notable_id": 4,
                 "room_name": "Tourian Hopper Room",
                 "notable_name": "Squeeze Under Hoppers",
+                "enabled": false
+            },
+            {
+                "room_id": 29,
+                "notable_id": 5,
+                "room_name": "Climb Supers Room",
+                "notable_name": "Cross Room Damage Boost",
                 "enabled": false
             },
             {
@@ -2437,6 +2449,13 @@
             },
             {
                 "room_id": 230,
+                "notable_id": 2,
+                "room_name": "Tourian Hopper Room",
+                "notable_name": "Screw Attack Jumps",
+                "enabled": false
+            },
+            {
+                "room_id": 230,
                 "notable_id": 3,
                 "room_name": "Tourian Hopper Room",
                 "notable_name": "Roll Under Hoppers",
@@ -2782,7 +2801,7 @@
                 "room_id": 32,
                 "notable_id": 1,
                 "room_name": "West Ocean",
-                "notable_name": "G-Mode Setup Lure Zeb from Below",
+                "notable_name": "Lure Zeb from Below, Get Hit",
                 "enabled": false
             },
             {
@@ -3664,7 +3683,7 @@
                 "room_id": 41,
                 "notable_id": 5,
                 "room_name": "Blue Brinstar Energy Tank Room",
-                "notable_name": "Geemer Ice Stuck XRay Climb",
+                "notable_name": "Geemer Ice Stuck X-Ray Climb",
                 "enabled": false
             },
             {
@@ -4056,7 +4075,7 @@
                 "room_id": 58,
                 "notable_id": 4,
                 "room_name": "Dachora Room",
-                "notable_name": "G-Mode Setup - Lure the Zeela Down Below",
+                "notable_name": "Lure the Zeela Down Below",
                 "enabled": false
             },
             {

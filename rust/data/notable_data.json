@@ -88,6 +88,14 @@
     "video_id": 282
   },
   {
+    "room_id": 29,
+    "room_name": "Climb Supers Room",
+    "notable_id": 5,
+    "name": "Cross Room Damage Boost",
+    "difficulty": "Expert",
+    "video_id": 10993
+  },
+  {
     "room_id": 8,
     "room_name": "Landing Site",
     "notable_id": 1,
@@ -355,7 +363,7 @@
     "room_id": 32,
     "room_name": "West Ocean",
     "notable_id": 1,
-    "name": "G-Mode Setup Lure Zeb from Below",
+    "name": "Lure Zeb from Below, Get Hit",
     "difficulty": "Extreme",
     "video_id": 91
   },
@@ -475,7 +483,7 @@
     "room_id": 41,
     "room_name": "Blue Brinstar Energy Tank Room",
     "notable_id": 5,
-    "name": "Geemer Ice Stuck XRay Climb",
+    "name": "Geemer Ice Stuck X-Ray Climb",
     "difficulty": "Insane",
     "video_id": 167
   },
@@ -851,7 +859,7 @@
     "room_id": 58,
     "room_name": "Dachora Room",
     "notable_id": 4,
-    "name": "G-Mode Setup - Lure the Zeela Down Below",
+    "name": "Lure the Zeela Down Below",
     "difficulty": "Insane+",
     "video_id": 197
   },
@@ -1432,6 +1440,14 @@
     "video_id": 1301
   },
   {
+    "room_id": 120,
+    "room_name": "Crocomire Speedway",
+    "notable_id": 5,
+    "name": "Heatproof Low Energy Reverse Spark",
+    "difficulty": "Very Hard",
+    "video_id": 10976
+  },
+  {
     "room_id": 111,
     "room_name": "Crumble Shaft",
     "notable_id": 1,
@@ -1645,7 +1661,7 @@
     "notable_id": 2,
     "name": "Safe Spot Kill",
     "difficulty": "Very Hard",
-    "video_id": 513
+    "video_id": 3052
   },
   {
     "room_id": 150,
@@ -3604,7 +3620,7 @@
     "room_name": "Tourian Hopper Room",
     "notable_id": 2,
     "name": "Screw Attack Jumps",
-    "difficulty": "Very Hard",
+    "difficulty": "Expert",
     "video_id": 24
   },
   {

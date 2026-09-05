@@ -5,15 +5,24 @@ import json
 output_path = pathlib.Path("rust/data/strat_videos.json")
 videos_url = "https://videos.maprando.com"
 
-users_response = requests.get(videos_url + "/list-users")
-users_list = users_response.json()
+
+def fetch_listing(path):
+    url = videos_url + path
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as exc:
+        raise SystemExit(f"Failed to fetch {url}: {exc}") from None
+
+
+users_list = fetch_listing("/list-users")
 user_dict = {x["id"]: x["username"] for x in users_list}
 
-videos_response = requests.get(videos_url + "/list-videos?status_list=Approved&sort_by=LogicOrder&limit=1000000")
-videos_list = videos_response.json()
+videos_response = fetch_listing("/list-videos?status_list=Approved&sort_by=LogicOrder&limit=1000000")
 
 output_list = []
-for video in videos_list:
+for video in videos_response["videos"]:
     if video["room_id"] is None or video["strat_id"] is None:
         continue
     output_list.append({

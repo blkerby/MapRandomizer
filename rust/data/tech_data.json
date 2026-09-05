@@ -39,7 +39,7 @@
         "tech_id": 5,
         "name": "canSuitlessLavaDive",
         "difficulty": "Hard",
-        "video_id": 132
+        "video_id": 5823
     },
     {
         "tech_id": 6,
@@ -423,7 +423,7 @@
         "tech_id": 59,
         "name": "canTurnaroundSpinJump",
         "difficulty": "Implicit",
-        "video_id": 6243
+        "video_id": 10977
     },
     {
         "tech_id": 60,
@@ -1246,6 +1246,12 @@
         "name": "canSlopeXMode",
         "difficulty": "Insane",
         "video_id": 9581
+    },
+    {
+        "tech_id": 245,
+        "name": "canDoorTransitionXMode",
+        "difficulty": "Insane",
+        "video_id": 2711
     },
     {
         "tech_id": 161,
