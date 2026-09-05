@@ -1453,17 +1453,28 @@ fn apply_requirement_simple(
         Requirement::Damage {
             unit_energy,
             quantity,
+            gravity_disabled,
+            can_transfer_reserves,
         } => {
+            let inventory = &cx.global.inventory;
+            let factor = if *gravity_disabled {
+                if inventory.items[Item::Varia as usize] {
+                    2
+                } else {
+                    1
+                }
+            } else {
+                suit_damage_factor(inventory)
+            };
             let quantity = quantity.resolve(&cx.difficulty.numerics);
-            let base_energy = unit_energy * quantity;
-            let energy = base_energy / suit_damage_factor(&cx.global.inventory);
-            if energy >= cx.global.inventory.max_energy
+            let energy = unit_energy * quantity / factor;
+            if energy >= inventory.max_energy
                 && !cx.difficulty.tech[cx.game_data.manage_reserves_tech_idx]
             {
                 SimpleResult::Failure
             } else {
                 local
-                    .use_energy(energy, true, &cx.global.inventory, cx.reverse)
+                    .use_energy(energy, *can_transfer_reserves, inventory, cx.reverse)
                     .into()
             }
         }

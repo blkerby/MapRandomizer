@@ -2,9 +2,10 @@ use hashbrown::HashMap;
 use maprando_game::{
     DoorOrientation, ExitCondition, GameData, Link, LinkLength, MainEntranceCondition, NodeId,
     Requirement, RoomId, SparkPosition, TECH_ID_CAN_BOMB_HORIZONTALLY, TECH_ID_CAN_CARRY_BLUE_SUIT,
-    TECH_ID_CAN_CARRY_FLASH_SUIT, TECH_ID_CAN_ENEMY_STUCK_MOONFALL, TECH_ID_CAN_ENTER_G_MODE,
-    TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_EXTENDED_MOONDANCE,
-    TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT,
+    TECH_ID_CAN_CARRY_FLASH_SUIT, TECH_ID_CAN_DOOR_TRANSITION_X_MODE,
+    TECH_ID_CAN_ENEMY_STUCK_MOONFALL, TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE,
+    TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_EXTENDED_MOONDANCE, TECH_ID_CAN_GRAPPLE_JUMP,
+    TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HORIZONTAL_DAMAGE_BOOST,
     TECH_ID_CAN_HORIZONTAL_MIDAIR_SHINESPARK, TECH_ID_CAN_HORIZONTAL_SHINESPARK,
     TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONDANCE,
     TECH_ID_CAN_PRECISE_GRAPPLE, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK,
@@ -12,7 +13,7 @@ use maprando_game::{
     TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP, TECH_ID_CAN_SPEEDBALL,
     TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
     TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_SUPER_SINK, TECH_ID_CAN_TEMPORARY_BLUE,
-    TECH_ID_CAN_WALLJUMP, VertexAction,
+    TECH_ID_CAN_USE_I_FRAMES, TECH_ID_CAN_WALLJUMP, VertexAction,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 
@@ -262,6 +263,22 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
                         game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_R_MODE],
                     ));
                 }
+                MainEntranceCondition::ComeInWithKnockback { .. } => {}
+                MainEntranceCondition::ComeInWithDamageBoost { .. } => {
+                    reqs.push(Requirement::Tech(
+                        game_data.tech_isv.index_by_key[&TECH_ID_CAN_HORIZONTAL_DAMAGE_BOOST],
+                    ));
+                }
+                MainEntranceCondition::ComeInWithIFrames { .. } => {
+                    reqs.push(Requirement::Tech(
+                        game_data.tech_isv.index_by_key[&TECH_ID_CAN_USE_I_FRAMES],
+                    ));
+                }
+                MainEntranceCondition::ComeInWithXMode { .. } => {
+                    reqs.push(Requirement::Tech(
+                        game_data.tech_isv.index_by_key[&TECH_ID_CAN_DOOR_TRANSITION_X_MODE],
+                    ));
+                }
                 MainEntranceCondition::ComeInWithGMode { .. } => {
                     reqs.push(Requirement::Tech(
                         game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_G_MODE],
@@ -357,9 +374,17 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
                 }
                 ExitCondition::LeaveSpaceJumping { .. } => {}
                 ExitCondition::LeaveWithStoredFallSpeed { .. } => {}
-                ExitCondition::LeaveWithGModeSetup { .. } => {
+                ExitCondition::LeaveWithDamage { .. }
+                | ExitCondition::LeaveWithKnockback { .. }
+                | ExitCondition::LeaveWithIFrames { .. } => {}
+                ExitCondition::LeaveWithDamageBoost { .. } => {
                     reqs.push(Requirement::Tech(
-                        game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_G_MODE],
+                        game_data.tech_isv.index_by_key[&TECH_ID_CAN_HORIZONTAL_DAMAGE_BOOST],
+                    ));
+                }
+                ExitCondition::LeaveWithXModeSetup { .. } => {
+                    reqs.push(Requirement::Tech(
+                        game_data.tech_isv.index_by_key[&TECH_ID_CAN_DOOR_TRANSITION_X_MODE],
                     ));
                 }
                 ExitCondition::LeaveWithGMode { .. } => {

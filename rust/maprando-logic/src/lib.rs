@@ -575,7 +575,7 @@ impl LocalState {
                 }
             }
             (true, ResourceLevel::Consumed(x)) => {
-                if x <= amt {
+                if x < amt {
                     if can_transfer_reserves {
                         self.energy = ResourceLevel::Consumed(0).into();
                         self.use_reserve_energy(amt - x, inventory, reverse)
@@ -588,7 +588,7 @@ impl LocalState {
                 }
             }
             (true, ResourceLevel::Remaining(x)) => {
-                if x + amt >= inventory.max_energy {
+                if x + amt > inventory.max_energy {
                     if can_transfer_reserves {
                         self.energy = ResourceLevel::Remaining(inventory.max_energy).into();
                         self.use_reserve_energy(x + amt - inventory.max_energy, inventory, reverse)

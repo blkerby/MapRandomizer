@@ -49,6 +49,9 @@ pub const TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK: TechId = 157;
 pub const TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER: TechId = 158;
 pub const TECH_ID_CAN_RIGHT_SIDE_DASHLESS_DOOR_STUCK: TechId = 220;
 pub const TECH_ID_CAN_ENTER_R_MODE: TechId = 161;
+pub const TECH_ID_CAN_USE_I_FRAMES: TechId = 62;
+pub const TECH_ID_CAN_HORIZONTAL_DAMAGE_BOOST: TechId = 104;
+pub const TECH_ID_CAN_DOOR_TRANSITION_X_MODE: TechId = 245;
 pub const TECH_ID_CAN_ENTER_G_MODE: TechId = 162;
 pub const TECH_ID_CAN_ENTER_G_MODE_IMMOBILE: TechId = 163;
 pub const TECH_ID_CAN_ARTIFICIAL_MORPH: TechId = 164;
@@ -74,6 +77,7 @@ pub const TECH_ID_CAN_SLOPE_SPARK: TechId = 210;
 pub const TECH_ID_CAN_R_MODE_KNOCKBACK_SPARK: TechId = 213;
 pub const TECH_ID_CAN_ELEVATOR_CRYSTAL_FLASH: TechId = 178;
 pub const TECH_ID_CAN_CARRY_FLASH_SUIT: TechId = 207;
+pub const TECH_ID_CAN_COMPLEX_CARRY_FLASH_SUIT: TechId = 208;
 pub const TECH_ID_CAN_TRICKY_CARRY_FLASH_SUIT: TechId = 142;
 pub const TECH_ID_CAN_HYPER_GATE_SHOT: TechId = 10001;
 pub const TECH_ID_CAN_CARRY_BLUE_SUIT: TechId = 215;
@@ -314,6 +318,8 @@ pub enum Requirement {
     Damage {
         unit_energy: Capacity,
         quantity: Numeric,
+        gravity_disabled: bool,
+        can_transfer_reserves: bool,
     },
     MissilesAvailable(Numeric),
     SupersAvailable(Numeric),
@@ -899,9 +905,21 @@ pub enum ExitCondition {
         min_extra_run_speed: Float,
         max_extra_run_speed: Float,
     },
-    LeaveWithGModeSetup {
+    LeaveWithDamage {
+        damage: Capacity,
         knockback: bool,
         heated: bool,
+    },
+    LeaveWithKnockback {},
+    LeaveWithDamageBoost {
+        i_frames_remaining: i32,
+        high: bool,
+    },
+    LeaveWithIFrames {
+        i_frames_remaining: i32,
+    },
+    LeaveWithXModeSetup {
+        damage: Capacity,
     },
     LeaveWithGMode {
         morphed: bool,
@@ -1129,6 +1147,15 @@ pub enum MainEntranceCondition {
         door_orientation: DoorOrientation,
     },
     ComeInWithRMode {},
+    ComeInWithKnockback {},
+    ComeInWithDamageBoost {
+        i_frames_needed: i32,
+        high: bool,
+    },
+    ComeInWithIFrames {
+        i_frames_needed: i32,
+    },
+    ComeInWithXMode {},
     ComeInWithGMode {
         mode: GModeMode,
         morphed: bool,
@@ -2729,6 +2756,8 @@ impl GameData {
                 return Ok(Requirement::Damage {
                     unit_energy: 1,
                     quantity: frames,
+                    gravity_disabled: false,
+                    can_transfer_reserves: true,
                 });
             } else if key == "samusEaterCycles" {
                 let cycles = self
@@ -2737,6 +2766,8 @@ impl GameData {
                 return Ok(Requirement::Damage {
                     unit_energy: 16,
                     quantity: cycles,
+                    gravity_disabled: false,
+                    can_transfer_reserves: true,
                 });
             } else if key == "cycleFrames" {
                 let frames = self
@@ -2755,6 +2786,8 @@ impl GameData {
                 return Ok(Requirement::Damage {
                     unit_energy: 60,
                     quantity: hits,
+                    gravity_disabled: false,
+                    can_transfer_reserves: true,
                 });
             } else if key == "thornHits" {
                 let hits = self
@@ -2763,6 +2796,8 @@ impl GameData {
                 return Ok(Requirement::Damage {
                     unit_energy: 16,
                     quantity: hits,
+                    gravity_disabled: false,
+                    can_transfer_reserves: true,
                 });
             } else if key == "electricityHits" {
                 let hits = self
@@ -2771,6 +2806,8 @@ impl GameData {
                 return Ok(Requirement::Damage {
                     unit_energy: 30,
                     quantity: hits,
+                    gravity_disabled: false,
+                    can_transfer_reserves: true,
                 });
             } else if key == "hibashiHits" {
                 let hits = self
@@ -2779,6 +2816,8 @@ impl GameData {
                 return Ok(Requirement::Damage {
                     unit_energy: 30,
                     quantity: hits,
+                    gravity_disabled: false,
+                    can_transfer_reserves: true,
                 });
             } else if key == "enemyDamage" {
                 let enemy_name = value["enemy"].as_str().unwrap().to_string();
@@ -2795,6 +2834,8 @@ impl GameData {
                 return Ok(Requirement::Damage {
                     unit_energy: base_damage,
                     quantity: hits,
+                    gravity_disabled: false,
+                    can_transfer_reserves: true,
                 });
             } else if key == "enemyKill" {
                 // We only consider enemy kill methods that are non-situational and do not require ammo.
@@ -3569,6 +3610,23 @@ impl GameData {
         })
     }
 
+    fn parse_transition_damage(&self, value: &JsonValue) -> Result<Capacity> {
+        let enemy = value["enemy"]
+            .as_str()
+            .context("Expecting string 'enemy'")?;
+        let attack = if value.has_key("attack") {
+            value["attack"]
+                .as_str()
+                .context("Expecting string 'attack'")?
+        } else {
+            "contact"
+        };
+        self.enemy_attack_damage
+            .get(&(enemy.to_string(), attack.to_string()))
+            .copied()
+            .with_context(|| format!("Missing transition damage for {enemy} - {attack}"))
+    }
+
     fn parse_exit_condition(
         &self,
         exit_json: &JsonValue,
@@ -3576,14 +3634,13 @@ impl GameData {
         strat_json: &JsonValue,
         heated: bool,
         physics: Option<Physics>,
-    ) -> Result<(ExitCondition, Requirement)> {
+    ) -> Result<ExitCondition> {
         ensure!(exit_json.is_object());
         ensure!(exit_json.len() == 1);
         let (key, value) = exit_json.entries().next().unwrap();
         ensure!(value.is_object());
         let from_node_id = strat_json["link"][0].as_usize().unwrap();
         let to_node_id = strat_json["link"][1].as_usize().unwrap();
-        let req = Requirement::Free; // This was used by "leaveShinecharged" before but is currently unused.
         let exit_condition = match key {
             "leaveNormally" => ExitCondition::LeaveNormally {},
             "leaveWithRunway" => {
@@ -3672,9 +3729,29 @@ impl GameData {
                     max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
                 }
             }
-            "leaveWithGModeSetup" => ExitCondition::LeaveWithGModeSetup {
+            "leaveWithDamage" => ExitCondition::LeaveWithDamage {
+                damage: self.parse_transition_damage(value)?,
                 knockback: value["knockback"].as_bool().unwrap_or(true),
                 heated,
+            },
+            "leaveWithKnockback" => ExitCondition::LeaveWithKnockback {},
+            "leaveWithDamageBoost" => ExitCondition::LeaveWithDamageBoost {
+                i_frames_remaining: value["iFramesRemaining"]
+                    .as_i32()
+                    .context("Expecting integer 'iFramesRemaining'")?,
+                high: match value["position"].as_str().unwrap_or("not-high") {
+                    "high" => true,
+                    "not-high" => false,
+                    p => bail!("Unexpected leaveWithDamageBoost position: {p}"),
+                },
+            },
+            "leaveWithIFrames" => ExitCondition::LeaveWithIFrames {
+                i_frames_remaining: value["iFramesRemaining"]
+                    .as_i32()
+                    .context("Expecting integer 'iFramesRemaining'")?,
+            },
+            "leaveWithXModeSetup" => ExitCondition::LeaveWithXModeSetup {
+                damage: self.parse_transition_damage(value)?,
             },
             "leaveWithGMode" => ExitCondition::LeaveWithGMode {
                 morphed: value["morphed"]
@@ -3767,7 +3844,7 @@ impl GameData {
                 bail!(format!("Unrecognized exit condition: {}", key));
             }
         };
-        Ok((exit_condition, req))
+        Ok(exit_condition)
     }
 
     fn parse_entrance_condition(
@@ -3960,6 +4037,23 @@ impl GameData {
                 }
             }
             "comeInWithRMode" => MainEntranceCondition::ComeInWithRMode {},
+            "comeInWithKnockback" => MainEntranceCondition::ComeInWithKnockback {},
+            "comeInWithDamageBoost" => MainEntranceCondition::ComeInWithDamageBoost {
+                i_frames_needed: value["iFramesNeeded"]
+                    .as_i32()
+                    .context("Expecting integer 'iFramesNeeded'")?,
+                high: match value["position"].as_str().unwrap_or("any") {
+                    "high" => true,
+                    "any" => false,
+                    p => bail!("Unexpected comeInWithDamageBoost position: {p}"),
+                },
+            },
+            "comeInWithIFrames" => MainEntranceCondition::ComeInWithIFrames {
+                i_frames_needed: value["iFramesNeeded"]
+                    .as_i32()
+                    .context("Expecting integer 'iFramesNeeded'")?,
+            },
+            "comeInWithXMode" => MainEntranceCondition::ComeInWithXMode {},
             "comeInWithGMode" => {
                 let mode = match value["mode"].as_str().context("Expected string 'mode'")? {
                     "direct" => GModeMode::Direct,
@@ -4157,23 +4251,19 @@ impl GameData {
         };
         let bypasses_door_shell =
             ["yes", "free"].contains(&strat_json["bypassesDoorShell"].as_str().unwrap_or("no"));
-        let (exit_condition, exit_req) = if strat_json.has_key("exitCondition") {
+        let exit_condition = if strat_json.has_key("exitCondition") {
             ensure!(strat_json["exitCondition"].is_object());
-            let (e, r) = self.parse_exit_condition(
+            Some(self.parse_exit_condition(
                 &strat_json["exitCondition"],
                 room_id,
                 strat_json,
                 to_heated,
                 physics,
-            )?;
-            (Some(e), Some(r))
+            )?)
         } else if bypasses_door_shell {
-            (
-                Some(ExitCondition::LeaveNormally {}),
-                Some(Requirement::Free),
-            )
+            Some(ExitCondition::LeaveNormally {})
         } else {
-            (None, None)
+            None
         };
         let gmode_regain_mobility: Option<GModeRegainMobility> =
             if strat_json.has_key("gModeRegainMobility") {
@@ -4247,7 +4337,6 @@ impl GameData {
 
             if let Some(e) = &exit_condition {
                 to_actions.push(VertexAction::Exit(e.clone()));
-                requires_vec.push(exit_req.clone().unwrap());
             } else if ["door", "exit"].contains(&to_node_json["nodeType"].as_str().unwrap())
                 && strat_json.has_key("unlocksDoors")
                 && to_node_json["useImplicitLeaveNormally"].as_bool() != Some(false)

@@ -26,6 +26,74 @@
       "endNodeId": 2
     },
     {
+      "name": "Full Energy (Remaining)",
+      "globalState": {
+        "maxEnergy": 199
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 199}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 79}
+      }
+    },
+    {
+      "name": "Full Energy (Consumed)",
+      "globalState": {
+        "maxEnergy": 199
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"consumed": 0}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"consumed": 120}
+      }
+    },
+    {
+      "name": "Fail: Remaining (Reverse)",
+      "globalState": {
+        "maxEnergy": 199
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 199}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 80}
+      },
+      "forward": "disabled",
+      "fail": true
+    },
+    {
+      "name": "Fail: Consumed (Reverse)",
+      "globalState": {
+        "maxEnergy": 199
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"consumed": 0}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"consumed": 119}
+      },
+      "forward": "disabled",
+      "fail": true
+    },
+    {
       "name": "Varia Only",
       "globalState": {
         "items": ["Varia"]

@@ -15,9 +15,10 @@ use maprando::{
 use maprando_game::{
     GameData, Item, Link, Map, NodeId, NotableId, NotableIdx, RoomId, StartLocation, StratId,
     StratVideo, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_BOMB_HORIZONTALLY,
-    TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE,
-    TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT,
-    TECH_ID_CAN_HEAT_RUN, TECH_ID_CAN_HEATED_G_MODE, TECH_ID_CAN_HORIZONTAL_SHINESPARK,
+    TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_DOOR_TRANSITION_X_MODE, TECH_ID_CAN_ENTER_G_MODE,
+    TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_JUMP,
+    TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HEAT_RUN, TECH_ID_CAN_HEATED_G_MODE,
+    TECH_ID_CAN_HORIZONTAL_DAMAGE_BOOST, TECH_ID_CAN_HORIZONTAL_SHINESPARK,
     TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONFALL,
     TECH_ID_CAN_PRECISE_GRAPPLE, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK,
     TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER, TECH_ID_CAN_SAMUS_EATER_TELEPORT,
@@ -25,7 +26,7 @@ use maprando_game::{
     TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP, TECH_ID_CAN_SKIP_DOOR_LOCK, TECH_ID_CAN_SPEEDBALL,
     TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
     TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_SUPER_SINK, TECH_ID_CAN_TEMPORARY_BLUE,
-    TECH_ID_CAN_WALLJUMP, TechId, VertexKey, parse_speed_booster,
+    TECH_ID_CAN_USE_I_FRAMES, TECH_ID_CAN_WALLJUMP, TechId, VertexKey, parse_speed_booster,
 };
 use maprando_logic::{GlobalState, Inventory};
 use std::{io::Cursor, path::PathBuf};
@@ -323,6 +324,12 @@ fn make_tech_templates<'a>(
                 ("comeInWithStoredFallSpeed", vec![TECH_ID_CAN_MOONFALL]),
                 ("comeInWithGMode", vec![TECH_ID_CAN_ENTER_G_MODE]),
                 ("comeInWithRMode", vec![TECH_ID_CAN_ENTER_R_MODE]),
+                ("comeInWithIFrames", vec![TECH_ID_CAN_USE_I_FRAMES]),
+                (
+                    "comeInWithDamageBoost",
+                    vec![TECH_ID_CAN_HORIZONTAL_DAMAGE_BOOST],
+                ),
+                ("comeInWithXMode", vec![TECH_ID_CAN_DOOR_TRANSITION_X_MODE]),
                 ("comeInWithGrappleSwing", vec![TECH_ID_CAN_PRECISE_GRAPPLE]),
                 ("comeInWithGrappleJump", vec![TECH_ID_CAN_GRAPPLE_JUMP]),
                 (
@@ -421,7 +428,14 @@ fn make_tech_templates<'a>(
                     "leaveWithSpringBallBounce",
                     vec![TECH_ID_CAN_SPRING_BALL_BOUNCE],
                 ),
-                ("leaveWithGModeSetup", vec![TECH_ID_CAN_ENTER_G_MODE]),
+                (
+                    "leaveWithDamageBoost",
+                    vec![TECH_ID_CAN_HORIZONTAL_DAMAGE_BOOST],
+                ),
+                (
+                    "leaveWithXModeSetup",
+                    vec![TECH_ID_CAN_DOOR_TRANSITION_X_MODE],
+                ),
                 ("leaveWithGMode", vec![TECH_ID_CAN_ENTER_G_MODE]),
                 (
                     "leaveWithGrappleTeleport",
@@ -460,11 +474,6 @@ fn make_tech_templates<'a>(
                         );
                     }
                 }
-            }
-            if strat_json["exitCondition"].has_key("leaveWithGModeSetup")
-                && game_data.get_room_heated(room_json, to_node_id).unwrap()
-            {
-                tech_set.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_HEATED_G_MODE]);
             }
 
             for tech_idx in tech_set {

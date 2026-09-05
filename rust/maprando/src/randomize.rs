@@ -28,9 +28,11 @@ use maprando_game::{
     Link, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId, Physics, Requirement,
     ReserveTriggerHeat, RoomGeometryRoomIdx, RoomId, SidePlatformEntrance, SidePlatformEnvironment,
     SparkPosition, StartLocation, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_BLUE_SUIT_G_MODE_SETUP,
-    TECH_ID_CAN_CARRY_BLUE_SUIT, TECH_ID_CAN_CARRY_FLASH_SUIT, TECH_ID_CAN_DISABLE_EQUIPMENT,
-    TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE,
-    TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HEATED_G_MODE,
+    TECH_ID_CAN_CARRY_BLUE_SUIT, TECH_ID_CAN_CARRY_FLASH_SUIT,
+    TECH_ID_CAN_COMPLEX_CARRY_FLASH_SUIT, TECH_ID_CAN_DISABLE_EQUIPMENT,
+    TECH_ID_CAN_DOOR_TRANSITION_X_MODE, TECH_ID_CAN_ENTER_G_MODE,
+    TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_JUMP,
+    TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HEATED_G_MODE, TECH_ID_CAN_HORIZONTAL_DAMAGE_BOOST,
     TECH_ID_CAN_HORIZONTAL_MIDAIR_SHINESPARK, TECH_ID_CAN_HORIZONTAL_SHINESPARK,
     TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONFALL, TECH_ID_CAN_PRECISE_GRAPPLE,
     TECH_ID_CAN_R_MODE_KNOCKBACK_SPARK, TECH_ID_CAN_RIGHT_SIDE_DASHLESS_DOOR_STUCK,
@@ -39,8 +41,8 @@ use maprando_game::{
     TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP, TECH_ID_CAN_SLOPE_SPARK, TECH_ID_CAN_SPEEDBALL,
     TECH_ID_CAN_SPIKE_SUIT, TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
     TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_SUPER_SINK, TECH_ID_CAN_TEMPORARY_BLUE,
-    TECH_ID_CAN_TRICKY_CARRY_FLASH_SUIT, TechId, TemporaryBlueDirection, TraversalId, VertexId,
-    VertexKey,
+    TECH_ID_CAN_TRICKY_CARRY_FLASH_SUIT, TECH_ID_CAN_USE_I_FRAMES, TechId, TemporaryBlueDirection,
+    TraversalId, VertexId, VertexKey,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use rand::SeedableRng;
@@ -1027,6 +1029,19 @@ impl<'a> Preprocessor<'a> {
             ),
             MainEntranceCondition::ComeInWithRMode {} => {
                 self.get_come_in_with_r_mode_reqs(exit_condition)
+            }
+            MainEntranceCondition::ComeInWithKnockback {} => {
+                self.get_come_in_with_knockback_reqs(exit_condition)
+            }
+            MainEntranceCondition::ComeInWithDamageBoost {
+                i_frames_needed,
+                high,
+            } => self.get_come_in_with_damage_boost_reqs(exit_condition, *i_frames_needed, *high),
+            MainEntranceCondition::ComeInWithIFrames { i_frames_needed } => {
+                self.get_come_in_with_i_frames_reqs(exit_condition, *i_frames_needed)
+            }
+            MainEntranceCondition::ComeInWithXMode {} => {
+                self.get_come_in_with_x_mode_reqs(exit_condition)
             }
             MainEntranceCondition::ComeInWithGMode {
                 mode,
@@ -2575,9 +2590,142 @@ impl<'a> Preprocessor<'a> {
         }
     }
 
+    fn get_come_in_with_knockback_reqs(
+        &self,
+        exit_condition: &ExitCondition,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveWithDamage {
+                damage,
+                knockback: true,
+                ..
+            } => Some(Requirement::Damage {
+                unit_energy: *damage,
+                quantity: 1.into(),
+                gravity_disabled: false,
+                can_transfer_reserves: false,
+            }),
+            // The exit strat already accounts for the hit before the transition.
+            ExitCondition::LeaveWithKnockback {} => Some(Requirement::Free),
+            _ => None,
+        }
+    }
+
+    fn get_come_in_with_damage_boost_reqs(
+        &self,
+        exit_condition: &ExitCondition,
+        i_frames_needed: i32,
+        high: bool,
+    ) -> Option<Requirement> {
+        let mut reqs = vec![
+            Requirement::Tech(
+                self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_HORIZONTAL_DAMAGE_BOOST],
+            ),
+            Requirement::NoBlueSuit,
+            Requirement::Or(vec![
+                Requirement::NoFlashSuit,
+                Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_COMPLEX_CARRY_FLASH_SUIT],
+                ),
+            ]),
+        ];
+        match exit_condition {
+            ExitCondition::LeaveWithDamage {
+                damage,
+                knockback: true,
+                ..
+            } => {
+                reqs.push(Requirement::Damage {
+                    unit_energy: *damage,
+                    quantity: 1.into(),
+                    gravity_disabled: false,
+                    can_transfer_reserves: false,
+                });
+            }
+            ExitCondition::LeaveWithKnockback {} => {}
+            ExitCondition::LeaveWithDamageBoost {
+                i_frames_remaining,
+                high: exit_high,
+            } if *i_frames_remaining >= i_frames_needed && (!high || *exit_high) => {}
+            _ => return None,
+        }
+        Some(Requirement::make_and(reqs))
+    }
+
+    fn get_come_in_with_i_frames_reqs(
+        &self,
+        exit_condition: &ExitCondition,
+        i_frames_needed: i32,
+    ) -> Option<Requirement> {
+        let mut reqs = vec![Requirement::Tech(
+            self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_USE_I_FRAMES],
+        )];
+        match exit_condition {
+            ExitCondition::LeaveWithDamage {
+                damage,
+                knockback: true,
+                ..
+            } => {
+                reqs.push(Requirement::Damage {
+                    unit_energy: *damage,
+                    quantity: 1.into(),
+                    gravity_disabled: false,
+                    can_transfer_reserves: false,
+                });
+            }
+            ExitCondition::LeaveWithKnockback {} => {}
+            ExitCondition::LeaveWithDamageBoost {
+                i_frames_remaining, ..
+            } if *i_frames_remaining >= i_frames_needed => {
+                reqs.push(Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_HORIZONTAL_DAMAGE_BOOST],
+                ));
+                reqs.push(Requirement::NoBlueSuit);
+                reqs.push(Requirement::Or(vec![
+                    Requirement::NoFlashSuit,
+                    Requirement::Tech(
+                        self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_COMPLEX_CARRY_FLASH_SUIT],
+                    ),
+                ]));
+            }
+            ExitCondition::LeaveWithIFrames { i_frames_remaining }
+                if *i_frames_remaining >= i_frames_needed => {}
+            _ => return None,
+        }
+        Some(Requirement::make_and(reqs))
+    }
+
+    fn get_come_in_with_x_mode_reqs(&self, exit_condition: &ExitCondition) -> Option<Requirement> {
+        let ExitCondition::LeaveWithXModeSetup { damage } = exit_condition else {
+            return None;
+        };
+        Some(Requirement::make_and(vec![
+            Requirement::Tech(
+                self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_DOOR_TRANSITION_X_MODE],
+            ),
+            Requirement::Item(Item::XRayScope as ItemId),
+            Requirement::NoFlashSuit,
+            Requirement::NoBlueSuit,
+            Requirement::Tech(self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_DISABLE_EQUIPMENT]),
+            Requirement::make_or(vec![
+                Requirement::Damage {
+                    unit_energy: *damage,
+                    quantity: 1.into(),
+                    gravity_disabled: true,
+                    can_transfer_reserves: false,
+                },
+                Requirement::ReserveTrigger {
+                    min_reserve_energy: 1.into(),
+                    max_reserve_energy: 1.into(),
+                    heat: ReserveTriggerHeat::No,
+                },
+            ]),
+        ]))
+    }
+
     fn get_come_in_with_r_mode_reqs(&self, exit_condition: &ExitCondition) -> Option<Requirement> {
         match exit_condition {
-            ExitCondition::LeaveWithGModeSetup { .. } => {
+            ExitCondition::LeaveWithDamage { .. } => {
                 let reqs: Vec<Requirement> = vec![
                     Requirement::Tech(
                         self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_R_MODE],
@@ -2634,7 +2782,9 @@ impl<'a> Preprocessor<'a> {
             .get(&(entrance_room_id, entrance_node_id))
             .unwrap_or(&empty_vec);
         match exit_condition {
-            ExitCondition::LeaveWithGModeSetup { knockback, heated } => {
+            ExitCondition::LeaveWithDamage {
+                knockback, heated, ..
+            } => {
                 if mode == GModeMode::Indirect {
                     return None;
                 }
