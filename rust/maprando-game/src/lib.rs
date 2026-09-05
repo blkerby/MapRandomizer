@@ -939,7 +939,7 @@ pub enum ExitCondition {
     LeaveWithSidePlatform {
         effective_length: Float,
         height: Float,
-        obstruction: (u16, u16),
+        obstruction: (i32, i32),
         environment: SidePlatformEnvironment,
     },
     LeaveWithGrappleSwing {
@@ -1053,7 +1053,7 @@ pub struct SidePlatformEntrance {
     pub speed_booster: Option<bool>,
     pub min_height: Float,
     pub max_height: Float,
-    pub obstructions: Vec<(u16, u16)>,
+    pub obstructions: Vec<(i32, i32)>,
     pub environment: SidePlatformEnvironment,
     pub requirement: Requirement,
 }
@@ -3800,8 +3800,8 @@ impl GameData {
                             .context("Expecting number 'height'")?,
                     ),
                     obstruction: (
-                        value["obstruction"][0].as_u16().unwrap(),
-                        value["obstruction"][1].as_u16().unwrap(),
+                        value["obstruction"][0].as_i32().unwrap(),
+                        value["obstruction"][1].as_i32().unwrap(),
                     ),
                     environment: match physics {
                         Some(Physics::Water) => SidePlatformEnvironment::Water,
@@ -4125,7 +4125,7 @@ impl GameData {
                         speed_booster: parse_speed_booster(p["speedBooster"].as_str()),
                         obstructions: p["obstructions"]
                             .members()
-                            .map(|x| (x[0].as_u16().unwrap(), x[1].as_u16().unwrap()))
+                            .map(|x| (x[0].as_i32().unwrap(), x[1].as_i32().unwrap()))
                             .collect(),
                         environment: match p["environment"].as_str().unwrap_or("any") {
                             "air" => SidePlatformEnvironment::Air,
