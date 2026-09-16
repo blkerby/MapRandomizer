@@ -1290,8 +1290,8 @@ function processStartingItemsPreset() {
     }
 }
 function validateStartingItems() {
-    if (parseInt(document.getElementById("startingItemMissile").value) > 199) {
-        document.getElementById("startingItemMissile").value = "199";
+    if (parseInt(document.getElementById("startingItemMissile").value) > 999) {
+        document.getElementById("startingItemMissile").value = "999";
     }
     if (parseInt(document.getElementById("startingItemETank").value) > 14) {
         document.getElementById("startingItemETank").value = "14";
@@ -1299,11 +1299,11 @@ function validateStartingItems() {
     if (parseInt(document.getElementById("startingItemReserveTank").value) > 4) {
         document.getElementById("startingItemReserveTank").value = "4";
     }
-    if (parseInt(document.getElementById("startingItemSuper").value) > 19) {
-        document.getElementById("startingItemSuper").value = "19";
+    if (parseInt(document.getElementById("startingItemSuper").value) > 99) {
+        document.getElementById("startingItemSuper").value = "99";
     }
-    if (parseInt(document.getElementById("startingItemPowerBomb").value) > 19) {
-        document.getElementById("startingItemPowerBomb").value = "19";
+    if (parseInt(document.getElementById("startingItemPowerBomb").value) > 99) {
+        document.getElementById("startingItemPowerBomb").value = "99";
     }
     if (parseInt(document.getElementById("startingItemMissile").value) < 0) {
         document.getElementById("startingItemMissile").value = "0";
@@ -1402,20 +1402,20 @@ function validatePickupSize() {
 }
 
 function validateItemPool() {
-    if (parseInt(document.getElementById("itemPoolMissile").value) > 999) {
-        document.getElementById("itemPoolMissile").value = "999";
+    if (parseInt(document.getElementById("itemPoolMissile").value) > 1099) {
+        document.getElementById("itemPoolMissile").value = "1099";
     }
-    if (parseInt(document.getElementById("itemPoolETank").value) > 14) {
-        document.getElementById("itemPoolETank").value = "14";
+    if (parseInt(document.getElementById("itemPoolETank").value) > 114) {
+        document.getElementById("itemPoolETank").value = "114";
     }
-    if (parseInt(document.getElementById("itemPoolReserveTank").value) > 4) {
-        document.getElementById("itemPoolReserveTank").value = "4";
+    if (parseInt(document.getElementById("itemPoolReserveTank").value) > 104) {
+        document.getElementById("itemPoolReserveTank").value = "104";
     }
-    if (parseInt(document.getElementById("itemPoolSuper").value) > 99) {
-        document.getElementById("itemPoolSuper").value = "99";
+    if (parseInt(document.getElementById("itemPoolSuper").value) > 199) {
+        document.getElementById("itemPoolSuper").value = "199";
     }
-    if (parseInt(document.getElementById("itemPoolPowerBomb").value) > 99) {
-        document.getElementById("itemPoolPowerBomb").value = "99";
+    if (parseInt(document.getElementById("itemPoolPowerBomb").value) > 199) {
+        document.getElementById("itemPoolPowerBomb").value = "199";
     }
 
     if (parseInt(document.getElementById("itemPoolMissile").value) < 0) {
