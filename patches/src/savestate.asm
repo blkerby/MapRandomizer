@@ -27,6 +27,7 @@ org $80ffd8
 !MUSIC_QUEUE_START = $063B
 !MUSIC_ENTRY = $063D
 !MUSIC_TIMER = $063F
+!MSU_MUSIC_TRACK = $064C
 !MUSIC_DATA = $07F3
 !MUSIC_TRACK = $07F5
 !SOUND_TIMER = $0686
@@ -149,6 +150,8 @@ post_load_state:
     BEQ .skip_bg3
     JSL $85A290
 .skip_bg3
+    ; Clear low health sound flag
+    STZ !SAMUS_HEALTH_WARNING
     RTS
 }
 
@@ -231,12 +234,24 @@ post_load_music:
   .queued_music_set_timer
     STA !MUSIC_QUEUE_TIMERS,X : STA !SOUND_TIMER : STA !MUSIC_TIMER
     BRA .done
+   
+  .load_track
+    BRA .load_track2
 
   .check_track
-    LDA !SRAM_MUSIC_TRACK : CMP !MUSIC_TRACK : BEQ .done
+    LDA !SRAM_MUSIC_TRACK : BNE .check_track2   ; music stopped at time of load?
+    STA !MUSIC_TRACK
+    %ai8() : STA !MSU_MUSIC_TRACK : %ai16()     ; msu1.asm checks this
+    LDA !MUSIC_ENTRY                            ; queued music track
+    BRA .call_music
+    
+  .check_track2
+    CMP !MUSIC_TRACK : BEQ .done
 
-  .load_track
-    LDA !MUSIC_TRACK : JSL !MUSIC_ROUTINE
+  .load_track2
+    LDA !MUSIC_TRACK 
+  .call_music
+    JSL !MUSIC_ROUTINE
 
   .done
     RTS
