@@ -1,6 +1,13 @@
+import argparse
 import pathlib
 import requests
 import json
+
+parser = argparse.ArgumentParser(description="Update tech data and skill presets.")
+parser.add_argument(
+    "--strict", action="store_true", help="Fail if any tech is Uncategorized."
+)
+args = parser.parse_args()
 
 sm_json_path = pathlib.Path("sm-json-data")
 output_path = pathlib.Path("rust/data/tech_data.json")
@@ -33,8 +40,6 @@ tech_data = [tech_data_map[tech_id] for tech_id in tech_id_order]
 
 # Add randomizer-specific tech which isn't in sm-json-data:
 
-json.dump(tech_data, open(output_path, "w"), indent=4)
-
 difficulty_levels = [
     "Implicit",
     "Basic",
@@ -59,7 +64,13 @@ for tech_id in tech_id_order:
     difficulty = tech["difficulty"]
     if difficulty not in tech_id_by_difficulty:
         print("Unrecognized difficulty {} for tech {}".format(difficulty, tech["name"]))
+        continue
     tech_id_by_difficulty[difficulty].append(tech_id)
+
+if args.strict and any(t["difficulty"] == "Uncategorized" for t in tech_data):
+    raise SystemExit("Strict mode: Uncategorized tech must be categorized before updating.")
+
+json.dump(tech_data, open(output_path, "w"), indent=4)
 
 # Update skill-assumption presets:
 for preset_difficulty_idx in range(0, len(difficulty_levels) - 1):  # skip Ignored difficulty

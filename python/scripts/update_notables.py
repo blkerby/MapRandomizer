@@ -1,13 +1,19 @@
+import argparse
 import pathlib
 import requests
 import json
+
+parser = argparse.ArgumentParser(description="Update notable data and skill presets.")
+parser.add_argument(
+    "--strict", action="store_true", help="Fail if any notable is Uncategorized."
+)
+args = parser.parse_args()
 
 output_path = pathlib.Path("rust/data/notable_data.json")
 skill_presets_path = pathlib.Path("rust/data/presets/skill-assumptions")
 videos_url = "https://videos.maprando.com"
 
 notable_data = requests.get(videos_url + "/notables").json()
-json.dump(notable_data, open(output_path, "w"), indent=2)
 
 difficulty_levels = [
     "Implicit",
@@ -35,6 +41,11 @@ for notable in notable_data:
             difficulty, notable["room_id"], notable["notable_id"], notable["room_name"], notable["name"]))
         continue
     notable_id_by_difficulty[difficulty].append((notable["room_id"], notable["notable_id"]))
+
+if args.strict and any(n["difficulty"] == "Uncategorized" for n in notable_data):
+    raise SystemExit("Strict mode: Uncategorized notables must be categorized before updating.")
+
+json.dump(notable_data, open(output_path, "w"), indent=2)
 
 # Update skill-assumption presets:
 for preset_difficulty_idx in range(0, len(difficulty_levels) - 1):  # skip Ignored difficulty

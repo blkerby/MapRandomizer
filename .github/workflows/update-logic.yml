@@ -2,6 +2,11 @@ name: Update logic
 
 on:
   workflow_dispatch:
+    inputs:
+      strict:
+        description: Fail if any tech or notable is Uncategorized
+        type: boolean
+        default: true
 
 permissions:
   contents: write
@@ -27,7 +32,14 @@ jobs:
         run: python -m pip install requests
 
       - name: Update logic
-        run: sh scripts/update_logic.sh
+        env:
+          STRICT: ${{ inputs.strict }}
+        run: |
+          if [ "$STRICT" = "true" ]; then
+            sh scripts/update_logic.sh --strict
+          else
+            sh scripts/update_logic.sh
+          fi
 
       - name: Commit and force push
         id: commit
