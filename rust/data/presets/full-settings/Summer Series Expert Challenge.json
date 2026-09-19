@@ -1195,6 +1195,13 @@
         ],
         "notable_settings": [
             {
+                "room_id": 201,
+                "notable_id": 5,
+                "room_name": "Crab Hole",
+                "notable_name": "Gravity Space Jump Climb",
+                "enabled": true
+            },
+            {
                 "room_id": 222,
                 "notable_id": 1,
                 "room_name": "Shaktool Room",
@@ -1549,6 +1556,13 @@
                 "notable_id": 2,
                 "room_name": "Red Brinstar Fireflea Room",
                 "notable_name": "Damage Boost (Left to Right)",
+                "enabled": true
+            },
+            {
+                "room_id": 67,
+                "notable_id": 7,
+                "room_name": "Red Brinstar Fireflea Room",
+                "notable_name": "Low Energy Spark to Block",
                 "enabled": true
             },
             {
