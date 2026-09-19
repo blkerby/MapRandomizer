@@ -1024,6 +1024,14 @@
     "video_id": 449
   },
   {
+    "room_id": 67,
+    "room_name": "Red Brinstar Fireflea Room",
+    "notable_id": 7,
+    "name": "Low Energy Spark to Block",
+    "difficulty": "Very Hard",
+    "video_id": 10995
+  },
+  {
     "room_id": 66,
     "room_name": "Red Tower",
     "notable_id": 1,
@@ -2166,6 +2174,14 @@
     "name": "Ice Clip",
     "difficulty": "Extreme+",
     "video_id": 64
+  },
+  {
+    "room_id": 201,
+    "room_name": "Crab Hole",
+    "notable_id": 5,
+    "name": "Gravity Space Jump Climb",
+    "difficulty": "Basic",
+    "video_id": 10752
   },
   {
     "room_id": 173,
