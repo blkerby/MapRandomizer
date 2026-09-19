@@ -961,6 +961,14 @@
   },
   {
     "room_id": 29,
+    "strat_id": 106,
+    "video_id": 10993,
+    "created_user": "maddo",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 29,
     "strat_id": 15,
     "video_id": 2649,
     "created_user": "Sam",
@@ -17972,6 +17980,22 @@
     "strat_id": 16,
     "video_id": 5805,
     "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 67,
+    "strat_id": 110,
+    "video_id": 10995,
+    "created_user": "Sinth",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 67,
+    "strat_id": 111,
+    "video_id": 10994,
+    "created_user": "Sinth",
     "note": "",
     "dev_note": ""
   },
