@@ -2266,7 +2266,7 @@ fn apply_requirement_simple(
                 return SimpleResult::Failure;
             }
             if cx.reverse {
-                local.blue_suit = 1;
+                local.blue_suit = local.blue_suit.max(1);
                 SimpleResult::Success
             } else {
                 (local.blue_suit != 0).into()
