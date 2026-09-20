@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+{% include "../common/header.html" %}
+<title>{{ name +}} - Super Metroid Map Rando</title>
+<meta property="og:site_name" content="Map Rando Logic">
+<meta property="og:title" content="{{ name }}">
+<link rel="stylesheet" href="/static/logic_style.css">
+</head>
+<body>
+{% include "../common/navbar.html" %}
+<script>
+document.getElementById("navigation-logic").classList.add("active");
+</script>
+
+<div class="container col-xl-10 col-xxl-8 pt-2 pb-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h3 class="my-2">{{ name }}</h3>
+        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#logicSettingsModal" aria-label="Logic page settings">
+            <i class="bi bi-gear"></i>
+        </button>
+    </div>
+    <style id="dev-note-style">
+        .dev-note { display: none; }
+    </style>
+    {% if note.len() > 0 %}
+        <p>{{ note }}</p>
+    {% endif %}
+    {% if detail_note.len() > 0 %}
+        <p>{{ detail_note }}</p>
+    {% endif %}
+    <p class="mb-0">Requires:</p>
+    <pre class="overflow-auto" style="max-width:1100px">{% let json_segments = requires %}{% include "json.html" %}</pre>
+    {% if dev_note.len() > 0 %}
+        <p class="dev-note">Dev note: {{+ dev_note }}</p>
+    {% endif %}
+</div>
+{% include "../common/save_settings.html" %}
+{% include "logic_settings_modal.html" %}
+<script>
+function devNotesSettingChanged() {
+    let showDevNotes = document.getElementById("showDevNotesYes").checked;
+    document.getElementById("dev-note-style").textContent = showDevNotes ? "" : ".dev-note { display: none }";
+    saveForm(document.getElementById("logicPageSettingsForm"));
+}
+function difficultyFilterBehaviorChanged() {
+    saveForm(document.getElementById("logicPageSettingsForm"));
+}
+loadForm(document.getElementById("logicPageSettingsForm"));
+devNotesSettingChanged();
+</script>
+</body>
+</html>

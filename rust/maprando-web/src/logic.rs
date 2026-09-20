@@ -90,6 +90,19 @@ struct BossCalculatorTemplate<'a> {
     presets_json: String,
 }
 
+#[get("/helper/{name}")]
+async fn logic_helper(info: web::Path<String>, app_data: web::Data<AppData>) -> impl Responder {
+    if let Some(html) = app_data.logic_data.helper_html.get(info.as_str()) {
+        HttpResponse::Ok()
+            .content_type("text/html; charset=utf-8")
+            .body(html.clone())
+    } else {
+        HttpResponse::NotFound()
+            .content_type("text/plain; charset=utf-8")
+            .body("Helper not found")
+    }
+}
+
 #[get("/boss_calculator")]
 async fn logic_boss_calculator(app_data: web::Data<AppData>) -> impl Responder {
     let mut presets = vec![];
@@ -125,6 +138,7 @@ pub fn scope() -> actix_web::Scope {
         .service(logic_strat)
         .service(logic_tech)
         .service(logic_notable)
+        .service(logic_helper)
         .service(logic_boss_calculator)
         .service(logic_vanilla_map)
 }

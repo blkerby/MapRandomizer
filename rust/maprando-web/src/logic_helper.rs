@@ -137,6 +137,17 @@ struct NotableTemplate<'a> {
     video_storage_url: String,
 }
 
+#[derive(Template)]
+#[template(path = "logic/helper.html")]
+struct HelperTemplate {
+    version_info: VersionInfo,
+    name: String,
+    requires: Vec<JsonSegment>,
+    note: String,
+    detail_note: String,
+    dev_note: String,
+}
+
 #[derive(Template, Clone)]
 #[template(path = "logic/strat_page.html")]
 struct StratTemplate<'a> {
@@ -168,6 +179,7 @@ pub struct LogicData {
     pub index_html: String,                                 // Logic index page
     pub room_html: HashMap<RoomId, String>,                 // Map from room ID to rendered HTML.
     pub tech_html: HashMap<TechId, String>,                 // Map from tech ID to rendered HTML.
+    pub helper_html: HashMap<String, String>, // Map from helper name to rendered HTML.
     pub tech_strat_counts: HashMap<TechId, usize>, // Map from tech ID to strat count using that tech.
     pub notable_html: HashMap<(RoomId, NotableId), String>, // Map from room/notable ID to rendered HTML.
     pub notable_strat_counts: HashMap<(RoomId, NotableId), usize>, // Map from tech ID to strat count using that tech.
@@ -218,6 +230,25 @@ struct StratSource<'a> {
     unlocks_doors: Option<&'a RawValue>,
 }
 
+#[derive(Deserialize)]
+struct HelpersSource<'a> {
+    #[serde(rename = "helperCategories", borrow)]
+    categories: Vec<HelperCategorySource<'a>>,
+}
+
+#[derive(Deserialize)]
+struct HelperCategorySource<'a> {
+    #[serde(borrow)]
+    helpers: Vec<HelperSource<'a>>,
+}
+
+#[derive(Deserialize)]
+struct HelperSource<'a> {
+    name: String,
+    #[serde(borrow)]
+    requires: &'a RawValue,
+}
+
 // Keep original formatting: only remove the outer brackets/braces and shared indent.
 fn format_json_contents(source: &str) -> String {
     // Remove outer brackets/braces:
@@ -249,11 +280,11 @@ fn format_json_contents(source: &str) -> String {
         .collect()
 }
 
-// Traverse a JSON value, collecting hyperlinks to referenced tech and notables.
+// Traverse a JSON value, collecting hyperlinks to referenced tech, helpers, and notables.
 fn collect_json_links<'a>(
     value: &'a RawValue,
     field: &str,
-    room_id: RoomId,
+    room_id: Option<RoomId>,
     game_data: &GameData,
     links: &mut Vec<JsonLink<'a>>,
 ) -> Result<()> {
@@ -274,14 +305,20 @@ fn collect_json_links<'a>(
         b'"' => {
             let name: String = serde_json::from_str(text)?;
             let href = match field {
-                "notable" => game_data
-                    .notable_id_by_name
-                    .get(&(room_id, name))
-                    .map(|id| format!("/logic/notable/{room_id}/{id}")),
+                "notable" => room_id.and_then(|room_id| {
+                    game_data
+                        .notable_id_by_name
+                        .get(&(room_id, name))
+                        .map(|id| format!("/logic/notable/{room_id}/{id}"))
+                }),
                 "requires" | "and" | "or" | "tech" => game_data
                     .tech_id_by_name
                     .get(&name)
-                    .map(|id| format!("/logic/tech/{id}")),
+                    .map(|id| format!("/logic/tech/{id}"))
+                    .or_else(|| {
+                        (field != "tech" && game_data.helper_json_map.contains_key(&name))
+                            .then(|| format!("/logic/helper/{}", urlencoding::encode(&name)))
+                    }),
                 _ => None,
             };
             if let Some(href) = href {
@@ -296,7 +333,11 @@ fn collect_json_links<'a>(
     Ok(())
 }
 
-fn render_json(source: &str, room_id: RoomId, game_data: &GameData) -> Result<Vec<JsonSegment>> {
+fn render_json(
+    source: &str,
+    room_id: Option<RoomId>,
+    game_data: &GameData,
+) -> Result<Vec<JsonSegment>> {
     // Retain the outer delimiters ("[", "]", "{", "}") for parsing,
     // though we omit them from the displayed text.
     let text = format!(
@@ -843,7 +884,7 @@ fn make_room_template<'a>(
 ) -> Result<RoomTemplate<'a>> {
     let mut room_strats: Vec<RoomStrat> = vec![];
     let room_id = room_json["id"].as_usize().unwrap();
-    let format_json = |value: &RawValue| render_json(value.get(), room_id, game_data);
+    let format_json = |value: &RawValue| render_json(value.get(), Some(room_id), game_data);
     let room_name = room_json["name"].as_str().unwrap().to_string();
     let mut node_name_map: HashMap<usize, String> = HashMap::new();
     let mut nodes: Vec<(usize, String)> = vec![];
@@ -1204,6 +1245,25 @@ impl LogicData {
         vanilla_map: &Map,
     ) -> Result<LogicData> {
         let mut out = LogicData::default();
+        let helpers: HelpersSource = serde_json::from_str(&game_data.helpers_json_source)
+            .context("Extracting original helper JSON")?;
+        for source in helpers
+            .categories
+            .into_iter()
+            .flat_map(|category| category.helpers)
+        {
+            let helper = &game_data.helper_json_map[&source.name];
+            let template = HelperTemplate {
+                version_info: version_info.clone(),
+                name: source.name.clone(),
+                requires: render_json(source.requires.get(), None, game_data)
+                    .with_context(|| format!("Rendering helper {}", source.name))?,
+                note: game_data.parse_note(&helper["note"]).join(" "),
+                detail_note: game_data.parse_note(&helper["detailNote"]).join(" "),
+                dev_note: game_data.parse_note(&helper["devNote"]).join(" "),
+            };
+            out.helper_html.insert(source.name, template.render()?);
+        }
         let vanilla_map_data =
             get_vanilla_map_data(vanilla_map, game_data, &preset_data.default_preset)?;
         out.vanilla_map_png = vanilla_map_data.png;

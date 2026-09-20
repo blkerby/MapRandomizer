@@ -1597,6 +1597,8 @@ pub struct GameData {
     pub tech_id_by_name: HashMap<String, TechId>,
     pub notable_id_by_name: HashMap<(RoomId, String), NotableId>,
     pub helper_json_map: HashMap<String, JsonValue>,
+    // Original helper definitions for formatted logic-page display.
+    pub helpers_json_source: String,
     pub helper_category_map: HashMap<String, String>,
     pub tech_requirement: HashMap<(TechId, bool), Option<Requirement>>,
     pub helpers: HashMap<String, Option<Requirement>>,
@@ -2063,7 +2065,11 @@ impl GameData {
     }
 
     fn load_helpers(&mut self) -> Result<()> {
-        let helpers_json = read_json(&self.sm_json_data_path.join("helpers.json"))?;
+        let path = self.sm_json_data_path.join("helpers.json");
+        self.helpers_json_source = std::fs::read_to_string(&path)
+            .with_context(|| format!("unable to read {}", path.display()))?;
+        let helpers_json = json::parse(&self.helpers_json_source)
+            .with_context(|| format!("unable to parse {}", path.display()))?;
         ensure!(helpers_json["helperCategories"].is_array());
 
         for (category_idx, category_json) in helpers_json["helperCategories"].members().enumerate()
