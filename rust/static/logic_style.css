@@ -29,3 +29,12 @@ html[data-bs-theme=light] .table {
 .video-selector .video-attribution {
     display: none;
 }
+.json-link {
+    color: inherit;
+    font: inherit;
+    text-decoration: none;
+}
+.json-link:hover {
+    color: inherit;
+    text-decoration: underline;
+}

@@ -42,6 +42,19 @@ struct EnemyDrop {
 }
 
 #[derive(Clone)]
+struct JsonSegment {
+    text: String,
+    href: Option<String>,
+}
+
+struct JsonLink<'a> {
+    // Original string contents (e.g. tech or notable name), without quotes,
+    // borrowed from the buffer being rendered.
+    label: &'a str,
+    href: String,
+}
+
+#[derive(Clone)]
 struct RoomStrat {
     room_id: usize,
     room_name: String,
@@ -56,14 +69,14 @@ struct RoomStrat {
     note: String,
     detail_note: String,
     dev_note: String,
-    entrance_condition: Option<String>,
-    requires: String,
-    exit_condition: Option<String>,
+    entrance_condition: Option<Vec<JsonSegment>>,
+    requires: Vec<JsonSegment>,
+    exit_condition: Option<Vec<JsonSegment>>,
     clears_obstacles: Vec<String>,
     resets_obstacles: Vec<String>,
     collects_items: Vec<String>,
     sets_flags: Vec<String>,
-    unlocks_doors: Option<String>,
+    unlocks_doors: Option<Vec<JsonSegment>>,
     farm_cycle_drops: Vec<EnemyDrop>,
     difficulty_idx: usize,
     difficulty_name: String,
@@ -84,7 +97,6 @@ struct RoomTemplate<'a> {
     nodes: Vec<(usize, String)>,
     strats: Vec<RoomStrat>,
     strat_videos: &'a HashMap<(RoomId, StratId), Vec<StratVideo>>,
-    room_json: String,
     video_storage_url: String,
 }
 
@@ -235,6 +247,95 @@ fn format_json_contents(source: &str) -> String {
     text.split_inclusive('\n')
         .map(|line| &line[indent..])
         .collect()
+}
+
+// Traverse a JSON value, collecting hyperlinks to referenced tech and notables.
+fn collect_json_links<'a>(
+    value: &'a RawValue,
+    field: &str,
+    room_id: RoomId,
+    game_data: &GameData,
+    links: &mut Vec<JsonLink<'a>>,
+) -> Result<()> {
+    let text = value.get();
+    match text.as_bytes()[0] {
+        b'{' => {
+            let fields: HashMap<String, &RawValue> = serde_json::from_str(text)?;
+            for (key, child) in fields {
+                collect_json_links(child, &key, room_id, game_data, links)?;
+            }
+        }
+        b'[' => {
+            let children: Vec<&RawValue> = serde_json::from_str(text)?;
+            for child in children {
+                collect_json_links(child, field, room_id, game_data, links)?;
+            }
+        }
+        b'"' => {
+            let name: String = serde_json::from_str(text)?;
+            let href = match field {
+                "notable" => game_data
+                    .notable_id_by_name
+                    .get(&(room_id, name))
+                    .map(|id| format!("/logic/notable/{room_id}/{id}")),
+                "requires" | "and" | "or" | "tech" => game_data
+                    .tech_id_by_name
+                    .get(&name)
+                    .map(|id| format!("/logic/tech/{id}")),
+                _ => None,
+            };
+            if let Some(href) = href {
+                links.push(JsonLink {
+                    label: &text[1..text.len() - 1],
+                    href,
+                });
+            }
+        }
+        _ => {}
+    }
+    Ok(())
+}
+
+fn render_json(source: &str, room_id: RoomId, game_data: &GameData) -> Result<Vec<JsonSegment>> {
+    // Retain the outer delimiters ("[", "]", "{", "}") for parsing,
+    // though we omit them from the displayed text.
+    let text = format!(
+        "{}{}{}",
+        &source[..1],
+        format_json_contents(source),
+        &source[source.len() - 1..]
+    );
+    let value: &RawValue = serde_json::from_str(&text)?;
+    let mut links = vec![];
+    collect_json_links(value, "requires", room_id, game_data, &mut links)?;
+    // Sort links by their position in the text, since the traversal could have processed them out of order.
+    links.sort_unstable_by_key(|link| link.label.as_ptr() as usize);
+
+    // For each link, output a segment for the plain text leading up to it,
+    // then a segment for the link itself.
+    let mut segments = vec![];
+    let mut plain_start = 1;
+    let display_end = text.len() - 1;
+    for link in links {
+        let start = link.label.as_ptr() as usize - text.as_ptr() as usize;
+        segments.push(JsonSegment {
+            text: text[plain_start..start].to_owned(),
+            href: None,
+        });
+        segments.push(JsonSegment {
+            text: link.label.to_owned(),
+            href: Some(link.href),
+        });
+        plain_start = start + link.label.len();
+    }
+    // Final segment after the last link:
+    if plain_start < display_end {
+        segments.push(JsonSegment {
+            text: text[plain_start..display_end].to_owned(),
+            href: None,
+        });
+    }
+    Ok(segments)
 }
 
 fn extract_tech_rec(req: &JsonValue, tech: &mut HashSet<usize>, game_data: &GameData) {
@@ -731,7 +832,6 @@ fn get_strat_difficulty(
 
 fn make_room_template<'a>(
     room_json: &JsonValue,
-    room_source: &str,
     strat_sources: &HashMap<StratId, StratSource<'_>>,
     room_diagram_listing: &HashMap<usize, String>,
     game_data: &'a GameData,
@@ -740,9 +840,10 @@ fn make_room_template<'a>(
     links_by_ids: &HashMap<(RoomId, NodeId, NodeId, String), Vec<Link>>,
     video_storage_url: &str,
     version_info: &VersionInfo,
-) -> RoomTemplate<'a> {
+) -> Result<RoomTemplate<'a>> {
     let mut room_strats: Vec<RoomStrat> = vec![];
     let room_id = room_json["id"].as_usize().unwrap();
+    let format_json = |value: &RawValue| render_json(value.get(), room_id, game_data);
     let room_name = room_json["name"].as_str().unwrap().to_string();
     let mut node_name_map: HashMap<usize, String> = HashMap::new();
     let mut nodes: Vec<(usize, String)> = vec![];
@@ -810,11 +911,9 @@ fn make_room_template<'a>(
         } else {
             vec![]
         };
-        let entrance_condition = source
-            .entrance_condition
-            .map(|v| format_json_contents(v.get()));
-        let exit_condition = source.exit_condition.map(|v| format_json_contents(v.get()));
-        let unlocks_doors = source.unlocks_doors.map(|v| format_json_contents(v.get()));
+        let entrance_condition = source.entrance_condition.map(format_json).transpose()?;
+        let exit_condition = source.exit_condition.map(format_json).transpose()?;
+        let unlocks_doors = source.unlocks_doors.map(format_json).transpose()?;
 
         let farm_cycle_drops: Vec<EnemyDrop> = if strat_json.has_key("farmCycleDrops") {
             let mut drops: Vec<EnemyDrop> = vec![];
@@ -845,7 +944,7 @@ fn make_room_template<'a>(
             detail_note: game_data.parse_note(&strat_json["detailNote"]).join(" "),
             dev_note: game_data.parse_note(&strat_json["devNote"]).join(" "),
             entrance_condition,
-            requires: format_json_contents(source.requires.get()),
+            requires: format_json(source.requires)?,
             unlocks_doors,
             exit_condition,
             clears_obstacles,
@@ -872,7 +971,7 @@ fn make_room_template<'a>(
             .unwrap()
             .to_string()
     });
-    RoomTemplate {
+    Ok(RoomTemplate {
         version_info: version_info.clone(),
         preset_data,
         room_id,
@@ -885,9 +984,8 @@ fn make_room_template<'a>(
         nodes,
         strats: room_strats,
         strat_videos: &game_data.strat_videos,
-        room_json: room_source.to_owned(),
         video_storage_url: video_storage_url.to_string(),
-    }
+    })
 }
 
 fn make_strat_template<'a>(
@@ -1176,7 +1274,6 @@ impl LogicData {
                 .collect();
             let template = make_room_template(
                 &room_json,
-                source,
                 &strat_sources,
                 &room_diagram_listing,
                 game_data,
@@ -1185,7 +1282,8 @@ impl LogicData {
                 &links_by_ids,
                 video_storage_url,
                 version_info,
-            );
+            )
+            .with_context(|| format!("Rendering original JSON for room {room_id}"))?;
             let html = template.clone().render().unwrap();
             out.room_html.insert(room_id, html);
             room_templates.push(template.clone());

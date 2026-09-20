@@ -101,15 +101,15 @@
 
 {% if let Some(entrance_condition) = strat.entrance_condition %}
     <p class="mb-0">Entrance condition:</p>
-    <pre class="overflow-auto" style="max-width:1100px">{{+ entrance_condition }}</pre>
+    <pre class="overflow-auto" style="max-width:1100px">{% let json_segments = entrance_condition %}{% include "json.html" %}</pre>
 {% endif %}
 {% if strat.requires.len() > 0 %}
     <p class="mb-0">Requires:</p>
-    <pre class="overflow-auto" style="max-width:1100px">{{+ strat.requires }}</pre>
+    <pre class="overflow-auto" style="max-width:1100px">{% let json_segments = strat.requires %}{% include "json.html" %}</pre>
 {% endif %}
 {% if let Some(exit_condition) = strat.exit_condition %}
     <p class="mb-0">Exit condition:</p>
-    <pre class="overflow-auto" style="max-width:1100px">{{+ exit_condition }}</pre>
+    <pre class="overflow-auto" style="max-width:1100px">{% let json_segments = exit_condition %}{% include "json.html" %}</pre>
 {% endif %}
 {% if strat.clears_obstacles.len() > 0 %}
     <p>Clears obstacles: {{+ strat.clears_obstacles.join(", ") }}</p>
@@ -128,7 +128,7 @@
 {% endif %}
 {% if strat.unlocks_doors.as_ref().is_some() %}
     <p class="mb-0">Unlocks doors:</p>
-    <pre class="overflow-auto" style="max-width:1100px">{{+ strat.unlocks_doors.as_ref().unwrap() }}</pre>
+    <pre class="overflow-auto" style="max-width:1100px">{% let json_segments = strat.unlocks_doors.as_ref().unwrap() %}{% include "json.html" %}</pre>
 {% endif %}
 {% if strat.farm_cycle_drops.len() > 0 %}
     <p class="mb-0">Farm cycle drops:

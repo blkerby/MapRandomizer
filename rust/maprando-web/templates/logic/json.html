@@ -1,0 +1,7 @@
+{% for segment in json_segments %}
+    {% if let Some(href) = segment.href %}
+        <a class="json-link" href="{{ href }}">{{ segment.text }}</a>
+    {% else %}
+        {{ segment.text }}
+    {% endif %}
+{% endfor %}
