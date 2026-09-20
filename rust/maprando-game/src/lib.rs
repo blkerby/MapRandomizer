@@ -1604,6 +1604,10 @@ pub struct GameData {
     pub numeric_json: Vec<JsonValue>,
     pub numeric_values: Vec<Numeric>,
     pub room_json_map: HashMap<RoomId, JsonValue>,
+    // Original file contents for logic-page display, before preprocessing.
+    // TODO: we should probably remove this from the logic page, and instead just
+    // link to the room JSON file on GitHub.
+    pub room_json_source: HashMap<RoomId, String>,
     pub room_obstacle_idx_map: HashMap<RoomId, HashMap<String, usize>>,
     pub room_full_area: HashMap<RoomId, String>,
     pub node_json_map: HashMap<(RoomId, NodeId), JsonValue>,
@@ -3148,8 +3152,13 @@ impl GameData {
                     continue;
                 }
 
-                let room_json = read_json(&path)?;
-                room_json_map.insert(room_json["id"].as_usize().unwrap(), room_json);
+                let source = std::fs::read_to_string(&path)
+                    .with_context(|| format!("unable to read {}", path.display()))?;
+                let room_json = json::parse(&source)
+                    .with_context(|| format!("unable to parse {}", path.display()))?;
+                let room_id = room_json["id"].as_usize().unwrap();
+                self.room_json_source.insert(room_id, source);
+                room_json_map.insert(room_id, room_json);
             } else {
                 bail!("Error processing region path: {}", entry.err().unwrap());
             }

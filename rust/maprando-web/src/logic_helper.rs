@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use askama::Template;
 use glob::glob;
 use hashbrown::{HashMap, HashSet};
@@ -29,6 +29,8 @@ use maprando_game::{
     TECH_ID_CAN_USE_I_FRAMES, TECH_ID_CAN_WALLJUMP, TechId, VertexKey, parse_speed_booster,
 };
 use maprando_logic::{GlobalState, Inventory};
+use serde_derive::Deserialize;
+use serde_json::value::RawValue;
 use std::{io::Cursor, path::PathBuf};
 
 use super::VersionInfo;
@@ -55,7 +57,7 @@ struct RoomStrat {
     detail_note: String,
     dev_note: String,
     entrance_condition: Option<String>,
-    requires: String, // new-line separated requirements
+    requires: String,
     exit_condition: Option<String>,
     clears_obstacles: Vec<String>,
     resets_obstacles: Vec<String>,
@@ -187,12 +189,52 @@ fn list_room_diagram_files() -> HashMap<usize, String> {
     out
 }
 
-fn make_requires(requires_json: &JsonValue) -> String {
-    let mut out: Vec<String> = vec![];
-    for req in requires_json.members() {
-        out.push(req.pretty(2));
+#[derive(Deserialize)]
+struct RoomSource<'a> {
+    #[serde(borrow)]
+    strats: Vec<StratSource<'a>>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct StratSource<'a> {
+    id: Option<StratId>,
+    #[serde(borrow)]
+    requires: &'a RawValue,
+    entrance_condition: Option<&'a RawValue>,
+    exit_condition: Option<&'a RawValue>,
+    unlocks_doors: Option<&'a RawValue>,
+}
+
+// Keep original formatting: only remove the outer brackets/braces and shared indent.
+fn format_json_contents(source: &str) -> String {
+    // Remove outer brackets/braces:
+    let mut text = &source[1..source.len() - 1];
+
+    // Remove newline at beginning and end (handling UNIX-style and Windows-style newlines)
+    if let Some((first, rest)) = text.split_once('\n')
+        && first.trim().is_empty()
+    {
+        text = rest;
     }
-    out.join("\n")
+    if let Some((rest, last)) = text.rsplit_once('\n')
+        && last.trim().is_empty()
+    {
+        text = rest.strip_suffix('\r').unwrap_or(rest);
+    }
+
+    // Count the amount of leading spaces common to all lines:
+    let indent = text
+        .split_inclusive('\n')
+        .filter(|line| !line.trim().is_empty())
+        .map(|line| line.bytes().take_while(|b| matches!(b, b' ')).count())
+        .min()
+        .unwrap_or(0);
+
+    // Remove the leading spaces:
+    text.split_inclusive('\n')
+        .map(|line| &line[indent..])
+        .collect()
 }
 
 fn extract_tech_rec(req: &JsonValue, tech: &mut HashSet<usize>, game_data: &GameData) {
@@ -689,6 +731,8 @@ fn get_strat_difficulty(
 
 fn make_room_template<'a>(
     room_json: &JsonValue,
+    room_source: &str,
+    strat_sources: &HashMap<StratId, StratSource<'_>>,
     room_diagram_listing: &HashMap<usize, String>,
     game_data: &'a GameData,
     preset_data: &'a PresetData,
@@ -715,6 +759,7 @@ fn make_room_template<'a>(
             continue;
         }
         let strat_id = strat_json["id"].as_usize().unwrap();
+        let source = &strat_sources[&strat_id];
         let from_node_id = strat_json["link"][0].as_usize().unwrap();
         let to_node_id = strat_json["link"][1].as_usize().unwrap();
         let strat_name = strat_json["name"].as_str().unwrap().to_string();
@@ -765,31 +810,11 @@ fn make_room_template<'a>(
         } else {
             vec![]
         };
-        let entrance_condition: Option<String> = if strat_json.has_key("entranceCondition") {
-            Some(strat_json["entranceCondition"].pretty(2))
-        } else {
-            None
-        };
-        let exit_condition: Option<String> = if strat_json.has_key("exitCondition") {
-            Some(strat_json["exitCondition"].pretty(2))
-        } else {
-            None
-        };
-
-        let unlocks_doors: Option<String> = if strat_json.has_key("unlocksDoors") {
-            let mut unlocks_strs: Vec<String> = vec![];
-            for unlock_json in strat_json["unlocksDoors"].members() {
-                let raw_str = unlock_json.dump();
-                if raw_str.len() < 120 {
-                    unlocks_strs.push(raw_str);
-                } else {
-                    unlocks_strs.push(unlock_json.pretty(2));
-                }
-            }
-            Some(unlocks_strs.join("\n"))
-        } else {
-            None
-        };
+        let entrance_condition = source
+            .entrance_condition
+            .map(|v| format_json_contents(v.get()));
+        let exit_condition = source.exit_condition.map(|v| format_json_contents(v.get()));
+        let unlocks_doors = source.unlocks_doors.map(|v| format_json_contents(v.get()));
 
         let farm_cycle_drops: Vec<EnemyDrop> = if strat_json.has_key("farmCycleDrops") {
             let mut drops: Vec<EnemyDrop> = vec![];
@@ -820,7 +845,7 @@ fn make_room_template<'a>(
             detail_note: game_data.parse_note(&strat_json["detailNote"]).join(" "),
             dev_note: game_data.parse_note(&strat_json["devNote"]).join(" "),
             entrance_condition,
-            requires: make_requires(&strat_json["requires"]),
+            requires: format_json_contents(source.requires.get()),
             unlocks_doors,
             exit_condition,
             clears_obstacles,
@@ -860,7 +885,7 @@ fn make_room_template<'a>(
         nodes,
         strats: room_strats,
         strat_videos: &game_data.strat_videos,
-        room_json: room_json.pretty(2),
+        room_json: room_source.to_owned(),
         video_storage_url: video_storage_url.to_string(),
     }
 }
@@ -1139,10 +1164,20 @@ impl LogicData {
                 .push(link.clone());
         }
 
-        for (_, room_json) in game_data.room_json_map.iter() {
-            let room_id = room_json["id"].as_usize().unwrap();
+        for (&room_id, source) in &game_data.room_json_source {
+            let room_json = json::parse(source)
+                .with_context(|| format!("Parsing original JSON for room {room_id}"))?;
+            let raw_room: RoomSource = serde_json::from_str(source)
+                .with_context(|| format!("Extracting original JSON for room {room_id}"))?;
+            let strat_sources = raw_room
+                .strats
+                .into_iter()
+                .filter_map(|strat| strat.id.map(|id| (id, strat)))
+                .collect();
             let template = make_room_template(
-                room_json,
+                &room_json,
+                source,
+                &strat_sources,
                 &room_diagram_listing,
                 game_data,
                 preset_data,
