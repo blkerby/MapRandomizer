@@ -719,18 +719,16 @@
         "name": "Cathedral Right",
         "room_id": 91,
         "node_id": 2,
-        "x": 41.5,
-        "y": 16,
-        "camera_offset_y": 4,
+        "x": 37.5,
+        "y": 9,
         "spicy": true,
         "requires": [
-            "canHeatRun",
             {"enemyDamage": {
                 "enemy": "Sova",
                 "type": "contact",
                 "hits": 1
             }},
-            {"heatFrames": 120}
+            {"heatFrames": 125}
         ]
     },
     {
