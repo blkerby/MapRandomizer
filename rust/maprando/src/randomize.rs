@@ -4763,13 +4763,12 @@ impl<'r> Randomizer<'r> {
                 };
                 return Ok((selection, new_state));
             }
-            traverser_pair.forward.pop_step();
-            traverser_pair.reverse.pop_step();
-
             attempt_num += 1;
             if let Some(new_selected_key_items) =
                 self.select_key_items(&new_state_filler, num_key_items_to_select, attempt_num)
             {
+                traverser_pair.forward.pop_step();
+                traverser_pair.reverse.pop_step();
                 selected_key_items = new_selected_key_items;
             } else {
                 if self.settings.item_progression_settings.progression_rate == ProgressionRate::Slow
@@ -4787,6 +4786,8 @@ impl<'r> Randomizer<'r> {
                     .item_progression_settings
                     .stop_item_placement_early
                 {
+                    traverser_pair.forward.pop_step();
+                    traverser_pair.reverse.pop_step();
                     selected_key_items.fill(Item::Nothing);
                     new_state = new_state_filler;
                     self.collect_items(
