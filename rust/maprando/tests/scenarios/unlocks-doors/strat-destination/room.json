@@ -1,0 +1,57 @@
+{
+  "$schema": "../../../../../../sm-json-data/schema/m3-room.schema.json",
+  "roomEnvironments": [{"heated": false}],
+  "id": 0,
+  "roomAddress": "0x0000",
+  "name": "Test Room",
+  "area": "Test Area",
+  "subarea": "Test Subarea",
+  "mapTileMask": [[1]],
+  "devNote": "Room layout inspired by Fish Tank (with a weird unlocksDoor that was there by mistake but also surfaced a randomizer bug)",
+  "nodes": [
+    {
+      "id": 1,
+      "name": "Bottom Door",
+      "nodeType": "door",
+      "nodeSubType": "blue",
+      "doorEnvironments": [{"physics": "air"}],
+      "mapTileMask": [[1]],
+      "useImplicitDoorUnlocks": false
+    },
+    {
+      "id": 2,
+      "name": "Ledge",
+      "nodeType": "junction",
+      "nodeSubType": "junction",
+      "mapTileMask": [[1]]
+    },
+    {
+      "id": 3,
+      "name": "Alternate Approach",
+      "nodeType": "junction",
+      "nodeSubType": "junction",
+      "mapTileMask": [[1]]
+    }
+  ],
+  "strats": [
+    {
+      "link": [1, 2],
+      "name": "Climb from Door to Ledge",
+      "requires": [],
+      "unlocksDoors": [{"nodeId": 1, "types": ["ammo"], "requires": []}],
+      "flashSuitChecked": true,
+      "blueSuitChecked": true,
+      "note": [
+        "This unlocks the door along the way.",
+        "Reaching the ledge through a different strat must not grant this unlock."
+      ]
+    },
+    {
+      "link": [3, 2],
+      "name": "Reach Ledge from Other Side",
+      "requires": [],
+      "flashSuitChecked": true,
+      "blueSuitChecked": true
+    }
+  ]
+}

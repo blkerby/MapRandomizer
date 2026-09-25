@@ -1,0 +1,47 @@
+{
+  "$schema": "../../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Fail: Reaching Ledge from Other Side Does Not Unlock Bottom Door",
+      "lockedDoors": [{"roomId": 0, "nodeId": 1, "type": "red"}],
+      "globalState": {"maxSupers": 1},
+      "startRoomId": 0,
+      "startNodeId": 3,
+      "startState": {"supers": {"remaining": 1}},
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endDoorUnlockNodeId": 1,
+      "fail": true
+    },
+    {
+      "name": "Climbing from Bottom Door Unlocks It",
+      "lockedDoors": [{"roomId": 0, "nodeId": 1, "type": "red"}],
+      "globalState": {"maxSupers": 1},
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {"supers": {"remaining": 1}},
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endDoorUnlockNodeId": 1
+    },
+    {
+      "name": "Fail: Unlocking Bottom Door Requires Ammo",
+      "lockedDoors": [{"roomId": 0, "nodeId": 1, "type": "red"}],
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endDoorUnlockNodeId": 1,
+      "fail": true
+    },
+    {
+      "name": "Climbing to Ledge Can Skip Unlocking Bottom Door",
+      "lockedDoors": [{"roomId": 0, "nodeId": 1, "type": "red"}],
+      "globalState": {"items": ["HiJump"]},
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    }
+  ]
+}

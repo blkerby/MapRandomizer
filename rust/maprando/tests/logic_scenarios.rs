@@ -1,6 +1,6 @@
 use std::{env, path::Path};
 
-use anyhow::{Context, Result, bail};
+use anyhow::{Context, Result, bail, ensure};
 use hashbrown::HashMap;
 use maprando::{
     randomize::{DifficultyConfig, LockedDoor, Preprocessor, make_locked_door_data},
@@ -14,7 +14,7 @@ use maprando::{
 };
 use maprando_game::{
     BeamType, Capacity, DoorPtrPair, DoorType, GameData, LinksDataGroup, NodeId, NotableId,
-    ObstacleMask, RoomId, VertexId, VertexKey,
+    ObstacleMask, RoomId, VertexAction, VertexId, VertexKey,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState, ResourceLevel};
 use serde::Deserialize;
@@ -55,6 +55,7 @@ struct Scenario {
     start_state: Option<ScenarioState>,
     end_room_id: usize,
     end_node_id: usize,
+    end_door_unlock_node_id: Option<NodeId>,
     #[serde(default)]
     end_obstacles_cleared: Vec<String>,
     end_state: Option<ScenarioState>,
@@ -686,11 +687,35 @@ fn test_scenario(
         )?,
         actions: vec![],
     };
-    let end_vertex_id = *game_data
-        .vertex_isv
-        .index_by_key
-        .get(&end_vertex_key)
-        .context("End vertex not found")?;
+    let end_vertex_id = if let Some(door_node_id) = scenario.end_door_unlock_node_id {
+        let vertex_ids: Vec<VertexId> = game_data
+            .vertex_isv
+            .keys
+            .iter()
+            .enumerate()
+            .filter(|(_, key)| {
+                key.room_id == end_vertex_key.room_id
+                    && key.node_id == end_vertex_key.node_id
+                    && key.obstacle_mask == end_vertex_key.obstacle_mask
+                    && key.actions.iter().any(|action| {
+                        matches!(action, VertexAction::DoorUnlock(node_id, _) if *node_id == door_node_id)
+                    })
+            })
+            .map(|(vertex_id, _)| vertex_id)
+            .collect();
+        ensure!(
+            vertex_ids.len() == 1,
+            "Expected one end door unlock vertex, found {}",
+            vertex_ids.len()
+        );
+        vertex_ids[0]
+    } else {
+        *game_data
+            .vertex_isv
+            .index_by_key
+            .get(&end_vertex_key)
+            .context("End vertex not found")?
+    };
 
     let num_vertices = game_data.vertex_isv.keys.len();
     let inventory = &global_state.inventory;

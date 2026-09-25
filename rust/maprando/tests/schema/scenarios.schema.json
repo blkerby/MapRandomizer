@@ -164,6 +164,10 @@
           "endNodeId": {
             "type": "integer"
           },
+          "endDoorUnlockNodeId": {
+            "type": "integer",
+            "description": "Target the action unlocking this door in endRoomId at endNodeId and endObstaclesCleared, instead of the plain end vertex. The matching unlock vertex must be unique."
+          },
           "endObstaclesCleared": {
             "type": "array",
             "items": [{"type": "string"}]

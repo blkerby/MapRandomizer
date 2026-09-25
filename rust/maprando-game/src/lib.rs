@@ -1363,6 +1363,9 @@ pub enum VertexAction {
     // unlocking the door (potentially with lower requirements than the implicit ones) or not, and then
     // exiting the room or not.
     MaybeExit(ExitCondition, Requirement),
+    // An optional door unlock available after performing the strat that reaches this vertex.
+    // Including the requirement keeps different unlock opportunities from sharing a vertex.
+    MaybeDoorUnlock(NodeId, Requirement),
     Exit(ExitCondition),
     Enter(EntranceCondition),
     DoorUnlock(NodeId, VertexId),
@@ -4393,6 +4396,22 @@ impl GameData {
             if let Requirement::Never = requirement {
                 continue;
             }
+            if strat_json.has_key("unlocksDoors") {
+                ensure!(strat_json["unlocksDoors"].is_array());
+                let mut unlock_node_ids: Vec<NodeId> = strat_json["unlocksDoors"]
+                    .members()
+                    .map(|unlock| unlock["nodeId"].as_usize().unwrap_or(to_node_id))
+                    .collect();
+                unlock_node_ids.sort_unstable();
+                unlock_node_ids.dedup();
+                for unlock_node_id in unlock_node_ids {
+                    if unlock_node_id == to_node_id && exit_condition.is_some() {
+                        continue;
+                    }
+                    let unlock_req = self.get_unlocks_doors_req(unlock_node_id, &ctx)?;
+                    to_actions.push(VertexAction::MaybeDoorUnlock(unlock_node_id, unlock_req));
+                }
+            }
             let from_vertex_id = self.vertex_isv.add(&VertexKey {
                 room_id,
                 node_id: from_node_id,
@@ -4521,6 +4540,8 @@ impl GameData {
                 self.links.push(link.clone());
             }
 
+            // Exit strats already have cross-room links from the full action vertex.
+            // Only in-room strats can continue at the plain destination node.
             if exit_condition.is_none() && !to_actions.is_empty() {
                 let plain_to_vertex_id = self.vertex_isv.add(&VertexKey {
                     room_id,
@@ -4532,8 +4553,8 @@ impl GameData {
                     from_vertex_id: to_vertex_id,
                     to_vertex_id: plain_to_vertex_id,
                     requirement: Requirement::Free,
-                    start_with_shinecharge: false,
-                    end_with_shinecharge: false,
+                    start_with_shinecharge: end_with_shinecharge,
+                    end_with_shinecharge,
                     difficulty: 0,
                     length: 1,
                     strat_id: None,
@@ -4542,31 +4563,18 @@ impl GameData {
                 });
             }
 
-            if strat_json.has_key("unlocksDoors") {
-                let mut unlock_node_id_set: HashSet<usize> = HashSet::new();
-                ensure!(strat_json["unlocksDoors"].is_array());
-                for unlock_json in strat_json["unlocksDoors"].members() {
-                    if unlock_json.has_key("nodeId") {
-                        unlock_node_id_set.insert(unlock_json["nodeId"].as_usize().unwrap());
-                    } else {
-                        unlock_node_id_set.insert(to_node_id);
-                    }
-                }
-                for unlock_node_id in unlock_node_id_set {
-                    if unlock_node_id == to_node_id && exit_condition.is_some() {
-                        continue;
-                    }
+            for action in &to_actions {
+                if let VertexAction::MaybeDoorUnlock(unlock_node_id, unlock_req) = action {
                     let unlock_vertex_id = self.vertex_isv.add(&VertexKey {
                         room_id,
                         node_id: to_node_id,
                         obstacle_mask: to_obstacles_bitmask,
-                        actions: vec![VertexAction::DoorUnlock(unlock_node_id, to_vertex_id)],
+                        actions: vec![VertexAction::DoorUnlock(*unlock_node_id, to_vertex_id)],
                     });
-                    let unlock_req = self.get_unlocks_doors_req(unlock_node_id, &ctx)?;
                     self.links.push(Link {
                         from_vertex_id: to_vertex_id,
                         to_vertex_id: unlock_vertex_id,
-                        requirement: unlock_req,
+                        requirement: unlock_req.clone(),
                         start_with_shinecharge: end_with_shinecharge,
                         end_with_shinecharge,
                         difficulty: 0,
@@ -4920,6 +4928,7 @@ impl GameData {
             for action in &vertex_key.actions {
                 match action {
                     VertexAction::Nothing => panic!("Unexpected VertexAction::Nothing"),
+                    VertexAction::MaybeDoorUnlock(_, _) => {}
                     VertexAction::MaybeExit(exit_condition, exit_req) => self
                         .node_exit_conditions
                         .entry((vertex_key.room_id, vertex_key.node_id))
