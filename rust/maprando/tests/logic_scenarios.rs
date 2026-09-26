@@ -56,6 +56,7 @@ struct Scenario {
     start_state: Option<ScenarioState>,
     end_room_id: usize,
     end_node_id: usize,
+    end_item_collect_node_id: Option<NodeId>,
     end_door_unlock_node_id: Option<NodeId>,
     #[serde(default)]
     end_obstacles_cleared: Vec<String>,
@@ -689,7 +690,10 @@ fn test_scenario(
             scenario.end_room_id,
             &scenario.end_obstacles_cleared,
         )?,
-        actions: vec![],
+        actions: scenario
+            .end_item_collect_node_id
+            .map(|node_id| vec![VertexAction::ItemCollect(node_id)])
+            .unwrap_or_default(),
     };
     let end_vertex_id = if let Some(door_node_id) = scenario.end_door_unlock_node_id {
         let vertex_ids: Vec<VertexId> = game_data

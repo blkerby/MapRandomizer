@@ -168,6 +168,10 @@
           "endNodeId": {
             "type": "integer"
           },
+          "endItemCollectNodeId": {
+            "type": "integer",
+            "description": "Target the vertex with an ItemCollect action for this item in endRoomId, at endNodeId and endObstaclesCleared, instead of the plain end vertex."
+          },
           "endDoorUnlockNodeId": {
             "type": "integer",
             "description": "Target the action unlocking this door in endRoomId at endNodeId and endObstaclesCleared, instead of the plain end vertex. The matching unlock vertex must be unique."

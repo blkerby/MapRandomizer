@@ -2,6 +2,27 @@
   "$schema": "../../../schema/scenarios.schema.json",
   "scenarios": [
     {
+      "name": "Reaching ItemCollect Vertex Retains Remaining Shinecharge",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {"shinechargeFramesRemaining": 100},
+      "endRoomId": 0,
+      "endNodeId": 3,
+      "endItemCollectNodeId": 3,
+      "endState": {"shinechargeFramesRemaining": 15}
+    },
+    {
+      "name": "Fail: Not Enough Shinecharge Remaining at ItemCollect Vertex",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {"shinechargeFramesRemaining": 99},
+      "endRoomId": 0,
+      "endNodeId": 3,
+      "endItemCollectNodeId": 3,
+      "endState": {"shinechargeFramesRemaining": 15},
+      "fail": true
+    },
+    {
       "name": "Removing ItemCollect Action Preserves Shinecharge",
       "startRoomId": 0,
       "startNodeId": 3,
