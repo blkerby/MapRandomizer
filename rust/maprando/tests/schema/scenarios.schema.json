@@ -155,6 +155,10 @@
             "type": "integer",
             "description": "Start at the vertex with an ItemCollect action for this item in startRoomId, at startNodeId and startObstaclesCleared, instead of the plain start vertex."
           },
+          "startDoorUnlockNodeId": {
+            "type": "integer",
+            "description": "Start at the action unlocking this door in startRoomId at startNodeId and startObstaclesCleared, instead of the plain start vertex. The matching unlock vertex must be unique."
+          },
           "startObstaclesCleared": {
             "type": "array",
             "items": [{"type": "string"}]

@@ -1,0 +1,65 @@
+{
+  "$schema": "../../../../../../sm-json-data/schema/m3-room.schema.json",
+  "roomEnvironments": [{"heated": false}],
+  "id": 0,
+  "roomAddress": "0x0000",
+  "name": "Test Room",
+  "area": "Test Area",
+  "subarea": "Test Subarea",
+  "mapTileMask": [[1]],
+  "nodes": [
+    {
+      "id": 1,
+      "name": "Starting Node",
+      "nodeType": "junction",
+      "nodeSubType": "junction",
+      "mapTileMask": [[1]]
+    },
+    {
+      "id": 2,
+      "name": "Intermediate Node",
+      "nodeType": "junction",
+      "nodeSubType": "junction",
+      "mapTileMask": [[1]]
+    },
+    {
+      "id": 3,
+      "name": "Optional Door",
+      "nodeType": "door",
+      "nodeSubType": "blue",
+      "doorEnvironments": [{"physics": "air"}],
+      "mapTileMask": [[1]],
+      "useImplicitDoorUnlocks": false
+    },
+    {
+      "id": 4,
+      "name": "Ending Node",
+      "nodeType": "junction",
+      "nodeSubType": "junction",
+      "mapTileMask": [[1]]
+    }
+  ],
+  "strats": [
+    {
+      "link": [1, 2],
+      "name": "Carry Shinecharge and Optionally Unlock Door",
+      "requires": [{"shineChargeFrames": 85}],
+      "unlocksDoors": [{"nodeId": 3, "types": ["ammo"], "requires": []}],
+      "startsWithShineCharge": true,
+      "endsWithShineCharge": true,
+      "flashSuitChecked": true,
+      "blueSuitChecked": true
+    },
+    {
+      "link": [2, 4],
+      "name": "Use Remaining Shinecharge",
+      "requires": [
+        {"shineChargeFrames": 14},
+        {"shinespark": {"frames": 0, "excessFrames": 0}}
+      ],
+      "startsWithShineCharge": true,
+      "flashSuitChecked": true,
+      "blueSuitChecked": true
+    }
+  ]
+}

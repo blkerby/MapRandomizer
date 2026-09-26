@@ -51,6 +51,7 @@ struct Scenario {
     start_room_id: usize,
     start_node_id: usize,
     start_item_collect_node_id: Option<NodeId>,
+    start_door_unlock_node_id: Option<NodeId>,
     #[serde(default)]
     start_obstacles_cleared: Vec<String>,
     start_state: Option<ScenarioState>,
@@ -615,6 +616,30 @@ fn resource_match(
     (match_weak, match_exact)
 }
 
+fn get_door_unlock_vertex_id(
+    game_data: &GameData,
+    vertex_key: &VertexKey,
+    door_node_id: NodeId,
+) -> Result<VertexId> {
+    let vertex_ids: Vec<VertexId> = game_data
+        .node_door_unlock
+        .get(&(vertex_key.room_id, door_node_id))
+        .context("Door unlock vertices not found")?
+        .iter()
+        .copied()
+        .filter(|&vertex_id| {
+            let key = &game_data.vertex_isv.keys[vertex_id];
+            key.node_id == vertex_key.node_id && key.obstacle_mask == vertex_key.obstacle_mask
+        })
+        .collect();
+    ensure!(
+        vertex_ids.len() == 1,
+        "Expected one door unlock vertex, found {}",
+        vertex_ids.len()
+    );
+    Ok(vertex_ids[0])
+}
+
 fn test_scenario(
     game_data: &GameData,
     connections: &[Connection],
@@ -676,11 +701,16 @@ fn test_scenario(
             .map(|node_id| vec![VertexAction::ItemCollect(node_id)])
             .unwrap_or_default(),
     };
-    let start_vertex_id = *game_data
-        .vertex_isv
-        .index_by_key
-        .get(&start_vertex_key)
-        .context("Start vertex not found")?;
+    let start_vertex_id = if let Some(door_node_id) = scenario.start_door_unlock_node_id {
+        get_door_unlock_vertex_id(game_data, &start_vertex_key, door_node_id)
+            .context("Resolving start door unlock vertex")?
+    } else {
+        *game_data
+            .vertex_isv
+            .index_by_key
+            .get(&start_vertex_key)
+            .context("Start vertex not found")?
+    };
 
     let end_vertex_key = VertexKey {
         room_id: scenario.end_room_id,
@@ -696,27 +726,8 @@ fn test_scenario(
             .unwrap_or_default(),
     };
     let end_vertex_id = if let Some(door_node_id) = scenario.end_door_unlock_node_id {
-        let vertex_ids: Vec<VertexId> = game_data
-            .vertex_isv
-            .keys
-            .iter()
-            .enumerate()
-            .filter(|(_, key)| {
-                key.room_id == end_vertex_key.room_id
-                    && key.node_id == end_vertex_key.node_id
-                    && key.obstacle_mask == end_vertex_key.obstacle_mask
-                    && key.actions.iter().any(|action| {
-                        matches!(action, VertexAction::DoorUnlock(node_id, _) if *node_id == door_node_id)
-                    })
-            })
-            .map(|(vertex_id, _)| vertex_id)
-            .collect();
-        ensure!(
-            vertex_ids.len() == 1,
-            "Expected one end door unlock vertex, found {}",
-            vertex_ids.len()
-        );
-        vertex_ids[0]
+        get_door_unlock_vertex_id(game_data, &end_vertex_key, door_node_id)
+            .context("Resolving end door unlock vertex")?
     } else {
         *game_data
             .vertex_isv
