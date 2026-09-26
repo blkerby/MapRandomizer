@@ -723,11 +723,6 @@
         "y": 9,
         "spicy": true,
         "requires": [
-            {"enemyDamage": {
-                "enemy": "Sova",
-                "type": "contact",
-                "hits": 1
-            }},
             {"heatFrames": 125}
         ]
     },
