@@ -1,0 +1,51 @@
+{
+  "$schema": "../../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Removing ItemCollect Action Preserves Shinecharge",
+      "startRoomId": 0,
+      "startNodeId": 3,
+      "startItemCollectNodeId": 3,
+      "startState": {"shinechargeFramesRemaining": 15},
+      "endRoomId": 0,
+      "endNodeId": 3,
+      "endState": {"shinechargeFramesRemaining": 15}
+    },
+    {
+      "name": "Use Shinecharge After Item Collection",
+      "startRoomId": 0,
+      "startNodeId": 3,
+      "startItemCollectNodeId": 3,
+      "startState": {"shinechargeFramesRemaining": 15},
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail: Not Enough Shinecharge After Item Collection",
+      "startRoomId": 0,
+      "startNodeId": 3,
+      "startItemCollectNodeId": 3,
+      "startState": {"shinechargeFramesRemaining": 14},
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Reach Item and Use Remaining Shinecharge",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {"shinechargeFramesRemaining": 100},
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail: Not Enough Shinecharge to Reach Item and Then Spark",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {"shinechargeFramesRemaining": 99},
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    }
+  ]
+}

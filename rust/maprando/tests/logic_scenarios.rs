@@ -50,6 +50,7 @@ struct Scenario {
     locked_doors: Vec<ScenarioLockedDoor>,
     start_room_id: usize,
     start_node_id: usize,
+    start_item_collect_node_id: Option<NodeId>,
     #[serde(default)]
     start_obstacles_cleared: Vec<String>,
     start_state: Option<ScenarioState>,
@@ -669,7 +670,10 @@ fn test_scenario(
             scenario.start_room_id,
             &scenario.start_obstacles_cleared,
         )?,
-        actions: vec![],
+        actions: scenario
+            .start_item_collect_node_id
+            .map(|node_id| vec![VertexAction::ItemCollect(node_id)])
+            .unwrap_or_default(),
     };
     let start_vertex_id = *game_data
         .vertex_isv
