@@ -4182,14 +4182,14 @@ impl<'r> Randomizer<'r> {
                     1,
                     f32::round(
                         (num_key_items_remaining as f32) / (num_items_remaining as f32)
-                            * (num_items_to_place as f32),
+                            * (num_bireachable as f32),
                     ) as usize,
                 ),
                 ProgressionRate::Fast => usize::max(
                     1,
                     f32::round(
                         2.0 * (num_key_items_remaining as f32) / (num_items_remaining as f32)
-                            * (num_items_to_place as f32),
+                            * (num_bireachable as f32),
                     ) as usize,
                 ),
             };
