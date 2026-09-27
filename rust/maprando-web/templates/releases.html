@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release123">Version 123 (2026-09-19)</a>:
+<p><a id="release123">Version 123 (2026-09-27)</a>:
 <ul>
 <li>More "Room palettes" customization options are added:
     <ul>
@@ -28,6 +28,12 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>The "Alternate" setting is renamed to "Vibrant".
     </ul>
 <li>New "Pickup size" options are added, under "Item progression / Item pool".
+<li>"Uniform" and "Fast" item progression rates are adjusted (affecting "Normal" and "Tricky" presets):
+    <ul>
+    <li>Key item placements are now paced based on two-way-reachable locations.
+    <li>This reduces scenarios where previously a large clump of key items would be dumped when significant parts of the
+        world are logically one-way reachable.
+    </ul>
 <li>Audio-related fixes:
     <ul>
     <li>Fixed an issue that could cause heavy audio lag after a quick reload, most
