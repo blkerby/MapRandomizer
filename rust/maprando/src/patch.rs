@@ -788,7 +788,7 @@ impl Patcher<'_> {
         }
 
         if let Some(escape_items) = escape_itembits {
-            self.rom.write_u16(snes2pc(0xA9FB7B), escape_items)?;
+            self.rom.write_u16(snes2pc(0xA9FB75), escape_items)?;
         }
 
         if self.settings.item_progression_settings.missile_size != 5 {
