@@ -1285,6 +1285,7 @@ B6F5 - B6F7: SpriteSomething
 
 [BANK A0]
 8AE5 - 8AE7: ; vanilla_bugfixes.asm
+8BE6 - 8BE8: ; sprite_tube_test.asm
 95F1 - 96B9: ; everything_respawns.asm
 A3E0 - A3E2: ; everything_respawns.asm
 A463 - A473: ; complementary_suits.asm

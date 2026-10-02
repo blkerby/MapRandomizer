@@ -1,3 +1,5 @@
+F7D3 - F812: ; sprite_tube_test.asm (enemy header)
 F820 - F82B: ; vanilla_bugfixes.asm
 F900 - F972: ; gray_doors.asm
+FA00 - FDFF: ; sprite_tube_test.asm (reserved support code and spawn record)
 FE00 - FF1F: ; fast_reload.asm

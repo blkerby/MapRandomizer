@@ -1,1 +1,3 @@
 F4B8 - F4DC: ; crash_handle_32sprite.asm
+F500 - F51B: ; sprite_tube_test.asm (drop and vulnerability tables)
+F600 - F9FF: ; sprite_tube_test.asm (enemy graphics)
