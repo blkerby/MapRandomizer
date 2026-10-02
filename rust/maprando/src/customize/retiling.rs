@@ -89,8 +89,7 @@ pub fn apply_retiling_and_palettes(
         "Item Loading",
         "Fake Lava",
         "in_place_level_data",
-        // Temporary test: spawn Sprite Tube in every room with a free enemy slot.
-        "Sprite Tube",
+        // Temporary test: draw Sprite Tube directly in OAM in every room.
         "sprite_tube_test",
     ];
     for name in &patch_names {
