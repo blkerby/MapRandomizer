@@ -103,3 +103,18 @@ assert pc() <= !bank_84_free_space_end
 ; that maxed out enemy projectiles)
 org $86A8FD
 	ADC $1B23, x   ; was: ADC $1B23
+
+    
+;; GT: Exit fight mid-palette-change fix.
+
+; The door transition code assumes the palette counter/timer is 0.
+; If the GT fight is exited while GT is changing color, the counter
+; can be non-zero, causing the transition to start at the wrong timer
+; index. If the index is high enough, this can corrupt the graphics
+; during the transition.
+
+; Include the palette counter/timer in the door transition zero-loop
+; counter so the transition starts from the correct index.
+
+org $82e1e1	; (Game state Ah (door transition - setup) ;;;)
+  ldx #$0104
