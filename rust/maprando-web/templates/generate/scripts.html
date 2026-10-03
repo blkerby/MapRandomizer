@@ -374,7 +374,6 @@ function buildSettingsObject() {
             "all_enemies_respawn": formData.get("all_enemies_respawn") == "true",
             "race_mode": formData.get("race_mode") == "true",
             "savestate": formData.get("savestate"),
-            "random_seed": tryParseInt(formData.get("random_seed")),
             "disable_spikesuit": formData.get("disable_spike_suit") == "true",
             "disable_bluesuit": formData.get("disable_blue_suit") == "true",
             "enable_major_glitches": formData.get("enable_major_glitches") == "true",
@@ -503,6 +502,7 @@ async function prepareSubmit(form) {
     let formData = new FormData();
     formData.append("spoiler_token", document.getElementById("spoilerToken").value);
     formData.append("settings", JSON.stringify(settings));
+    formData.append("random_seed", document.getElementById("randomSeed").value);
     let errorEl = document.getElementById("errorMsg");
     let response;
     try {
@@ -694,7 +694,6 @@ function applyFullSettingsPreset(preset) {
     applyRadioValue("speedBooster", other.speed_booster);
     applyRadioValue("raceMode", other.race_mode);
     applyRadioValue("saveStateMode", other.savestate);
-    document.getElementById("randomSeed").value = other.random_seed;
 }
 
 async function upgradeSettings(settings) {
@@ -1467,7 +1466,6 @@ function initializeSpoilerToken() {
     document.getElementById("spoilerToken").value = localStorage["spoilerToken"];
 }
 function checkOtherOptions() {
-    document.getElementById("randomSeed").value = "";
     if (document.getElementById("fullSettingsPreset").value !== "") {
         return;
     }
