@@ -1,2 +1,2 @@
 F4B8 - F4DC: ; crash_handle_32sprite.asm
-F600 - F9FF: ; sprite_tube_test.asm (tube graphics)
+F600 - F9FF: ; sprite_tube.asm (room table lookup, palette setup, graphics DMA)

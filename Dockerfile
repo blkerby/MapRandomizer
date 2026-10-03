@@ -42,6 +42,11 @@ RUN rm /rust/src/*.rs
 # Now copy over the source code and build the real binary
 RUN cargo install wasm-pack
 COPY rust /rust
+
+# Only needed for TEST_ALL_TUBE_ROOMS:
+COPY transit-tube-data/Base.json /transit-tube-data/Base.json
+
+COPY Mosaic/Projects/Base/Export/Enemies/F7D3.gfx /Mosaic/Projects/Base/Export/Enemies/F7D3.gfx
 WORKDIR /rust/maprando-wasm
 RUN wasm-pack build --target="web" --release
 WORKDIR /rust

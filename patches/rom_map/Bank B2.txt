@@ -1,2 +1,1 @@
 FEAA - FFA2: ; Sprite Tube.asm
-FFC0 - FFDF: ; sprite_tube_test.asm (tube palette)

@@ -2,6 +2,7 @@ pub mod mosaic;
 pub mod retiling;
 pub mod room_palettes;
 pub mod samus_sprite;
+pub mod sprite_tube;
 pub mod vanilla_music;
 
 use anyhow::{Result, bail};

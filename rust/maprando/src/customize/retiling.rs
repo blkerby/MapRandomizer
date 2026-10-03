@@ -11,6 +11,11 @@ use maprando_game::{DoorPtr, GameData, Map, RoomPtr, RoomStateIdx};
 use rand::{Rng, SeedableRng, seq::SliceRandom};
 
 use super::TileTheme;
+use super::sprite_tube::apply_sprite_tubes;
+
+// Temporary testing mode; normal mode only enables rooms intersected by the Toilet.
+// const TEST_ALL_TUBE_ROOMS: bool = true;
+const TEST_ALL_TUBE_ROOMS: bool = false;
 
 const BPS_PATCH_PATH: &str = "../patches/mosaic";
 
@@ -32,14 +37,13 @@ fn apply_toilet(rom: &mut Rom, orig_rom: &Rom, theme_name: &str) -> Result<()> {
     // Note that the way this currently works  relies on the vanilla ROM free space
     // having been replaced from 0xFF bytes to 0x00.
     let room_ptr = rom.read_u16(toilet_intersecting_room_ptr_addr)? + 0x70000;
-    let patch_filename = if room_ptr == 0x7FFFF {
-        // Unspecified room means this is vanilla map, so leave the Toilet alone.
-        format!("{theme_name}-VanillaMapTransit.bps")
-    } else {
-        let x = rom.read_u8(toilet_rel_x_addr)? as i8 as isize;
-        let y = rom.read_u8(toilet_rel_y_addr)? as i8 as isize;
-        format!("{theme_name}-{room_ptr:X}-Transit-{x}-{y}.bps")
-    };
+    if room_ptr == 0x7FFFF {
+        // Vanilla map retains the original Toilet. Sprite records handle both intersections.
+        return Ok(());
+    }
+    let x = rom.read_u8(toilet_rel_x_addr)? as i8 as isize;
+    let y = rom.read_u8(toilet_rel_y_addr)? as i8 as isize;
+    let patch_filename = format!("{theme_name}-{room_ptr:X}-Transit-{x}-{y}.bps");
     println!("toilet patch: {patch_filename}");
     apply_bps_patch(rom, orig_rom, &patch_filename)
         .context(format!("Applying Toilet patch: {patch_filename}"))?;
@@ -89,8 +93,8 @@ pub fn apply_retiling_and_palettes(
         "Item Loading",
         "Fake Lava",
         "in_place_level_data",
-        // Temporary test: draw Sprite Tube directly in OAM in every room.
-        "sprite_tube_test",
+        // Sprite Tube renderer; its active room table is generated below.
+        "sprite_tube",
     ];
     for name in &patch_names {
         let patch_path_str = format!("../patches/ips/{name}.ips");
@@ -244,9 +248,8 @@ pub fn apply_retiling_and_palettes(
     // Enable handling of always-on NMI (for scrolling sky)
     rom.write_u16(snes2pc(0x8AB180), 0xFFFF)?;
 
-    // Make the Toilet's intersecting room use the same tile theme as the Toilet.
-    // Likewise for East Pants Room and Homing Geemer Room.
-    // This only matters in case of Scrambled tile theme, since otherwise this should already be true.
+    // Construct the Toilet using the intersecting room's theme, without changing
+    // that room's own theme. Related headers belong to the same logical room.
     let toilet_room_ptr = 0x7D408;
     let toilet_intersecting_room_ptr_addr = snes2pc(0xB5FE70);
     let toilet_intersection_room_ptr =
@@ -255,13 +258,11 @@ pub fn apply_retiling_and_palettes(
     if map.room_mask[game_data.toilet_room_idx] {
         if toilet_intersection_room_ptr == 0x7FFFF {
             // Unspecified room means this is vanilla map, so the Toilet intersects Aqueduct and Botwoon Hallway.
-            theme_name_map.insert(0x7D5A7, theme_name_map[&toilet_room_ptr].clone()); // Aqueduct
-            theme_name_map.insert(0x7D617, theme_name_map[&toilet_room_ptr].clone());
-        // Botwoon Hallway
+            theme_name_map.insert(toilet_room_ptr, theme_name_map[&0x7D5A7].clone()); // Aqueduct
         } else {
             theme_name_map.insert(
-                toilet_intersection_room_ptr,
-                theme_name_map[&toilet_room_ptr].clone(),
+                toilet_room_ptr,
+                theme_name_map[&toilet_intersection_room_ptr].clone(),
             );
         }
     }
@@ -291,6 +292,8 @@ pub fn apply_retiling_and_palettes(
     if map.room_mask[game_data.toilet_room_idx] {
         apply_toilet(rom, orig_rom, &theme_name_map[&toilet_room_ptr])?;
     }
+
+    apply_sprite_tubes(rom, map, game_data, TEST_ALL_TUBE_ROOMS)?;
 
     Ok(())
 }

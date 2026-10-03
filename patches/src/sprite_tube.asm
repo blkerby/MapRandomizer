@@ -1,8 +1,12 @@
-; Temporary Sprite Tube test: load room graphics and write OAM directly.
+; Sprite Tube: select room data, load remapped graphics, and write OAM directly.
 arch snes.cpu
 lorom
 
 !tube_drawn = $7EF4E4 ; Word, reset before each frame's sprite construction
+!tube_active = $7EF4E6 ; Word, set by room load
+!tube_x = $7EF4E8      ; Word, right column's room-relative pixel coordinate
+!tube_attributes = $7EF4EA ; Word, body tile/palette/priority
+!tube_table = $EAB000  ; 20-byte records, terminated by room header $FFFF
 !tube_oam = $0500     ; Entries 100-127 of the low OAM buffer
 
 ; Both empty and populated rooms return through this enemy-init epilogue.
@@ -34,32 +38,9 @@ LoadTube:
     ; DB=A0, A/X/Y 16-bit. The original init saved DB/P for its epilogue.
     PHA
     PHX
-    LDX #$001E
-.palette:
-    LDA.l TubePalette,X
-    STA.l $7EC3E0,X
-    DEX
-    DEX
-    BPL .palette
-    ; Retain the upstream substitution of BG palette 0 colors 4-7.
-    LDX #$0006
-.background_colors:
-    LDA.l $7EC208,X
-    STA.l $7EC3E8,X
-    DEX
-    DEX
-    BPL .background_colors
-
-    ; Queue after normal enemy tile loading. VRAM addresses are word offsets.
-    LDX $0330
-    LDA #$0400 : STA $00D0,X
-    LDA.w #TubeGraphics : STA $00D2,X
-    LDA #$00B4 : STA $00D4,X
-    LDA #$6D00 : STA $00D5,X
-    TXA
-    CLC
-    ADC #$0007
-    STA $0330
+    PHY
+    JSL LoadRoomTube
+    PLY
     PLX
     PLA
     PLB
@@ -85,6 +66,8 @@ FinishDrawing:
     PHX
     PHY
     PHB
+    LDA.l !tube_active
+    BEQ .restore
     LDA $12 : PHA
     LDA $14 : PHA
     LDA $16 : PHA
@@ -99,6 +82,7 @@ FinishDrawing:
     PLA : STA $16
     PLA : STA $14
     PLA : STA $12
+.restore:
     PLB
     PLY
     PLX
@@ -128,8 +112,8 @@ macro TubeAttributes(column)
 endmacro
 
 DrawTube:
-    ; Right column at room X=$0080. Cull before truncating X to nine bits.
-    LDA #$0080
+    ; Cull before truncating X to nine bits.
+    LDA.l !tube_x
     SEC
     SBC $0911
     STA $12
@@ -187,9 +171,10 @@ DrawTube:
     AND #$00FF
     ORA $16
     %TubeCoordinates(4)
-    LDA #$6ED0 ; Tile $1D0, palette 7, OBJ priority 2, horizontal flip
+    LDA.l !tube_attributes
+    ORA #$4000 ; Horizontal flip
     %TubeAttributes(0)
-    LDA #$2ED0 ; Same tile/palette/priority, unflipped
+    LDA.l !tube_attributes
     %TubeAttributes(4)
 
     ; Match build-mosaic.rs: room-screen row 0 uses the joint, and row 15
@@ -202,9 +187,11 @@ DrawTube:
     TAX
     CPX #$0070 ; Fourteen displayed rows, eight OAM bytes per row
     BCS .bottom_joint
-    LDA #$6ED2
+    LDA.l !tube_attributes
+    ORA #$4002
     STA.w !tube_oam+2,X
-    LDA #$2ED2
+    LDA.l !tube_attributes
+    ORA #$0002
     STA.w !tube_oam+6,X
 .bottom_joint:
     ; Row 15 immediately precedes row 0 in the repeating 16-row pattern.
@@ -215,9 +202,11 @@ DrawTube:
     TAX
     CPX #$0070
     BCS .done
-    LDA #$EED2
+    LDA.l !tube_attributes
+    ORA #$C002
     STA.w !tube_oam+2,X
-    LDA #$AED2
+    LDA.l !tube_attributes
+    ORA #$8002
     STA.w !tube_oam+6,X
 .done:
     RTS
@@ -287,12 +276,68 @@ VanillaCleanupTail:
     JML $808B12
 assert pc() <= $A0FE00
 
-org $B2FFC0
-TubePalette:
-    incbin "../../Mosaic/Projects/Base/Export/Enemies/F7D3.snes"
-assert pc() == $B2FFE0
-
 org $B4F600
-TubeGraphics:
-    incbin "../../Mosaic/Projects/Base/Export/Enemies/F7D3.gfx"
-assert pc() == $B4FA00
+LoadRoomTube:
+    LDA #$0000
+    STA.l !tube_active
+    LDX #$0000
+.search:
+    LDA.l !tube_table,X
+    CMP #$FFFF
+    BNE .check_room
+    RTL
+.check_room:
+    CMP $079B ; Current room header, in bank 8F
+    BEQ .found
+    TXA
+    CLC
+    ADC #$0014
+    TAX
+    BRA .search
+.found:
+    LDA #$0001
+    STA.l !tube_active
+    LDA.l !tube_table+2,X
+    STA.l !tube_x
+    LDA.l !tube_table+4,X
+    STA.l !tube_attributes
+
+    ; Copy exactly five colors into the target palette. The first four
+    ; follow BG palette 0 colors 4-7; the final tube color is opaque black.
+    !color #= 0
+    while !color < 5
+        LDA.l !tube_table+10+(!color*2),X
+        PHX
+        TAX
+        if !color < 4
+            LDA.l $7EC208+(!color*2)
+        else
+            LDA #$0000
+        endif
+        STA.l $7EC200,X
+        PLX
+        !color #= !color+1
+    endwhile
+
+    ; Queue after normal enemy tile loading; VRAM destination is in words.
+    LDA.l !tube_table+6,X
+    PHA
+    LDA.l !tube_table+8,X ; Bank byte, followed by zero padding
+    PHA
+    LDX $0330
+    LDA #$0400 : STA $00D0,X
+    PLA : STA $00D4,X
+    PLA : STA $00D2,X
+    LDA #$6D00 : STA $00D5,X
+    TXA
+    CLC
+    ADC #$0007
+    STA $0330
+.done:
+    RTL
+assert pc() <= $B4FA00
+
+; Customization replaces this default empty table and writes DMA payloads
+; at $EAB800-$EAFFFF. No room is enabled until its record is installed.
+org !tube_table
+    dw $FFFF

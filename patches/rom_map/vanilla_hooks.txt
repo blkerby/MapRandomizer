@@ -14,8 +14,8 @@
 85C9 - 85CB: ; map_area.asm
 85E6 - 85E8: ; map_area.asm
 875D - 875E: ; stats.asm
-896E - 8971: ; sprite_tube_test.asm
-8ABE - 8AC1: ; sprite_tube_test.asm
+896E - 8971: ; sprite_tube.asm
+8ABE - 8AC1: ; sprite_tube.asm
 8F0C - 8F11: ; msu1.asm
 8F27 - 8F29: ; msu1.asm
 8FA3 - 8FBE: ; stats.asm
@@ -122,7 +122,7 @@ E52C - E52D: SpriteSomething
 8078 - 807B: ; item_dots_disappear.asm
 81A7 - 81A8: ; stats.asm
 8215 - 8217: ; disableable_etanks.asm
-8953 - 8956: ; sprite_tube_test.asm
+8953 - 8956: ; sprite_tube.asm
 895A - 8962: ; samus_tiles_optim_animated_tiles_fix.asm
 897A - 897D: ; fast_reload.asm
 8B3F - 8B42: ; crash_handle_autoreserves.asm
@@ -1287,9 +1287,9 @@ B6EE - B6EF: SpriteSomething
 B6F5 - B6F7: SpriteSomething
 
 [BANK A0]
-88BD - 88C0: ; sprite_tube_test.asm
+88BD - 88C0: ; sprite_tube.asm
 8AE5 - 8AE7: ; vanilla_bugfixes.asm
-8BE6 - 8BE8: ; sprite_tube_test.asm
+8BE6 - 8BE8: ; sprite_tube.asm
 95F1 - 96B9: ; everything_respawns.asm
 A3E0 - A3E2: ; everything_respawns.asm
 A463 - A473: ; complementary_suits.asm

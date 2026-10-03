@@ -1,0 +1,404 @@
+{
+    "tube_source_colors": [4, 5, 6, 7, 15],
+    "description": "Sprite palette numbers are zero-based (0-7); all color indices are decimal (1-15). Each colors array gives destination indices in tube_source_colors order, including opaque black at source index 15. Remap tube graphics and copy only these five palette entries; preserve all other entries, including transparent color 0. Allocations apply across tile themes and cover all room states and the listed related rooms. A related room's xOffset is its top-left corner's horizontal offset from the parent room's top-left corner, measured in screens (positive to the right). Apply any enemy_palette_overrides to the room EnemyTypes before using its allocation. ROM customization applies these allocations to active sprite-tube rooms.",
+    "rooms": [
+        {
+            "name": "Amphitheatre",
+            "room_header": "0x8FB4E5",
+            "palette": 3,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Below Spazer",
+            "room_header": "0x8FA408",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Beta Power Bomb Room",
+            "room_header": "0x8FA37C",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Bowling Alley",
+            "room_header": "0x8FC98E",
+            "palette": 7,
+            "colors": [8, 12, 13, 14, 15],
+            "notes": "Shares unused colors of roach D87F in the pre-Phantoon state; palette 7 is unallocated afterward. Chozo statue F0FF explicitly loads palettes 1 and 2, despite declaring only palette 1 in EnemyTypes."
+        },
+        {
+            "name": "Bubble Mountain",
+            "room_header": "0x8FACB3",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Bat Cave",
+            "room_header": "0x8FB07A",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Cathedral Entrance",
+            "room_header": "0x8FA7B3",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Cathedral",
+            "room_header": "0x8FA788",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Construction Zone",
+            "room_header": "0x8F9F11",
+            "palette": 3,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Crab Hole",
+            "room_header": "0x8FD21C",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "The Moat",
+            "room_header": "0x8F95FF",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Crocomire Escape",
+            "room_header": "0x8FAA0E",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Crumble Shaft",
+            "room_header": "0x8FA8F8",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Double Chamber",
+            "room_header": "0x8FADAD",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15],
+            "enemy_palette_overrides": [
+                {
+                    "enemy_id": "0xD3FF",
+                    "from_palette": 7,
+                    "to_palette": 1
+                }
+            ],
+            "notes": "Requires the listed EnemyTypes palette reassignment before palette 7 is free. Gripper D3FF and Fune E6FF have identical palette bytes in each tile theme, so both can use palette 1. No existing palette has five unused colors without a reassignment."
+        },
+        {
+            "name": "The Precious Room",
+            "room_header": "0x8FD78F",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Early Supers Room",
+            "room_header": "0x8F9BC8",
+            "palette": 2,
+            "colors": [4, 5, 6, 7, 15],
+            "notes": "Shares unused colors of growing shutter D4FF, whose graphics use only colors 9 through 14."
+        },
+        {
+            "name": "East Ocean",
+            "room_header": "0x8F94FD",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Electric Death Room",
+            "room_header": "0x8FCBD5",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Etecoon Energy Tank Room",
+            "room_header": "0x8FA011",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Fast Pillars Setup Room",
+            "room_header": "0x8FB3A5",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Fish Tank",
+            "room_header": "0x8FD017",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Grapple Beam Room",
+            "room_header": "0x8FAC2B",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Post Crocomire Jump Room",
+            "room_header": "0x8FAB8F",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Grapple Tutorial Room 2",
+            "room_header": "0x8FABD2",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Ice Beam Snake Room",
+            "room_header": "0x8FA8B9",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Kraid Eye Door Room",
+            "room_header": "0x8FA56B",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Warehouse Entrance",
+            "room_header": "0x8FA6A1",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Kronic Boost Room",
+            "room_header": "0x8FAE74",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Landing Site",
+            "room_header": "0x8F91F8",
+            "palette": 3,
+            "colors": [4, 5, 6, 7, 15],
+            "notes": "Avoids both the declared gunship palettes and the gunship AI override to palette 7."
+        },
+        {
+            "name": "Lava Dive Room",
+            "room_header": "0x8FAF14",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Lower Norfair Spring Ball Maze Room",
+            "room_header": "0x8FB510",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Aqueduct",
+            "room_header": "0x8FD5A7",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Metroid Room 2",
+            "room_header": "0x8FDB31",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Mickey Mouse Room",
+            "room_header": "0x8FB40A",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Northwest Maridia Bug Room",
+            "room_header": "0x8FD16D",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Pants Room",
+            "room_header": "0x8FD646",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15],
+            "related_rooms": [
+                {
+                    "name": "East Pants Room",
+                    "room_header": "0x8FD69A",
+                    "xOffset": 1,
+                    "palette": 7,
+                    "colors": [4, 5, 6, 7, 15]
+                }
+            ]
+        },
+        {
+            "name": "Parlor And Alcatraz",
+            "room_header": "0x8F92FD",
+            "palette": 7,
+            "colors": [8, 12, 13, 14, 15],
+            "notes": "Shares unused colors of roach D87F in the asleep and escape states; palette 7 is unallocated in the awake state."
+        },
+        {
+            "name": "Pink Brinstar Hopper Room",
+            "room_header": "0x8FA130",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Pink Brinstar Power Bomb Room",
+            "room_header": "0x8F9E11",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Plasma Room",
+            "room_header": "0x8FD2AA",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Kassiuz Room",
+            "room_header": "0x8FD387",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Plasma Spark Room",
+            "room_header": "0x8FD340",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Post Crocomire Farming Room",
+            "room_header": "0x8FAA82",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Pseudo Plasma Spark Room",
+            "room_header": "0x8FD1DD",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Mt. Everest",
+            "room_header": "0x8FD0B9",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Red Kihunter Shaft",
+            "room_header": "0x8FB585",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Rinka Shaft",
+            "room_header": "0x8FDDF3",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Screw Attack Room",
+            "room_header": "0x8FB6C1",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Single Chamber",
+            "room_header": "0x8FAD5E",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "The Worst Room In The Game",
+            "room_header": "0x8FB4AD",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Three Musketeers' Room",
+            "room_header": "0x8FB656",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Tourian Escape Room 3",
+            "room_header": "0x8FDEA7",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Seaweed Room",
+            "room_header": "0x8FDCFF",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Tourian Escape Room 4",
+            "room_header": "0x8FDEDE",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Mama Turtle Room",
+            "room_header": "0x8FD055",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Volcano Room",
+            "room_header": "0x8FAE32",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "Wasteland",
+            "room_header": "0x8FB5D5",
+            "palette": 3,
+            "colors": [4, 5, 6, 7, 15],
+            "notes": "Shares unused colors of shootable shutter D53F, whose graphics use only colors 9 through 14."
+        },
+        {
+            "name": "Watering Hole",
+            "room_header": "0x8FD13B",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "West Cactus Alley Room",
+            "room_header": "0x8FD9FE",
+            "palette": 3,
+            "colors": [4, 5, 6, 7, 15]
+        },
+        {
+            "name": "West Ocean",
+            "room_header": "0x8F93FE",
+            "palette": 1,
+            "colors": [8, 9, 10, 11, 12],
+            "notes": "Shares unused colors of Skultera D6FF. The Homing Geemer Room uses different enemies and has a separate allocation below.",
+            "related_rooms": [
+                {
+                    "name": "Homing Geemer Room",
+                    "room_header": "0x8F968F",
+                    "xOffset": 5,
+                    "palette": 7,
+                    "colors": [4, 5, 6, 7, 15]
+                }
+            ]
+        },
+        {
+            "name": "Wrecked Ship Energy Tank Room",
+            "room_header": "0x8FCC27",
+            "palette": 7,
+            "colors": [4, 5, 6, 7, 15]
+        }
+    ]
+}
