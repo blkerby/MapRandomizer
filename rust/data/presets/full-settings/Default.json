@@ -4826,7 +4826,6 @@
         "enable_major_glitches": false,
         "speed_booster": "Vanilla",
         "race_mode": false,
-        "savestate": "No",
-        "random_seed": null
+        "savestate": "No"
     }
 }
