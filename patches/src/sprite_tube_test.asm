@@ -191,6 +191,35 @@ DrawTube:
     %TubeAttributes(0)
     LDA #$2ED0 ; Same tile/palette/priority, unflipped
     %TubeAttributes(4)
+
+    ; Match build-mosaic.rs: room-screen row 0 uses the joint, and row 15
+    ; uses its vertical flip. First displayed row is (camera Y >> 4) + 1.
+    ; Find row 0's OAM offset: 8 * ((15 - (camera Y >> 4)) & 15).
+    LDA $0915
+    EOR #$FFFF
+    AND #$00F0
+    LSR A
+    TAX
+    CPX #$0070 ; Fourteen displayed rows, eight OAM bytes per row
+    BCS .bottom_joint
+    LDA #$6ED2
+    STA.w !tube_oam+2,X
+    LDA #$2ED2
+    STA.w !tube_oam+6,X
+.bottom_joint:
+    ; Row 15 immediately precedes row 0 in the repeating 16-row pattern.
+    TXA
+    SEC
+    SBC #$0008
+    AND #$0078
+    TAX
+    CPX #$0070
+    BCS .done
+    LDA #$EED2
+    STA.w !tube_oam+2,X
+    LDA #$AED2
+    STA.w !tube_oam+6,X
+.done:
     RTS
 
 HideTube:
