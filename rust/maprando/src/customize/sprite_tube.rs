@@ -10,13 +10,13 @@ use super::Allocator;
 // Must agree with sprite_tube.asm. Each 20-byte record contains:
 // room header (word), right-column X (word), OAM attributes (word),
 // graphics pointer (24 bits + padding), five target-palette offsets (words).
-// A room header of $FFFF terminates the table. DMA payloads stay in bank EA.
+// A room header of $FFFF terminates the table. Each 256-byte DMA payload
+// contains four top tiles followed by four bottom tiles, all in bank EA.
 const TABLE_START: usize = 0xEAB000;
 const GRAPHICS_START: usize = 0xEAB800;
 const GRAPHICS_END: usize = 0xEB0000;
 const RECORD_SIZE: usize = 20;
-const GRAPHICS: &[u8; 1024] =
-    include_bytes!("../../../../Mosaic/Projects/Base/Export/Enemies/F7D3.gfx");
+const GRAPHICS_SIZE: usize = 256;
 
 #[derive(Clone, Deserialize)]
 struct PaletteMapping {
@@ -55,7 +55,65 @@ fn parse_address(value: &str) -> Result<usize> {
     parse_int::parse(value).with_context(|| format!("Invalid tube address {value}"))
 }
 
-fn remap_graphics(source_colors: &[u8; 5], colors: &[u8; 5]) -> Result<Vec<u8>> {
+fn read_cre_data(rom: &Rom, bank_operand: usize, pointer_operand: usize) -> Result<Vec<u8>> {
+    // These operands are updated by build-mosaic.rs when installing tilesets.bps.
+    let address = (rom.read_u8(snes2pc(bank_operand))? as usize) << 16
+        | rom.read_u16(snes2pc(pointer_operand))? as usize;
+    let compressed = rom
+        .data
+        .get(snes2pc(address)..)
+        .context("CRE data pointer outside ROM")?;
+    lznint::decompress(compressed).context("Decompressing CRE data for the sprite tube")
+}
+
+fn extract_graphics(rom: &Rom) -> Result<Vec<u8>> {
+    let tiles = read_cre_data(rom, 0x82E415, 0x82E419)?;
+    let blocks = read_cre_data(rom, 0x82E83D, 0x82E841)?;
+    // Standard BG2 tube blocks used by build-mosaic.rs: body $F0, joint $EE.
+    // Block entries are TL, TR, BL, BR; OBJ bottom tiles sit 16 indices after
+    // the top tiles. Pack the rows separately for two 128-byte DMA uploads.
+    let parts = [
+        (0xF0, 0),
+        (0xF0, 1),
+        (0xEE, 0),
+        (0xEE, 1),
+        (0xF0, 2),
+        (0xF0, 3),
+        (0xEE, 2),
+        (0xEE, 3),
+    ];
+    let mut output = Vec::with_capacity(GRAPHICS_SIZE);
+    for (block, quadrant) in parts {
+        let offset = block * 8 + quadrant * 2;
+        let entry = blocks
+            .get(offset..offset + 2)
+            .context("Missing CRE tube block")?;
+        let entry = u16::from_le_bytes([entry[0], entry[1]]);
+        // CRE 8x8 graphics begin at BG tile $280.
+        let tile = (entry as usize & 0x3FF)
+            .checked_sub(0x280)
+            .context("Tube block references graphics outside CRE")?;
+        let source = tiles
+            .get(tile * 32..tile * 32 + 32)
+            .context("Missing CRE tube tile")?;
+        let mut graphics = [0; 32];
+        for plane in [0, 1, 16, 17] {
+            for y in 0..8 {
+                let source_y = if entry & 0x8000 != 0 { 7 - y } else { y };
+                let bits = source[plane + source_y * 2];
+                graphics[plane + y * 2] = if entry & 0x4000 != 0 {
+                    bits.reverse_bits()
+                } else {
+                    bits
+                };
+            }
+        }
+        output.extend(graphics);
+    }
+    Ok(output)
+}
+
+fn remap_graphics(graphics: &[u8], source_colors: &[u8; 5], colors: &[u8; 5]) -> Result<Vec<u8>> {
     let mut mapping = [0u8; 16];
     let mut seen = HashSet::new();
     for (&src, &dst) in source_colors.iter().zip(colors) {
@@ -63,8 +121,8 @@ fn remap_graphics(source_colors: &[u8; 5], colors: &[u8; 5]) -> Result<Vec<u8>> 
         ensure!(seen.insert(dst), "Repeated tube destination color {dst}");
         mapping[src as usize] = dst;
     }
-    let mut output = vec![0; GRAPHICS.len()];
-    for (src, dst) in GRAPHICS.chunks_exact(32).zip(output.chunks_exact_mut(32)) {
+    let mut output = vec![0; graphics.len()];
+    for (src, dst) in graphics.chunks_exact(32).zip(output.chunks_exact_mut(32)) {
         for y in 0..8 {
             for x in 0..8 {
                 let mut color = 0;
@@ -215,6 +273,11 @@ pub fn apply_sprite_tubes(
     let mut graphics_pointers = HashMap::new();
     let mut headers = HashSet::new();
     let mut ptr = snes2pc(TABLE_START);
+    if rooms.is_empty() {
+        rom.write_u16(ptr, 0xFFFF)?;
+        return Ok(());
+    }
+    let source_graphics = extract_graphics(rom)?;
     for (mapping, x) in rooms {
         let header = parse_address(&mapping.room_header)?;
         ensure!(
@@ -225,7 +288,7 @@ pub fn apply_sprite_tubes(
             [1, 2, 3, 7].contains(&mapping.palette),
             "Invalid tube palette"
         );
-        let graphics = remap_graphics(&data.tube_source_colors, &mapping.colors)?;
+        let graphics = remap_graphics(&source_graphics, &data.tube_source_colors, &mapping.colors)?;
         let graphics_ptr = match graphics_pointers.get(&graphics) {
             Some(&address) => address,
             None => {

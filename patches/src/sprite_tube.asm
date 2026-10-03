@@ -319,19 +319,25 @@ LoadRoomTube:
         !color #= !color+1
     endwhile
 
-    ; Queue after normal enemy tile loading; VRAM destination is in words.
+    ; Queue two packed tile rows after normal enemy tile loading. A 16x16
+    ; OBJ uses top tiles D0-D3 and bottom tiles E0-E3, sixteen tiles later.
+    ; Transfer only 128 bytes per row; leave the intervening VRAM untouched.
+    ; VRAM destination addresses are in words.
     LDA.l !tube_table+6,X
     PHA
     LDA.l !tube_table+8,X ; Bank byte, followed by zero padding
     PHA
     LDX $0330
-    LDA #$0400 : STA $00D0,X
-    PLA : STA $00D4,X
+    LDA #$0080 : STA $00D0,X : STA $00D7,X
+    PLA : STA $00D4,X : STA $00DB,X
     PLA : STA $00D2,X
+    CLC
+    ADC #$0080 : STA $00D9,X
     LDA #$6D00 : STA $00D5,X
+    LDA #$6E00 : STA $00DC,X
     TXA
     CLC
-    ADC #$0007
+    ADC #$000E
     STA $0330
 .done:
     RTL

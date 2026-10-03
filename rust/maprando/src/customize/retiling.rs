@@ -14,8 +14,7 @@ use super::TileTheme;
 use super::sprite_tube::apply_sprite_tubes;
 
 // Temporary testing mode; normal mode only enables rooms intersected by the Toilet.
-// const TEST_ALL_TUBE_ROOMS: bool = true;
-const TEST_ALL_TUBE_ROOMS: bool = false;
+const TEST_ALL_TUBE_ROOMS: bool = true;
 
 const BPS_PATCH_PATH: &str = "../patches/mosaic";
 
