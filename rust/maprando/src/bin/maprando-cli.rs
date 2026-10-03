@@ -90,7 +90,6 @@ fn get_settings(args: &Args, preset_data: &PresetData) -> Result<RandomizerSetti
         let s = std::fs::read_to_string(path)?;
         settings.quality_of_life_settings = serde_json::from_str(&s)?;
     }
-    settings.other_settings.random_seed = args.random_seed;
     Ok(settings)
 }
 
