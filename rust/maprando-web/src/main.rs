@@ -688,7 +688,7 @@ async fn randomize(
     let requested_seed: Option<usize> = match req.random_seed.as_ref().map(|s| s.0.trim()) {
         None | Some("") => None,
         Some(s) => match s.parse() {
-            Ok(v) => Some(v),
+            Ok(v) if v != 0 => Some(v),
             Err(_) => return HttpResponse::BadRequest().body("Invalid random seed"),
         },
     };
