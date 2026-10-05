@@ -3577,7 +3577,16 @@ impl Patcher<'_> {
         obj_coords_vec.sort();
         for (obj_i, coords) in obj_coords_vec.iter().enumerate() {
             let obj = obj_coords[coords];
-            let (addr, mask, room_hdr, offset_state_hdr, offset_x, offset_y, obj_tiles_x, obj_tiles_y) = match obj {
+            let (
+                addr,
+                mask,
+                room_hdr,
+                offset_state_hdr,
+                offset_x,
+                offset_y,
+                obj_tiles_x,
+                obj_tiles_y,
+            ) = match obj {
                 Kraid => (0xD829, 1, 0xA59F, 18, 0, 0, 2, 2),
                 Ridley => (0xD82A, 1, 0xB32E, 18, 0, 0, 1, 2),
                 Phantoon => (0xD82B, 1, 0xCD13, 18, 0, 0, 1, 1),
@@ -3600,12 +3609,16 @@ impl Patcher<'_> {
             };
             self.rom.write_u16(snes2pc(0x8FEBC0) + obj_i * 2, addr)?;
             self.rom.write_u16(snes2pc(0x8FEBE8) + obj_i * 2, mask)?;
-            self.rom.write_u16(snes2pc(0x8FED00) + obj_i * 7, room_hdr)?;
-            self.rom.write_u8(snes2pc(0x8FED02) + obj_i * 7, offset_state_hdr)?;
+            self.rom
+                .write_u16(snes2pc(0x8FED00) + obj_i * 7, room_hdr)?;
+            self.rom
+                .write_u8(snes2pc(0x8FED02) + obj_i * 7, offset_state_hdr)?;
             self.rom.write_u8(snes2pc(0x8FED03) + obj_i * 7, offset_x)?;
             self.rom.write_u8(snes2pc(0x8FED04) + obj_i * 7, offset_y)?;
-            self.rom.write_u8(snes2pc(0x8FED05) + obj_i * 7, obj_tiles_x)?;
-            self.rom.write_u8(snes2pc(0x8FED06) + obj_i * 7, obj_tiles_y)?;
+            self.rom
+                .write_u8(snes2pc(0x8FED05) + obj_i * 7, obj_tiles_x)?;
+            self.rom
+                .write_u8(snes2pc(0x8FED06) + obj_i * 7, obj_tiles_y)?;
         }
 
         Ok(())
