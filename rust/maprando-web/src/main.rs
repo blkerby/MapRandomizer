@@ -497,6 +497,7 @@ struct SeedData {
 struct RandomizeRequest {
     spoiler_token: Text<String>,
     settings: Text<String>,
+    random_seed: Option<Text<String>>,
 }
 
 #[derive(Serialize)]
@@ -524,9 +525,10 @@ enum AttemptError {
 fn handle_randomize_request(
     settings: RandomizerSettings,
     app_data: actix_web::web::Data<AppData>,
+    requested_seed: Option<usize>,
 ) -> Result<AttemptOutput, AttemptError> {
     let race_mode = settings.other_settings.race_mode;
-    let random_seed = match (settings.other_settings.random_seed, race_mode) {
+    let random_seed = match (requested_seed, race_mode) {
         (_, true) | (None, _) => get_random_seed(),
         (Some(s), false) => s,
     };
@@ -683,9 +685,14 @@ async fn randomize(
         settings.name = Some("Custom".to_string());
     }
 
-    if settings.other_settings.random_seed == Some(0) {
-        return HttpResponse::BadRequest().body("Invalid random seed: 0");
-    }
+    let requested_seed: Option<usize> = match req.random_seed.as_ref().map(|s| s.0.trim()) {
+        None | Some("") => None,
+        Some(s) => match s.parse::<usize>() {
+            Ok(v) if v != 0 => Some(v),
+            Ok(_) => None,
+            Err(_) => return HttpResponse::BadRequest().body("Invalid random seed"),
+        },
+    };
 
     if settings.skill_assumption_settings.ridley_proficiency < 0.0
         || settings.skill_assumption_settings.ridley_proficiency > 1.0
@@ -694,9 +701,10 @@ async fn randomize(
     }
 
     let settings_copy = settings.clone();
+
     let app_data_copy = app_data.clone();
-    let output_result = actix_web::rt::task::spawn_blocking(|| {
-        handle_randomize_request(settings_copy, app_data_copy)
+    let output_result = actix_web::rt::task::spawn_blocking(move || {
+        handle_randomize_request(settings_copy, app_data_copy, requested_seed)
     })
     .await
     .unwrap();

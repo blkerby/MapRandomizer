@@ -4824,7 +4824,6 @@
         "all_enemies_respawn": false,
         "race_mode": true,
         "savestate": "No",
-        "random_seed": null,
         "disable_spikesuit": false,
         "disable_bluesuit": false,
         "enable_major_glitches": false

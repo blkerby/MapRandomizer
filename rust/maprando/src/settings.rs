@@ -660,7 +660,6 @@ pub struct OtherSettings {
     pub speed_booster: SpeedBooster,
     pub race_mode: bool,
     pub savestate: SaveState,
-    pub random_seed: Option<usize>,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq)]
