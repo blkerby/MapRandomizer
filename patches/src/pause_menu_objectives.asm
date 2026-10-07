@@ -893,23 +893,18 @@ check_objs_2:
 
 .check_if_seen
     PHY                         ; tilemap ptr
-; obj # * 7
     LDA $16
-    STA $1E
     ASL
     ASL
     ASL
     SEC
-    SBC $1E
+    SBC $16                     ; n*7, straight from the index
     TAX                         ; obj tiles table ptr
     CLC
     LDA !objectives_tiles+5,X   ; grid size to check
-    CMP #$0101                  ; valid size?
+    SEC
+    SBC #$0101                  ; valid size?
     BCC .skip_check
-    DEC
-    XBA
-    DEC
-    XBA
     STA $1A                     ; grid x-1, y-1
     LDA !objectives_tiles,X     ; room hdr
     PHX
@@ -954,18 +949,14 @@ check_objs_2:
 
 objective_done:
 ; X = index
-    PHX
     TXA
     ASL
     TAX
-    LDA.w #$007E
-    STA.b $02
-    LDA.l !objectives_addrs,X
-    STA.b $00
     LDA.l !objectives_bitmasks,X
     STA.b $04
-    LDA.b [$00]
-    PLX
+    LDA.l !objectives_addrs,X
+    TAX
+    LDA.l $7e0000,X
     BIT.b $04
     RTS
 
