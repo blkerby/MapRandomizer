@@ -20,8 +20,9 @@ use crate::{
     settings::{
         AreaAssignmentPreset, CrashFixes, CrashFixesPreset, DisableETankSetting, ETankRefill,
         EnemyDrops, Fanfares, FixMode, ItemCount, MapPreset, MotherBrainFight, ObjPreset,
-        Objective, ObjectiveScreen, ProgressionPreset, QolPreset, RandomizerSettings, SaveAnimals,
-        SaveState, SkillPreset, SpeedBooster, StartLocationMode, WallJump,
+        Objective, ObjectiveAreas, ObjectiveScreen, ProgressionPreset, QolPreset,
+        RandomizerSettings, SaveAnimals, SaveState, SkillPreset, SpeedBooster, StartLocationMode,
+        WallJump,
     },
 };
 use anyhow::{Context, Result, bail, ensure};
@@ -3609,16 +3610,37 @@ impl Patcher<'_> {
             };
             self.rom.write_u16(snes2pc(0x8FEBC0) + obj_i * 2, addr)?;
             self.rom.write_u16(snes2pc(0x8FEBE8) + obj_i * 2, mask)?;
-            self.rom
-                .write_u16(snes2pc(0x8FED00) + obj_i * 7, room_hdr)?;
-            self.rom
-                .write_u8(snes2pc(0x8FED02) + obj_i * 7, offset_state_hdr)?;
-            self.rom.write_u8(snes2pc(0x8FED03) + obj_i * 7, offset_x)?;
-            self.rom.write_u8(snes2pc(0x8FED04) + obj_i * 7, offset_y)?;
-            self.rom
-                .write_u8(snes2pc(0x8FED05) + obj_i * 7, obj_tiles_x)?;
-            self.rom
-                .write_u8(snes2pc(0x8FED06) + obj_i * 7, obj_tiles_y)?;
+            match self.settings.objective_settings.objective_areas {
+                ObjectiveAreas::Enabled => {
+                    self.rom
+                        .write_u16(snes2pc(0x8FED00) + obj_i * 7, room_hdr)?;
+                    self.rom
+                        .write_u8(snes2pc(0x8FED02) + obj_i * 7, offset_state_hdr)?;
+                    self.rom.write_u8(snes2pc(0x8FED03) + obj_i * 7, offset_x)?;
+                    self.rom.write_u8(snes2pc(0x8FED04) + obj_i * 7, offset_y)?;
+                    self.rom
+                        .write_u8(snes2pc(0x8FED05) + obj_i * 7, obj_tiles_x)?;
+                    self.rom
+                        .write_u8(snes2pc(0x8FED06) + obj_i * 7, obj_tiles_y)?;
+                }
+                ObjectiveAreas::Disabled => {}
+            }
+
+            match self.settings.objective_settings.objective_areas {
+                ObjectiveAreas::Enabled => {}
+                ObjectiveAreas::Disabled => {
+                    self.rom.write_u16(snes2pc(0x8FED00), 0x0000)?; // disabled flag
+
+                    let green_check = [
+                        0x01, 0x00, 0x03, 0x00, 0x06, 0x00, 0x8C, 0x00, 0xD8, 0x00, 0x70, 0x00,
+                        0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    ];
+                    for (i, &byte) in green_check.iter().enumerate() {
+                        self.rom.write_u8(snes2pc(0x62A160) + i, byte)?;
+                    }
+                }
+            }
         }
 
         Ok(())

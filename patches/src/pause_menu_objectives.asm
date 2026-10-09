@@ -879,7 +879,10 @@ check_objs_2:
 ;;; PHB is on stack
     LDY.w #!line_size*2         ; start of 1st line
     LDA !objectives_num : AND #$7FFF
-    BEQ .exit
+    BNE .not_null
+    JMP .exit
+    
+.not_null
     STZ $16                     ; obj index
     
 .obj_check_lp
@@ -892,6 +895,12 @@ check_objs_2:
     BRA .write_tile
 
 .check_if_seen
+    LDA $8FED00
+    BNE .enabled                ; areas enabled?
+    JSR find_next_check
+    BRA .next
+    
+.enabled
     PHY                         ; tilemap ptr
     LDA $16
     ASL
@@ -941,8 +950,8 @@ check_objs_2:
     INC $16
     LDA !objectives_num : AND #$7FFF
     CMP $16
-    BNE .obj_check_lp
-
+    BEQ .exit
+    JMP .obj_check_lp
 .exit
     PLB
     RTS
@@ -1104,7 +1113,7 @@ org $b6a0c0
     db $00, $00, $18, $00, $18, $00, $00, $00, $00, $00, $18, $00, $18, $00, $00, $00
     db $FF, $00, $FF, $18, $FF, $18, $FF, $00, $FF, $00, $FF, $18, $FF, $18, $FF, $00
 
-; check mark
+; check mark (white)
 org $b6a160
     db $01, $01, $03, $03, $06, $06, $8C, $8C, $D8, $D8, $70, $70, $20, $20, $00, $00
     db $01, $01, $03, $03, $06, $06, $8C, $8C, $D8, $D8, $70, $70, $20, $20, $00, $00
