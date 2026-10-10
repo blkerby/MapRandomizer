@@ -4878,7 +4878,7 @@
         "min_objectives": 4,
         "max_objectives": 4,
         "objective_screen": "Enabled",
-        "objective_areas": "Disabled"
+        "objective_areas": "Enabled"
     },
     "map_layout": "Standard",
     "doors_settings": {
