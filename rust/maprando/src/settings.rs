@@ -562,6 +562,12 @@ pub enum ObjectiveScreen {
     Enabled,
 }
 
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+pub enum ObjectiveAreas {
+    Disabled,
+    Enabled,
+}
+
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct ObjectiveSettings {
     pub preset: Option<String>,
@@ -569,6 +575,7 @@ pub struct ObjectiveSettings {
     pub min_objectives: i32,
     pub max_objectives: i32,
     pub objective_screen: ObjectiveScreen,
+    pub objective_areas: ObjectiveAreas,
 }
 
 pub struct ObjectiveGroup {
@@ -1455,6 +1462,18 @@ fn upgrade_objective_settings(
             .as_object_mut()
             .unwrap()
             .insert("objective_screen".to_string(), "Enabled".into());
+    }
+    if !settings_obj["objective_settings"]
+        .as_object()
+        .unwrap()
+        .contains_key("objective_areas")
+    {
+        settings_obj
+            .get_mut("objective_settings")
+            .unwrap()
+            .as_object_mut()
+            .unwrap()
+            .insert("objective_areas".to_string(), "Enabled".into());
     }
     Ok(())
 }

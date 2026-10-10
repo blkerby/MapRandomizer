@@ -49,12 +49,21 @@
                     </div>
                 </div>
                 <div class="form-group row my-2">
-                    <label for="minimumObjectives" class="col-sm-6 col-lg-4 mb-1 mt-1 col-form-label">Pause menu objective screen</label>
+                    <label for="enableObjectives" class="col-sm-6 col-lg-4 mb-1 mt-1 col-form-label">Pause menu objective screen</label>
                     <div id="objectiveScreen" class="col-sm-3 mb-1 mt-1 btn-group" role="group">
                         <input type="radio" class="btn-check" id="objectiveScreenDisabled" value="Disabled" name="objective_screen" onchange="objectivesChanged()">
                         <label class="btn btn-outline-primary" for="objectiveScreenDisabled">Disabled</label>
                         <input type="radio" class="btn-check" id="objectiveScreenEnabled" value="Enabled" name="objective_screen" onchange="objectivesChanged()" checked>
                         <label class="btn btn-outline-primary" for="objectiveScreenEnabled">Enabled</label>
+                    </div>
+                </div>
+                <div class="form-group row my-2">
+                    <label for="enableAreas" class="col-sm-6 col-lg-4 mb-1 mt-1 col-form-label">Show areas for discovered objectives</label>
+                    <div id="objectiveAreas" class="col-sm-3 mb-1 mt-1 btn-group" role="group">
+                        <input type="radio" class="btn-check" id="objectiveAreasDisabled" value="Disabled" name="objective_areas" onchange="objectivesChanged()">
+                        <label class="btn btn-outline-primary" for="objectiveAreasDisabled">Disabled</label>
+                        <input type="radio" class="btn-check" id="objectiveAreasEnabled" value="Enabled" name="objective_areas" onchange="objectivesChanged()" checked>
+                        <label class="btn btn-outline-primary" for="objectiveAreasEnabled">Enabled</label>
                     </div>
                 </div>
             </div>

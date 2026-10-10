@@ -30,6 +30,9 @@ incsrc "constants.asm"
 !bank_85_free_space2_start = $85AA00
 !bank_85_free_space2_end = $85AAA0
 
+!bank_85_free_space3_start = $85C500
+!bank_85_free_space3_end = $85C700
+
 !bank_B6_free_space_start = $B6F200
 !bank_B6_free_space_end = $B6F660
 
@@ -274,7 +277,7 @@ draw_samus_indicator:
     rts
 
 print "82 end: ", PC
-warnpc !bank_82_free_space_end
+assert pc() <= !bank_82_free_space_end
 
 ;;; continue in bank 85 for obj screen management code
 org !bank_85_free_space_start
@@ -334,65 +337,7 @@ pad_0:
     RTS
     
 check_objs:
-;;; check objectives and add check marks
-    LDY.w #!line_size*2            ; start of 1st line
-    LDA !objectives_num : AND #$7FFF
-    STA !tmp_tile_offset           ; # objectives
-    BEQ .exit
-    LDX #$0000
-
-.obj_check_lp
-    PHX
-    JSR check_objective
-    BEQ .nocheck
-
-    ; find the next check character and mark it green
-    TYX
-    JSR find_next_check
-    LDA #$250B                     ; check mark (green)
-    STA !BG1_tilemap, x        
-    BRA .next
-
-.nocheck:
-    ; find the next check character and skip marking it
-    TYX                            ; X <- position in tilemap 
-    JSR find_next_check
-
-.next:    
-    INX : INX                      ; advance to next position in tilemap
-    TXY
-    PLX                            ; X <- objective number
-    INX
-    CPX !tmp_tile_offset
-    BNE .obj_check_lp
-.exit
-    PLB
-    RTS
-
-check_objective: ; X = index
-    PHX
-    TXA
-    ASL
-    TAX
-    LDA.w #$007E
-    STA.b $02
-    LDA.l !objectives_addrs, X
-    STA.b $00
-    LDA.l !objectives_bitmasks, X
-    STA.b $04
-    LDA.b [$00]
-    PLX
-    BIT.b $04
-    RTS
-
-find_next_check:
-    LDA !BG1_tilemap, x
-    CMP !check_char                ; tile to switch?
-    BEQ .found
-    INX : INX
-    BRA find_next_check
-.found:
-    RTS
+    JMP check_objs_2
     
 ;;; direct DMA of BG1 tilemap to VRAM
 blit_objs:
@@ -744,6 +689,7 @@ func_map2obj_load_obj:
     STA $0723                      ; Screen fade delay = 1
     STA $0725                      ; Screen fade counter = 1
     INC !pause_index               ; Pause index = B (map screen to objective screen - fading in)
+    %queueGfxDMA(obj_letters, $2800, $00C0) ; Color-coded area letters
     LDA !room_name_option
     BEQ .skip_name
     JSR fill_bottom_frame
@@ -854,7 +800,7 @@ obj_bg1_tilemap:
     dw $280F, "OBJECTIVES", $280F
 
 print "85 end: ", pc
-warnpc !bank_85_free_space_end
+assert pc() <= !bank_85_free_space_end
 
 ;; routines for bottom frame screen swap / map switching
 org !bank_85_free_space2_start
@@ -925,13 +871,241 @@ fix_palette:
     STA $7EC04A
     RTS
     
-warnpc !bank_85_free_space2_end
+assert pc() <= !bank_85_free_space2_end
+
+org !bank_85_free_space3_start
+check_objs_2:
+;;; check objectives and add check marks / area letters
+;;; PHB is on stack
+    LDY.w #!line_size*2         ; start of 1st line
+    LDA !objectives_num : AND #$7FFF
+    BNE .not_null
+    JMP .exit
+    
+.not_null
+    STZ $16                     ; obj index
+    
+.obj_check_lp
+    LDX $16
+    JSR objective_done
+    BEQ .check_if_seen
+; find the next check character and mark it done
+    JSR find_next_check
+    LDA #$250B                  ; check mark       
+    BRA .write_tile
+
+.check_if_seen
+    LDA $8FED00
+    BNE .enabled                ; areas enabled?
+    JSR find_next_check
+    BRA .next
+    
+.enabled
+    PHY                         ; tilemap ptr
+    LDA $16
+    ASL
+    ASL
+    ASL
+    SEC
+    SBC $16                     ; n*7, straight from the index
+    TAX                         ; obj tiles table ptr
+    CLC
+    LDA !objectives_tiles+5,X   ; grid size to check
+    SEC
+    SBC #$0101                  ; valid size?
+    BCC .skip_check
+    STA $1A                     ; grid x-1, y-1
+    LDA !objectives_tiles,X     ; room hdr
+    PHX
+    TAX
+    LDA $8F0002,X               ; x, y origin
+    PLX
+    CLC
+    ADC !objectives_tiles+3,X   ; add offset from top/left of room
+    STA $18
+    LDA !objectives_tiles+2,X   ; state hdr offset
+    AND #$00FF
+    CLC
+    ADC !objectives_tiles,X     ; room hdr
+    TAX
+    LDA $8F0010,X
+    TAX
+    LDA $B80000,X               ; area
+    AND #$00FF
+    STA $1E
+    JSR check_partial_reveal
+.skip_check
+    PLY
+    JSR find_next_check         ; carry preserved
+    BCC .next
+    LDA $1E                     ; area
+    CLC
+    ADC #$2A80                  ; area letters (VRAM)
+.write_tile
+    STA !BG1_tilemap,X
+
+.next:    
+    INX : INX                   ; advance to next position in tilemap
+    TXY
+    INC $16
+    LDA !objectives_num : AND #$7FFF
+    CMP $16
+    BEQ .exit
+    JMP .obj_check_lp
+.exit
+    PLB
+    RTS
+
+objective_done:
+; X = index
+    TXA
+    ASL
+    TAX
+    LDA.l !objectives_bitmasks,X
+    STA.b $04
+    LDA.l !objectives_addrs,X
+    TAX
+    LDA.l $7e0000,X
+    BIT.b $04
+    RTS
+
+find_next_check:
+; Y = tilemap ptr
+    PHP
+    TYX
+.next_lp
+    LDA !BG1_tilemap,X
+    CMP !check_char             ; tile to switch?
+    BEQ .found
+    INX : INX
+    BRA .next_lp
+.found:
+    PLP
+    RTS
+
+check_partial_reveal:
+; $18 = origin x, y (already offset adjusted)
+; $1A = grid size x-1, y-1
+; $1C = columns left
+; $1D = rows left
+; result in carry flag
+    PHP
+    LDA $1A
+    STA $1C
+    LDA $18
+    PHA
+    AND #$FF00
+    XBA
+    TAY
+    PLA
+    AND #$00FF
+    TAX
+; X, Y = origin
+.next
+    PHX                         ; save current x, y
+    PHY
+    TXA
+    AND #$00FF
+    PHA
+    AND #$0020
+    STA $22
+    PLA
+    AND #$001F
+    STA $12
+    AND #$0007
+    PHA                         ; save bit subindex of tile
+    LDA $12
+    LSR
+    LSR
+    LSR
+    STA $14
+    TYA
+    AND #$00FF
+    INC
+    CLC
+    ADC $22
+    ASL
+    ASL
+    CLC
+    ADC $14
+    TAX
+    SEP #$20
+    TXA
+    XBA
+    LDA $1E                     ; area
+    XBA
+    TAX
+    LDA $702700,X               ; partial revealed byte
+    PLX                         ; bit subindex of tile
+    AND $90AC04,X               ; check bit
+    BEQ .not_revealed
+    PLY
+    PLX
+    PLP
+    SEC
+    RTS
+    
+.not_revealed
+    LDA $1C
+    BEQ .x_done
+    PLY                         ; current x, y
+    PLX
+    DEC
+    STA $1C                     ; cols--
+    INX
+    REP #$30
+    BRA .next
+    
+.x_done
+    LDA $1D
+    BEQ .done
+    PLY                         ; current x, y
+    PLX
+    DEC
+    STA $1D                     ; rows--
+    LDA $1A
+    STA $1C
+    LDA $18
+    REP #$30
+    AND #$00FF
+    TAX
+    INY
+    BRA .next
+    
+.done
+    PLY                         ; fix stack
+    PLX
+    PLP
+    CLC
+    RTS
+
+obj_letters:
+; C
+    db $7C, $7C, $C6, $C6, $C6, $C6, $C0, $C0, $C6, $C6, $C6, $C6, $7C, $7C, $00, $00
+    db $83, $7C, $39, $C6, $39, $C6, $3F, $C0, $39, $C6, $39, $C6, $83, $7C, $FF, $00
+; B
+    db $00, $FC, $00, $C6, $00, $C6, $00, $FC, $00, $C6, $00, $C6, $00, $FC, $00, $00
+    db $FF, $FC, $FF, $C6, $FF, $C6, $FF, $FC, $FF, $C6, $FF, $C6, $FF, $FC, $FF, $00
+; N
+    db $00, $C6, $00, $E6, $00, $F6, $00, $DE, $00, $CE, $00, $C6, $00, $C6, $00, $00
+    db $39, $C6, $19, $E6, $09, $F6, $21, $DE, $31, $CE, $39, $C6, $39, $C6, $FF, $00
+; W
+    db $C6, $00, $C6, $00, $D6, $00, $D6, $00, $7C, $00, $6C, $00, $44, $00, $00, $00
+    db $39, $C6, $39, $C6, $29, $D6, $29, $D6, $83, $7C, $93, $6C, $BB, $44, $FF, $00
+; M
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+    db $39, $C6, $11, $EE, $01, $FE, $29, $D6, $39, $C6, $39, $C6, $39, $C6, $FF, $00
+; T
+    db $00, $FC, $00, $30, $00, $30, $00, $30, $00, $30, $00, $30, $00, $30, $00, $00
+    db $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00
+
+assert pc() <= !bank_85_free_space3_end
 
 org !bank_B6_free_space_start
 obj_txt_ptrs:
 ;; max size for single screen: (30 char dw + terminating dw) * 18 lines = 1116 bytes
 
-warnpc !bank_B6_free_space_end
+assert pc() <= !bank_B6_free_space_end
 
 ; objective screen tiles
 ; 'Q'
@@ -959,10 +1133,10 @@ org $b6a0c0
     db $00, $00, $18, $00, $18, $00, $00, $00, $00, $00, $18, $00, $18, $00, $00, $00
     db $FF, $00, $FF, $18, $FF, $18, $FF, $00, $FF, $00, $FF, $18, $FF, $18, $FF, $00
 
-; check mark
+; check mark (white)
 org $b6a160
-    db $01, $00, $03, $00, $06, $00, $8C, $00, $D8, $00, $70, $00, $20, $00, $00, $00
-    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+    db $01, $01, $03, $03, $06, $06, $8C, $8C, $D8, $D8, $70, $70, $20, $20, $00, $00
+    db $01, $01, $03, $03, $06, $06, $8C, $8C, $D8, $D8, $70, $70, $20, $20, $00, $00
 
 ; top of 'OBJ' button
 org $b6a180
@@ -984,23 +1158,23 @@ org $b6a380
 
 ; 0-9 top-justified
 org $b6ac00
-db $7C, $00, $C6, $00, $C6, $00, $C6, $00, $C6, $00, $C6, $00, $7C, $00, $00, $00
-db $FF, $7C, $FF, $C6, $FF, $C6, $FF, $C6, $FF, $C6, $FF, $C6, $FF, $7C, $FF, $00
-db $1C, $00, $3C, $00, $6C, $00, $0C, $00, $0C, $00, $0C, $00, $0C, $00, $00, $00
-db $FF, $1C, $FF, $3C, $FF, $6C, $FF, $0C, $FF, $0C, $FF, $0C, $FF, $0C, $FF, $00
-db $7C, $00, $C6, $00, $06, $00, $7C, $00, $C0, $00, $C0, $00, $FE, $00, $00, $00
-db $FF, $7C, $FF, $C6, $FF, $06, $FF, $7C, $FF, $C0, $FF, $C0, $FF, $FE, $FF, $00
-db $7C, $00, $C6, $00, $06, $00, $1C, $00, $06, $00, $C6, $00, $7C, $00, $00, $00
-db $FF, $7C, $FF, $C6, $FF, $06, $FF, $1C, $FF, $06, $FF, $C6, $FF, $7C, $FF, $00
-db $1C, $00, $3C, $00, $6C, $00, $CC, $00, $FE, $00, $0C, $00, $0C, $00, $00, $00
-db $FF, $1C, $FF, $3C, $FF, $6C, $FF, $CC, $FF, $FE, $FF, $0C, $FF, $0C, $FF, $00
-db $FE, $00, $C0, $00, $FC, $00, $06, $00, $06, $00, $C6, $00, $7C, $00, $00, $00
-db $FF, $FE, $FF, $C0, $FF, $FC, $FF, $06, $FF, $06, $FF, $C6, $FF, $7C, $FF, $00
-db $7C, $00, $C6, $00, $C0, $00, $FC, $00, $C6, $00, $C6, $00, $7C, $00, $00, $00
-db $FF, $7C, $FF, $C6, $FF, $C0, $FF, $FC, $FF, $C6, $FF, $C6, $FF, $7C, $FF, $00
-db $FE, $00, $06, $00, $0C, $00, $18, $00, $30, $00, $60, $00, $C0, $00, $00, $00
-db $FF, $FE, $FF, $06, $FF, $0C, $FF, $18, $FF, $30, $FF, $60, $FF, $C0, $FF, $00
-db $7C, $00, $C6, $00, $C6, $00, $7C, $00, $C6, $00, $C6, $00, $7C, $00, $00, $00
-db $FF, $7C, $FF, $C6, $FF, $C6, $FF, $7C, $FF, $C6, $FF, $C6, $FF, $7C, $FF, $00
-db $7C, $00, $C6, $00, $C6, $00, $7E, $00, $06, $00, $C6, $00, $7C, $00, $00, $00
-db $FF, $7C, $FF, $C6, $FF, $C6, $FF, $7E, $FF, $06, $FF, $C6, $FF, $7C, $FF, $00
+    db $7C, $00, $C6, $00, $C6, $00, $C6, $00, $C6, $00, $C6, $00, $7C, $00, $00, $00
+    db $FF, $7C, $FF, $C6, $FF, $C6, $FF, $C6, $FF, $C6, $FF, $C6, $FF, $7C, $FF, $00
+    db $1C, $00, $3C, $00, $6C, $00, $0C, $00, $0C, $00, $0C, $00, $0C, $00, $00, $00
+    db $FF, $1C, $FF, $3C, $FF, $6C, $FF, $0C, $FF, $0C, $FF, $0C, $FF, $0C, $FF, $00
+    db $7C, $00, $C6, $00, $06, $00, $7C, $00, $C0, $00, $C0, $00, $FE, $00, $00, $00
+    db $FF, $7C, $FF, $C6, $FF, $06, $FF, $7C, $FF, $C0, $FF, $C0, $FF, $FE, $FF, $00
+    db $7C, $00, $C6, $00, $06, $00, $1C, $00, $06, $00, $C6, $00, $7C, $00, $00, $00
+    db $FF, $7C, $FF, $C6, $FF, $06, $FF, $1C, $FF, $06, $FF, $C6, $FF, $7C, $FF, $00
+    db $1C, $00, $3C, $00, $6C, $00, $CC, $00, $FE, $00, $0C, $00, $0C, $00, $00, $00
+    db $FF, $1C, $FF, $3C, $FF, $6C, $FF, $CC, $FF, $FE, $FF, $0C, $FF, $0C, $FF, $00
+    db $FE, $00, $C0, $00, $FC, $00, $06, $00, $06, $00, $C6, $00, $7C, $00, $00, $00
+    db $FF, $FE, $FF, $C0, $FF, $FC, $FF, $06, $FF, $06, $FF, $C6, $FF, $7C, $FF, $00
+    db $7C, $00, $C6, $00, $C0, $00, $FC, $00, $C6, $00, $C6, $00, $7C, $00, $00, $00
+    db $FF, $7C, $FF, $C6, $FF, $C0, $FF, $FC, $FF, $C6, $FF, $C6, $FF, $7C, $FF, $00
+    db $FE, $00, $06, $00, $0C, $00, $18, $00, $30, $00, $60, $00, $C0, $00, $00, $00
+    db $FF, $FE, $FF, $06, $FF, $0C, $FF, $18, $FF, $30, $FF, $60, $FF, $C0, $FF, $00
+    db $7C, $00, $C6, $00, $C6, $00, $7C, $00, $C6, $00, $C6, $00, $7C, $00, $00, $00
+    db $FF, $7C, $FF, $C6, $FF, $C6, $FF, $7C, $FF, $C6, $FF, $C6, $FF, $7C, $FF, $00
+    db $7C, $00, $C6, $00, $C6, $00, $7E, $00, $06, $00, $C6, $00, $7C, $00, $00, $00
+    db $FF, $7C, $FF, $C6, $FF, $C6, $FF, $7E, $FF, $06, $FF, $C6, $FF, $7C, $FF, $00
