@@ -22,3 +22,4 @@ AD43 - AEDB: ; reserve_backward_fill.asm
 AEE0 - B599: ; crash_handle_base.asm
 B600 - B93E: ; map_area.asm
 C000 - C450: ; savestate.asm
+C500 - C700: ; pause_menu_objectives.asm

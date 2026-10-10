@@ -146,6 +146,7 @@ function buildObjectiveSettings(formData) {
     out.min_objectives = parseInt(document.getElementById("minimumObjectives").value);
     out.max_objectives = parseInt(document.getElementById("maximumObjectives").value);
     out.objective_screen = formData.get("objective_screen");
+    out.objective_areas = formData.get("objective_areas");
     for (objOpt of objectivePresetsArr[0].objective_options) {
         for (v of ["No", "Maybe", "Yes"]) {
             if (document.getElementById(`objective${objOpt.objective}${v}`).checked) {
@@ -1111,6 +1112,7 @@ function applyObjectivePreset(preset) {
     document.getElementById("minimumObjectives").value = preset.min_objectives;
     document.getElementById("maximumObjectives").value = preset.max_objectives;
     applyRadioValue("objectiveScreen", preset.objective_screen);
+    applyRadioValue("objectiveAreas", preset.objective_areas);
 }
 
 function objectivesChanged() {

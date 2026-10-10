@@ -322,6 +322,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             min_objectives: 0,
             max_objectives: 0,
             objective_screen: maprando::settings::ObjectiveScreen::Disabled,
+            objective_areas: maprando::settings::ObjectiveAreas::Disabled,
         },
         map_layout: String::new(),
         doors_settings: DoorsSettings {

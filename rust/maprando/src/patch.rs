@@ -20,8 +20,9 @@ use crate::{
     settings::{
         AreaAssignmentPreset, CrashFixes, CrashFixesPreset, DisableETankSetting, ETankRefill,
         EnemyDrops, Fanfares, FixMode, ItemCount, MapPreset, MotherBrainFight, ObjPreset,
-        Objective, ObjectiveScreen, ProgressionPreset, QolPreset, RandomizerSettings, SaveAnimals,
-        SaveState, SkillPreset, SpeedBooster, StartLocationMode, WallJump,
+        Objective, ObjectiveAreas, ObjectiveScreen, ProgressionPreset, QolPreset,
+        RandomizerSettings, SaveAnimals, SaveState, SkillPreset, SpeedBooster, StartLocationMode,
+        WallJump,
     },
 };
 use anyhow::{Context, Result, bail, ensure};
@@ -3577,29 +3578,69 @@ impl Patcher<'_> {
         obj_coords_vec.sort();
         for (obj_i, coords) in obj_coords_vec.iter().enumerate() {
             let obj = obj_coords[coords];
-            let (addr, mask) = match obj {
-                Kraid => (0xD829, 1),
-                Ridley => (0xD82A, 1),
-                Phantoon => (0xD82B, 1),
-                Draygon => (0xD82C, 1),
-                SporeSpawn => (0xD829, 2),
-                Crocomire => (0xD82A, 2),
-                Botwoon => (0xD82C, 2),
-                GoldenTorizo => (0xD82A, 4),
-                MetroidRoom1 => (0xD822, 1),
-                MetroidRoom2 => (0xD822, 2),
-                MetroidRoom3 => (0xD822, 4),
-                MetroidRoom4 => (0xD822, 8),
-                BombTorizo => (0xD828, 4),
-                BowlingStatue => (0xD823, 1),
-                AcidChozoStatue => (0xD821, 0x10),
-                PitRoom => (0xD823, 2),
-                BabyKraidRoom => (0xD823, 4),
-                PlasmaRoom => (0xD823, 8),
-                MetalPiratesRoom => (0xD823, 0x10),
+            let (
+                addr,
+                mask,
+                room_hdr,
+                offset_state_hdr,
+                offset_x,
+                offset_y,
+                obj_tiles_x,
+                obj_tiles_y,
+            ) = match obj {
+                Kraid => (0xD829, 1, 0xA59F, 18, 0, 0, 2, 2),
+                Ridley => (0xD82A, 1, 0xB32E, 18, 0, 0, 1, 2),
+                Phantoon => (0xD82B, 1, 0xCD13, 18, 0, 0, 1, 1),
+                Draygon => (0xD82C, 1, 0xDA60, 18, 0, 0, 2, 2),
+                SporeSpawn => (0xD829, 2, 0x9DC7, 18, 0, 0, 1, 3),
+                Crocomire => (0xD82A, 2, 0xA98D, 18, 0, 0, 8, 1),
+                Botwoon => (0xD82C, 2, 0xD95E, 18, 0, 0, 2, 1),
+                GoldenTorizo => (0xD82A, 4, 0xB283, 18, 0, 0, 2, 2),
+                MetroidRoom1 => (0xD822, 1, 0xDAE1, 18, 0, 0, 6, 1),
+                MetroidRoom2 => (0xD822, 2, 0xDB31, 18, 0, 0, 1, 2),
+                MetroidRoom3 => (0xD822, 4, 0xDB7D, 18, 0, 0, 6, 1),
+                MetroidRoom4 => (0xD822, 8, 0xDBCD, 18, 0, 0, 1, 2),
+                BombTorizo => (0xD828, 4, 0x9804, 23, 0, 0, 1, 1),
+                BowlingStatue => (0xD823, 1, 0xC98E, 18, 4, 1, 1, 1),
+                AcidChozoStatue => (0xD821, 0x10, 0xB1E5, 13, 0, 0, 1, 1),
+                PitRoom => (0xD823, 2, 0x99BD, 13, 0, 0, 3, 1),
+                BabyKraidRoom => (0xD823, 4, 0xA521, 18, 0, 0, 6, 1),
+                PlasmaRoom => (0xD823, 8, 0xD2AA, 13, 0, 0, 2, 3),
+                MetalPiratesRoom => (0xD823, 0x10, 0xB62B, 13, 0, 0, 3, 1),
             };
             self.rom.write_u16(snes2pc(0x8FEBC0) + obj_i * 2, addr)?;
             self.rom.write_u16(snes2pc(0x8FEBE8) + obj_i * 2, mask)?;
+            match self.settings.objective_settings.objective_areas {
+                ObjectiveAreas::Enabled => {
+                    self.rom
+                        .write_u16(snes2pc(0x8FED00) + obj_i * 7, room_hdr)?;
+                    self.rom
+                        .write_u8(snes2pc(0x8FED02) + obj_i * 7, offset_state_hdr)?;
+                    self.rom.write_u8(snes2pc(0x8FED03) + obj_i * 7, offset_x)?;
+                    self.rom.write_u8(snes2pc(0x8FED04) + obj_i * 7, offset_y)?;
+                    self.rom
+                        .write_u8(snes2pc(0x8FED05) + obj_i * 7, obj_tiles_x)?;
+                    self.rom
+                        .write_u8(snes2pc(0x8FED06) + obj_i * 7, obj_tiles_y)?;
+                }
+                ObjectiveAreas::Disabled => {}
+            }
+
+            match self.settings.objective_settings.objective_areas {
+                ObjectiveAreas::Enabled => {}
+                ObjectiveAreas::Disabled => {
+                    self.rom.write_u16(snes2pc(0x8FED00), 0x0000)?; // disabled flag
+
+                    let green_check = [
+                        0x01, 0x00, 0x03, 0x00, 0x06, 0x00, 0x8C, 0x00, 0xD8, 0x00, 0x70, 0x00,
+                        0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    ];
+                    for (i, &byte) in green_check.iter().enumerate() {
+                        self.rom.write_u8(snes2pc(0x62A160) + i, byte)?;
+                    }
+                }
+            }
         }
 
         Ok(())
