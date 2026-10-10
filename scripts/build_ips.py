@@ -132,7 +132,7 @@ whitelist_dict = {
     ],
     'pause_menu_objectives': [
         ['map_area', 0x82910A, 0x82910D],
-        ['hud_expansion_opaque', 0xB69A00, 0xB6AE00]
+        ['hud_expansion_opaque', 0xB69A00, 0xB6AD40]
     ],
     'hud_expansion_opaque': [
         ['max_ammo_display_fast', 0x858851, 0x858A93],
