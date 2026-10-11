@@ -3603,7 +3603,7 @@ impl Patcher<'_> {
                 BombTorizo => (0xD828, 4, 0x9804, 23, 0, 0, 1, 1),
                 BowlingStatue => (0xD823, 1, 0xC98E, 18, 4, 1, 1, 1),
                 AcidChozoStatue => (0xD821, 0x10, 0xB1E5, 13, 0, 0, 1, 1),
-                PitRoom => (0xD823, 2, 0x99BD, 13, 0, 0, 3, 1),
+                PitRoom => (0xD823, 2, 0x975C, 17, 0, 0, 3, 1),
                 BabyKraidRoom => (0xD823, 4, 0xA521, 18, 0, 0, 6, 1),
                 PlasmaRoom => (0xD823, 8, 0xD2AA, 13, 0, 0, 2, 3),
                 MetalPiratesRoom => (0xD823, 0x10, 0xB62B, 13, 0, 0, 3, 1),
