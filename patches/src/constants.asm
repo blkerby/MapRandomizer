@@ -48,6 +48,7 @@
 !objectives_addrs = $8FEBC0
 !objectives_bitmasks #= !objectives_addrs+(2*!objectives_max)
 !objectives_tiles = $8FED00
+!objectives_coords = $85C800
 
 ; range of item PLMs in bank 84
 !item_plm_start = #$DF89

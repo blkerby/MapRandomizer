@@ -901,11 +901,8 @@ check_objs_2:
 ;;; PHB is on stack
     LDY.w #!line_size*2         ; start of 1st line
     LDA !objectives_num : AND #$7FFF
-    BNE .not_null
-    JMP .exit
-    
-.not_null
-    STZ $16                     ; obj index
+    BEQ .exit
+    STZ $16                     ; obj index 
     
 .obj_check_lp
     LDX $16
@@ -917,7 +914,7 @@ check_objs_2:
     BRA .write_tile
 
 .check_if_seen
-    LDA $8FED00
+    LDA !objectives_tiles
     BNE .enabled                ; areas enabled?
     JSR find_next_check
     BRA .next
@@ -926,25 +923,22 @@ check_objs_2:
     PHY                         ; tilemap ptr
     LDA $16
     ASL
-    ASL
-    ASL
-    SEC
-    SBC $16                     ; n*7, straight from the index
-    TAX                         ; obj tiles table ptr
     CLC
-    LDA !objectives_tiles+5,X   ; grid size to check
-    SEC
-    SBC #$0101                  ; valid size?
-    BCC .skip_check
-    STA $1A                     ; grid x-1, y-1
-    LDA !objectives_tiles,X     ; room hdr
+    ADC $16
+    ASL                         ; n*6, straight from the index
+    TAX                         ; obj tiles table ptr
+; table format: dw room_hdr, db state_hdr offset, dw coords_offset, db n_coords
+    LDA !objectives_tiles+3,X   ; coords offset
+    STA $1A
+    LDA !objectives_tiles+5,X   ; n coords
+    AND #$00FF
+    STA $1C
     PHX
+    LDA !objectives_tiles,X     ; room hdr
     TAX
     LDA $8F0002,X               ; x, y origin
-    PLX
-    CLC
-    ADC !objectives_tiles+3,X   ; add offset from top/left of room
     STA $18
+    PLX
     LDA !objectives_tiles+2,X   ; state hdr offset
     AND #$00FF
     CLC
@@ -956,7 +950,6 @@ check_objs_2:
     AND #$00FF
     STA $1E
     JSR check_partial_reveal
-.skip_check
     PLY
     JSR find_next_check         ; carry preserved
     BCC .next
@@ -972,8 +965,8 @@ check_objs_2:
     INC $16
     LDA !objectives_num : AND #$7FFF
     CMP $16
-    BEQ .exit
-    JMP .obj_check_lp
+    BNE .obj_check_lp
+
 .exit
     PLB
     RTS
@@ -987,7 +980,7 @@ objective_done:
     STA.b $04
     LDA.l !objectives_addrs,X
     TAX
-    LDA.l $7e0000,X
+    LDA.l $7E0000,X
     BIT.b $04
     RTS
 
@@ -1006,14 +999,14 @@ find_next_check:
     RTS
 
 check_partial_reveal:
-; $18 = origin x, y (already offset adjusted)
-; $1A = grid size x-1, y-1
-; $1C = columns left
-; $1D = rows left
+; $18 = origin x, y
+; $1A = coords index
+; $1C = n coords
+; $1E = area
 ; result in carry flag
     PHP
-    LDA $1A
-    STA $1C
+    LDA $1C
+    BEQ .leave                   ; no coords?
     LDA $18
     PHA
     AND #$FF00
@@ -1023,9 +1016,23 @@ check_partial_reveal:
     AND #$00FF
     TAX
 ; X, Y = origin
-.next
-    PHX                         ; save current x, y
+.next_lp
+    PHX                         ; save origin
     PHY
+    SEP #$20
+    TXA
+    LDX $1A
+    CLC
+    ADC !objectives_coords,X    ; origin x + coord x
+    PHA
+    TYA
+    CLC
+    ADC !objectives_coords+1,X  ; origin y + coord y
+    TAY
+    PLA
+    TAX
+    REP #$30
+; X, Y = origin + current coords
     TXA
     AND #$00FF
     PHA
@@ -1064,41 +1071,23 @@ check_partial_reveal:
     PLY
     PLX
     PLP
-    SEC
+    SEC                         ; match
     RTS
-    
+
 .not_revealed
-    LDA $1C
-    BEQ .x_done
-    PLY                         ; current x, y
+    INC $1A : INC $1A           ; coords++
+    DEC $1C                     ; n--
+    BEQ .no_match
+    PLY
     PLX
-    DEC
-    STA $1C                     ; cols--
-    INX
-    REP #$30
-    BRA .next
+    BRA .next_lp
     
-.x_done
-    LDA $1D
-    BEQ .done
-    PLY                         ; current x, y
-    PLX
-    DEC
-    STA $1D                     ; rows--
-    LDA $1A
-    STA $1C
-    LDA $18
-    REP #$30
-    AND #$00FF
-    TAX
-    INY
-    BRA .next
-    
-.done
+.no_match
     PLY                         ; fix stack
     PLX
+.leave
     PLP
-    CLC
+    CLC                         ; no match
     RTS
 
 assert pc() <= !bank_85_free_space3_end
