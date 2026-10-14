@@ -31,7 +31,7 @@ incsrc "constants.asm"
 !bank_85_free_space2_end = $85AAA0
 
 !bank_85_free_space3_start = $85C500
-!bank_85_free_space3_end = $85C700
+!bank_85_free_space3_end = $85C800
 
 !bank_B6_free_space_start = $B6F200
 !bank_B6_free_space_end = $B6F660
