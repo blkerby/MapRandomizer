@@ -78,6 +78,12 @@
         "video_id": 938
     },
     {
+        "tech_id": 246,
+        "name": "canSpaceJumpSpringBallWaterEscape",
+        "difficulty": "Expert",
+        "video_id": 83
+    },
+    {
         "tech_id": 12,
         "name": "canDisableEquipment",
         "difficulty": "Medium",

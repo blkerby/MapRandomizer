@@ -409,6 +409,22 @@
   },
   {
     "room_id": 11,
+    "strat_id": 51,
+    "video_id": 11027,
+    "created_user": "Sam",
+    "note": "Bombs",
+    "dev_note": ""
+  },
+  {
+    "room_id": 11,
+    "strat_id": 51,
+    "video_id": 11028,
+    "created_user": "Sam",
+    "note": "Springball",
+    "dev_note": ""
+  },
+  {
+    "room_id": 11,
     "strat_id": 52,
     "video_id": 3171,
     "created_user": "Sam",
@@ -493,6 +509,22 @@
     "video_id": 3173,
     "created_user": "Sam",
     "note": "With Morph",
+    "dev_note": ""
+  },
+  {
+    "room_id": 11,
+    "strat_id": 65,
+    "video_id": 11025,
+    "created_user": "Sam",
+    "note": "Bombs",
+    "dev_note": ""
+  },
+  {
+    "room_id": 11,
+    "strat_id": 65,
+    "video_id": 11026,
+    "created_user": "Sam",
+    "note": "Springball",
     "dev_note": ""
   },
   {
@@ -5449,14 +5481,6 @@
   },
   {
     "room_id": 34,
-    "strat_id": 9,
-    "video_id": 332,
-    "created_user": "Osse101",
-    "note": "",
-    "dev_note": ""
-  },
-  {
-    "room_id": 34,
     "strat_id": 10,
     "video_id": 9757,
     "created_user": "Nito",
@@ -5477,6 +5501,62 @@
     "video_id": 2073,
     "created_user": "sunwu",
     "note": "Lower path variation",
+    "dev_note": ""
+  },
+  {
+    "room_id": 34,
+    "strat_id": 12,
+    "video_id": 314,
+    "created_user": "Osse101",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 34,
+    "strat_id": 12,
+    "video_id": 8922,
+    "created_user": "Sam",
+    "note": "With Screw Attack and Missile",
+    "dev_note": ""
+  },
+  {
+    "room_id": 34,
+    "strat_id": 13,
+    "video_id": 329,
+    "created_user": "Osse101",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 34,
+    "strat_id": 14,
+    "video_id": 3201,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "Aim down after the Space Jump water bounce to squeeze between the frozen Choot and the overhang then mid-air diagonal spark."
+  },
+  {
+    "room_id": 34,
+    "strat_id": 15,
+    "video_id": 3202,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 34,
+    "strat_id": 79,
+    "video_id": 10669,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 34,
+    "strat_id": 9,
+    "video_id": 332,
+    "created_user": "Osse101",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -5545,54 +5625,6 @@
   },
   {
     "room_id": 34,
-    "strat_id": 12,
-    "video_id": 314,
-    "created_user": "Osse101",
-    "note": "",
-    "dev_note": ""
-  },
-  {
-    "room_id": 34,
-    "strat_id": 12,
-    "video_id": 8922,
-    "created_user": "Sam",
-    "note": "With Screw Attack and Missile",
-    "dev_note": ""
-  },
-  {
-    "room_id": 34,
-    "strat_id": 13,
-    "video_id": 329,
-    "created_user": "Osse101",
-    "note": "",
-    "dev_note": ""
-  },
-  {
-    "room_id": 34,
-    "strat_id": 14,
-    "video_id": 3201,
-    "created_user": "Sam",
-    "note": "",
-    "dev_note": "Aim down after the Space Jump water bounce to squeeze between the frozen Choot and the overhang then mid-air diagonal spark."
-  },
-  {
-    "room_id": 34,
-    "strat_id": 15,
-    "video_id": 3202,
-    "created_user": "Sam",
-    "note": "",
-    "dev_note": ""
-  },
-  {
-    "room_id": 34,
-    "strat_id": 79,
-    "video_id": 10669,
-    "created_user": "Sam",
-    "note": "",
-    "dev_note": ""
-  },
-  {
-    "room_id": 34,
     "strat_id": 68,
     "video_id": 7026,
     "created_user": "Sam",
@@ -5653,6 +5685,14 @@
     "video_id": 5801,
     "created_user": "Sam",
     "note": "With wall jump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 34,
+    "strat_id": 30,
+    "video_id": 11060,
+    "created_user": "maddo",
+    "note": "Walljumpless",
     "dev_note": ""
   },
   {
@@ -33585,7 +33625,7 @@
   },
   {
     "room_id": 127,
-    "strat_id": 14,
+    "strat_id": 89,
     "video_id": 2849,
     "created_user": "Sam",
     "note": "",
@@ -33593,7 +33633,7 @@
   },
   {
     "room_id": 127,
-    "strat_id": 16,
+    "strat_id": 90,
     "video_id": 142,
     "created_user": "Osse101",
     "note": "",
@@ -33785,14 +33825,6 @@
   },
   {
     "room_id": 127,
-    "strat_id": 36,
-    "video_id": 4923,
-    "created_user": "Sam",
-    "note": "",
-    "dev_note": ""
-  },
-  {
-    "room_id": 127,
     "strat_id": 85,
     "video_id": 5656,
     "created_user": "Sam",
@@ -33884,22 +33916,6 @@
     "strat_id": 46,
     "video_id": 539,
     "created_user": "Osse101",
-    "note": "",
-    "dev_note": ""
-  },
-  {
-    "room_id": 127,
-    "strat_id": 47,
-    "video_id": 6356,
-    "created_user": "Sam",
-    "note": "Bombs, SpringBall",
-    "dev_note": ""
-  },
-  {
-    "room_id": 127,
-    "strat_id": 48,
-    "video_id": 6355,
-    "created_user": "Sam",
     "note": "",
     "dev_note": ""
   },
@@ -34105,8 +34121,32 @@
   },
   {
     "room_id": 127,
-    "strat_id": 68,
+    "strat_id": 109,
     "video_id": 4925,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 127,
+    "strat_id": 111,
+    "video_id": 4923,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 127,
+    "strat_id": 112,
+    "video_id": 6356,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 127,
+    "strat_id": 114,
+    "video_id": 6355,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -39189,14 +39229,6 @@
     "video_id": 6485,
     "created_user": "maddo",
     "note": "With Wave",
-    "dev_note": ""
-  },
-  {
-    "room_id": 139,
-    "strat_id": 25,
-    "video_id": 3384,
-    "created_user": "Sam",
-    "note": "Wave and Microwave",
     "dev_note": ""
   },
   {
