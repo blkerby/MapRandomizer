@@ -2609,6 +2609,16 @@ impl Patcher<'_> {
                 (Some(0x193EA), Some(0x193D2)), // Crocomire's Room top door
             ]);
         }
+        // Hazard marker for entering top of Aqueduct only if "Top Door Snail Step" notable disabled:
+        if !self
+            .settings
+            .skill_assumption_settings
+            .notable_settings
+            .iter()
+            .any(|notable| notable.room_id == 183 && notable.notable_id == 10 && notable.enabled)
+        {
+            door_ptr_pairs.push((Some(0x1A72C), Some(0x1A768))); // Aqueduct (top)
+        }
         for pair in door_ptr_pairs {
             self.apply_door_hazard_marker(pair)?;
         }
