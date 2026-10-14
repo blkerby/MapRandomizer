@@ -259,7 +259,7 @@
     "room_id": 34,
     "room_name": "East Ocean",
     "notable_id": 2,
-    "name": "Spring Ball Bounce to the Door with SpaceJump",
+    "name": "Spring Ball Bounce to the Ledge",
     "difficulty": "Expert+",
     "video_id": 332
   },
@@ -2418,14 +2418,6 @@
   {
     "room_id": 177,
     "room_name": "Red Fish Room",
-    "notable_id": 1,
-    "name": "Space Jump Spring Ball Jump",
-    "difficulty": "Expert",
-    "video_id": 83
-  },
-  {
-    "room_id": 177,
-    "room_name": "Red Fish Room",
     "notable_id": 2,
     "name": "Space Jump Escape",
     "difficulty": "Insane",
@@ -2502,6 +2494,14 @@
     "name": "Snail Stuck Moonfall",
     "difficulty": "Extreme+",
     "video_id": 267
+  },
+  {
+    "room_id": 183,
+    "room_name": "Aqueduct",
+    "notable_id": 10,
+    "name": "Top Door Snail Step",
+    "difficulty": "Medium",
+    "video_id": 11057
   },
   {
     "room_id": 186,
@@ -3326,14 +3326,6 @@
     "name": "Suitless Bounce the Snails Around the Room",
     "difficulty": "Expert+",
     "video_id": 961
-  },
-  {
-    "room_id": 223,
-    "room_name": "Spring Ball Room",
-    "notable_id": 1,
-    "name": "Escape - Suitless, Bootless, Space Jump",
-    "difficulty": "Expert",
-    "video_id": 437
   },
   {
     "room_id": 199,
