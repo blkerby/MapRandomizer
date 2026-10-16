@@ -9,7 +9,7 @@ arch 65816
 
 !tile_timer = $7e09ee      
 !tile_state = $7e09a0
-!interval   = #$0048           
+!interval   = #$0030           
 !current_area = $7e1f5b    
 !animate_mask = $7ef5a0    
 
@@ -114,18 +114,18 @@ BuildAnimateBitMask:
 AnimateTile:
   php
   rep #$30
+  lda !tile_timer
+  inc
+  cmp !interval
+  bcc .quick_exit
+  
   phx
   phy
   phb
   phk
   plb
 
-  lda !tile_timer
-  inc
-  sta !tile_timer
-  cmp !interval
-  bcc .done
-
+  
   lda #$0000
   sta !tile_timer
   lda !tile_state
@@ -185,6 +185,13 @@ AnimateTile:
   plp
   lda #$0000 
   sta $0763   
+  rtl
+  
+.quick_exit
+  sta !tile_timer
+  plp
+  lda #$0000
+  sta $0763
   rtl
   
   assert pc() <= !bank_df_free_space_end
