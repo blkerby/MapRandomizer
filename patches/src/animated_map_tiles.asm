@@ -9,7 +9,7 @@ arch 65816
 
 !tile_timer = $7e09ee      
 !tile_state = $7e09a0
-!interval   = 48           
+!interval   = #$0048           
 !current_area = $7e1f5b    
 !animate_mask = $7ef5a0    
 
@@ -27,6 +27,10 @@ org $82913B     ;;; $9120: Pause menu - index 0: map screen ;;;
 org $82941e     ;;; TBD - Hook somewhere before the pause map VRAM buffer is cleared by the FX routine.
     jsl BuildAnimateBitMask
     nop
+    nop 
+    nop
+    nop
+    
     
 ; Custom code
 
@@ -122,7 +126,7 @@ AnimateTile:
   lda !tile_timer
   inc
   sta !tile_timer
-  cmp #!interval
+  cmp !interval
   bcc .done
 
   lda #$0000
