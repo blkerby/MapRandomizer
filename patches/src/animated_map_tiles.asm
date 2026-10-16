@@ -140,7 +140,8 @@ AnimateTile:
   pha                     ; running copy of the mask, shifted once per entry
 
   ldy #$0000              ; table offset
-  ldx $0330               ; VRAM write queue index
+  lda.l $7e0330
+  tax
 
 .loop
   lda $01,s
@@ -176,7 +177,8 @@ AnimateTile:
   cpy #$0030
   bne .loop
 
-  stx $0330
+  txa
+  sta.l $7e0330
   pla
 
 .done
