@@ -3395,7 +3395,9 @@ impl<'a> MapPatcher<'a> {
         }
         self.sort_dynamic_tile_data()?;
         self.write_dynamic_tile_data(&self.dynamic_tile_data.clone())?;
-        self.write_double_item_table(&self.dynamic_tile_data.clone())?;
+        if self.settings.quality_of_life_settings.animated_tiles {
+            self.write_double_item_table(&self.dynamic_tile_data.clone())?;
+        }
         self.create_room_map_tilemaps()?;
         if self.settings.quality_of_life_settings.hazard_markers {
             self.write_hazard_tiles()?;

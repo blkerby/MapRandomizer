@@ -316,6 +316,7 @@ pub struct QualityOfLifeSettings {
     pub room_outline_revealed: bool,
     pub opposite_area_revealed: bool,
     pub hazard_markers: bool,
+    pub animated_tiles: bool,
     // End game:
     pub mother_brain_fight: MotherBrainFight,
     pub supers_double: bool,
@@ -1331,6 +1332,9 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
     }
     if !qol_settings.contains_key("hazard_markers") {
         qol_settings.insert("hazard_markers".to_string(), true.into());
+    }
+    if !qol_settings.contains_key("animated_tiles") {
+        qol_settings.insert("animated_tiles".to_string(), true.into());
     }
     if !qol_settings.contains_key("persist_flash_suit") {
         qol_settings.insert("persist_flash_suit".to_string(), false.into());

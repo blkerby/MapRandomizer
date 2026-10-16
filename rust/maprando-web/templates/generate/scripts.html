@@ -304,6 +304,7 @@ function buildSettingsObject() {
             "room_outline_revealed": formData.get("room_outline_revealed") == "true",
             "opposite_area_revealed": formData.get("opposite_area_revealed") == "true",
             "hazard_markers": formData.get("hazard_markers") == "true",
+            "animated_tiles": formData.get("animated_tiles") == "true",
             "mother_brain_fight": formData.get("mother_brain_fight"),
             "supers_double": formData.get("supers_double") == "true",
             "escape_autosave": formData.get("escape_autosave") == "true",
@@ -598,6 +599,7 @@ function applyQolPreset(preset) {
     applyRadioValue("roomOutlineRevealed", preset.room_outline_revealed);
     applyRadioValue("oppositeAreaRevealed", preset.opposite_area_revealed);
     applyRadioValue("hazardMarkers", preset.hazard_markers);
+    applyRadioValue("animatedTiles", preset.animated_tiles);
     applyRadioValue("motherBrainFight", preset.mother_brain_fight);
     applyRadioValue("supersDouble", preset.supers_double);
     applyRadioValue("escapeAutosave", preset.escape_autosave);

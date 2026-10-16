@@ -20,15 +20,11 @@ org $82913B     ;;; $9120: Pause menu - index 0: map screen ;;;
     nop
     nop                    
 
-
-;$82:941E C9 07 00    CMP #$0007             ;\
-;$82:9421 30 03       BMI $03    [$9426]     ;} If [area index] >= debug:
-;$82:9423 A9 00 00    LDA #$0000             ; A = 0
-org $82941e     ;;; TBD - Hook somewhere before the pause map VRAM buffer is cleared by the FX routine.
+org $82941e     ;;; ;;; $93C3: Load pause menu map tilemap and area label ;;;
     jsl BuildAnimateBitMask
-    nop
-    nop 
-    nop
+    nop ;$82:941E C9 07 00    CMP #$0007             ;\
+    nop ;$82:9421 30 03       BMI $03    [$9426]     ;} If [area index] >= debug:
+    nop ;$82:9423 A9 00 00    LDA #$0000             ; A = 0
     nop
     
     
@@ -38,6 +34,7 @@ org !bank_df_free_space_start
 
 ; area, vram_dest, tile_a, tile b
 ; tile_a will be set to FFFF on the server side if both items are of the same type so it is never animated as it will just waste cycles reloading an identical tile.
+; table is ordered by area for the 6 double_item rooms, upto 6, if small maps / missing etc table is padded with FFFF to fill this table.
 
 DoubleItemTable:
   dw $0000, $0000, $0000, $0000 ; Billy Mays
@@ -107,9 +104,9 @@ BuildAnimateBitMask:
   pla
   plp
   plb
-  cmp #$0007
-  bmi .skip
-  lda #$0000
+  cmp #$0007  ;
+  bmi .skip   ; hijacked code. (dont' think this does anything in MapRando anyway, it's for Debug options but restore it regardless.)
+  lda #$0000  ;
 .skip
   rtl
   
@@ -132,7 +129,7 @@ AnimateTile:
   lda #$0000
   sta !tile_timer
   lda !tile_state
-  eor #$0002              ; state is now 0 or 2 = byte offset of tile_a / tile_b
+  eor #$0002              ; byte offset of tile_a / tile_b
   sta !tile_state
 
   lda !animate_mask
@@ -147,7 +144,7 @@ AnimateTile:
   lda $01,s
   lsr
   sta $01,s
-  bcc .next               ; row bit not set
+  bcc .next               ; bit not set
 
   lda DoubleItemTable,y
   cmp !current_area
@@ -161,7 +158,7 @@ AnimateTile:
   adc !tile_state
   sta $7e00d2,x           ; source = tile_a or tile_b
   lda #$00DF
-  sta $7e00d4,x           ; bank (the dest write below overwrites the stray high byte)
+  sta $7e00d4,x           ; bank (dest write below overwrites the stray high byte)
   lda DoubleItemTable+2,y
   sta $7e00d5,x           ; VRAM dest
   txa
@@ -186,10 +183,8 @@ AnimateTile:
   ply
   plx
   plp
-  lda #$0000
-  sta $0763
+  lda #$0000 
+  sta $0763   
   rtl
-  
-  print pc
   
   assert pc() <= !bank_df_free_space_end

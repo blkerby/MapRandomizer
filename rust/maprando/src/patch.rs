@@ -489,7 +489,6 @@ impl Patcher<'_> {
             "fix_choot",
             "resource_collection_hudcap",
             "item_count",
-            "animated_map_tiles",
         ];
 
         patches.push("new_game");
@@ -576,6 +575,10 @@ impl Patcher<'_> {
             != Some(CrashFixesPreset::Crash)
         {
             patches.push("crash_handle_base");
+        }
+
+        if self.settings.quality_of_life_settings.animated_tiles{
+            patches.push("animated_map_tiles");
         }
 
         let fixes = &self.settings.quality_of_life_settings.crash_fixes;
