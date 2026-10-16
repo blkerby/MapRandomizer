@@ -1,0 +1,189 @@
+;; Animated Maptiles for pause map double_item rooms
+;; nn_357
+
+lorom
+arch 65816
+
+!bank_df_free_space_start = $dfe212 ; values in this table are overwritten in patch.rs
+!bank_df_free_space_end = $dffeef
+
+!tile_timer = $7e09ee      
+!tile_state = $7e09a0
+!interval   = 48           
+!current_area = $7e1f5b    
+!animate_mask = $7ef5a0    
+
+; Vanilla hooks
+
+org $82913B     ;;; $9120: Pause menu - index 0: map screen ;;;
+    jsl AnimateTile
+    nop
+    nop                    
+
+
+;$82:941E C9 07 00    CMP #$0007             ;\
+;$82:9421 30 03       BMI $03    [$9426]     ;} If [area index] >= debug:
+;$82:9423 A9 00 00    LDA #$0000             ; A = 0
+org $82941e     ;;; TBD - Hook somewhere before the pause map VRAM buffer is cleared by the FX routine.
+    jsl BuildAnimateBitMask
+    nop
+    
+; Custom code
+
+org !bank_df_free_space_start
+
+; area, vram_dest, tile_a, tile b
+; tile_a will be set to FFFF on the server side if both items are of the same type so it is never animated as it will just waste cycles reloading an identical tile.
+
+DoubleItemTable:
+  dw $0000, $0000, $0000, $0000 ; Billy Mays
+  dw $0000, $0000, $0000, $0000 ; West Sand Pit
+  dw $0000, $0000, $0000, $0000 ; Watering Hole
+  dw $0000, $0000, $0000, $0000 ; Green Pirates Shaft
+  dw $0000, $0000, $0000, $0000 ; Green Brinstar Reserve
+  dw $0000, $0000, $0000, $0000 ; Norfair Reserve
+
+
+RowBitMasks:
+  dw $0001, $0002, $0004, $0008, $0010, $0020
+    
+BuildAnimateBitMask:
+
+  ; entry
+  phb
+  php
+  rep #$30
+  pha
+  phx
+  phy
+  phk
+  plb
+
+  lda #$0000
+  sta !tile_timer
+  sta !tile_state
+  sta !animate_mask
+
+  ldy #$0000
+
+.loop
+  lda.w DoubleItemTable,y
+  cmp !current_area
+  bne .next_entry
+
+  lda.w DoubleItemTable+2,y
+  sec
+  sbc #$3000
+  asl
+  tax
+
+  lda $7e4000,x
+  cmp.w DoubleItemTable+4,y
+  bne .next_entry
+
+  tya
+  lsr
+  lsr
+  tax
+  lda.w RowBitMasks,x
+  ora !animate_mask
+  sta !animate_mask
+
+.next_entry
+  tya
+  clc
+  adc #$0008
+  tay
+  cpy #$0030
+  bne .loop
+
+  ; cleanup
+  ply
+  plx
+  pla
+  plp
+  plb
+  cmp #$0007
+  bmi .skip
+  lda #$0000
+.skip
+  rtl
+  
+
+AnimateTile:
+  php
+  rep #$30
+  phx
+  phy
+  phb
+  phk
+  plb
+
+  lda !tile_timer
+  inc
+  sta !tile_timer
+  cmp #!interval
+  bcc .done
+
+  lda #$0000
+  sta !tile_timer
+  lda !tile_state
+  eor #$0002              ; state is now 0 or 2 = byte offset of tile_a / tile_b
+  sta !tile_state
+
+  lda !animate_mask
+  beq .done
+  pha                     ; running copy of the mask, shifted once per entry
+
+  ldy #$0000              ; table offset
+  ldx $0330               ; VRAM write queue index
+
+.loop
+  lda $01,s
+  lsr
+  sta $01,s
+  bcc .next               ; row bit not set
+
+  lda DoubleItemTable,y
+  cmp !current_area
+  bne .next
+
+  lda #$0002
+  sta $7e00d0,x           ; size
+  tya
+  clc
+  adc #DoubleItemTable+4
+  adc !tile_state
+  sta $7e00d2,x           ; source = tile_a or tile_b
+  lda #$00DF
+  sta $7e00d4,x           ; bank (the dest write below overwrites the stray high byte)
+  lda DoubleItemTable+2,y
+  sta $7e00d5,x           ; VRAM dest
+  txa
+  clc
+  adc #$0007
+  tax
+
+.next
+  tya
+  clc
+  adc #$0008
+  tay
+  cpy #$0030
+  bne .loop
+
+  stx $0330
+  pla
+
+.done
+  plb
+  ply
+  plx
+  plp
+  lda #$0000
+  sta $0763
+  rtl
+  
+  print pc
+  
+  assert pc() <= !bank_df_free_space_end
