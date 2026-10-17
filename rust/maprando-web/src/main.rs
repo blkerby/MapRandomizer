@@ -35,16 +35,16 @@ use maprando::{
     customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
     difficulty::{get_full_global, get_link_difficulty_length},
     map_repository::{
-        HttpMapRepository, LocalVanillaMapRepository, MapRepository, MapSettings,
-        OfflineMapRepository,
+        HttpMapRepository, MapRepository, OfflineMapRepository, SelectableMapRepository,
     },
+    map_settings::MapSettings,
     preset::PresetData,
     randomize::{
         DifficultyConfig, Randomization, Randomizer, assign_map_areas, filter_links,
         get_difficulty_tiers, get_objectives, randomize_doors,
     },
     seed_repository::SeedRepository,
-    settings::{RandomizerSettings, StartLocationMode, try_upgrade_settings},
+    settings::{MapPreset, RandomizerSettings, StartLocationMode, try_upgrade_settings},
     spoiler_log::SpoilerLog,
 };
 use maprando_game::GameData;
@@ -136,7 +136,9 @@ fn build_app_data() -> AppData {
         args.video_storage_url.clone()
     };
 
-    let preset_data = PresetData::load(tech_path, notable_path, presets_path, &game_data).unwrap();
+    let mut preset_data =
+        PresetData::load(tech_path, notable_path, presets_path, &game_data).unwrap();
+    preset_data.realtime_map_generation = args.map_server.is_some();
     let global = get_full_global(&game_data);
     game_data.make_links_data(&|link, game_data| {
         get_link_difficulty_length(link, game_data, &preset_data, &global)
@@ -147,32 +149,24 @@ fn build_app_data() -> AppData {
     let vanilla_map = vanilla_map_repository
         .get_map_batch(
             0,
-            MapSettings {
-                vanilla: true,
-                ..Default::default()
-            },
+            &MapSettings::from_preset(MapPreset::Vanilla, false),
             &game_data,
         )
         .unwrap()[0]
         .clone();
-    let map_repository: Box<dyn MapRepository> = match &args.map_server {
-        Some(map_server) => {
-            info!("Using real-time map generation server: {map_server}");
-            Box::new(LocalVanillaMapRepository::new(
-                OfflineMapRepository::new(vec![("Vanilla", vanilla_map_path)]).unwrap(),
-                Box::new(HttpMapRepository::new(map_server).unwrap()),
-            ))
-        }
-        None => Box::new(
-            OfflineMapRepository::new(vec![
-                ("Vanilla", vanilla_map_path),
-                ("Small", small_maps_path),
-                ("Standard", standard_maps_path),
-                ("Wild", wild_maps_path),
-            ])
-            .unwrap(),
-        ),
-    };
+    let map_repository: Box<dyn MapRepository> = Box::new(SelectableMapRepository {
+        offline: OfflineMapRepository::new(vec![
+            ("Vanilla", vanilla_map_path),
+            ("Small", small_maps_path),
+            ("Standard", standard_maps_path),
+            ("Wild", wild_maps_path),
+        ])
+        .unwrap(),
+        realtime: args
+            .map_server
+            .as_ref()
+            .map(|server| HttpMapRepository::new(server).unwrap()),
+    });
 
     let logic_data = LogicData::new(
         &game_data,
@@ -262,6 +256,8 @@ struct GenerateTemplate<'a> {
     objective_groups: Vec<ObjectiveGroup>,
     preset_data: &'a PresetData,
     full_presets_json: String,
+    map_presets_json: String,
+    realtime_map_generation: bool,
     skill_presets_json: String,
     item_presets_json: String,
     qol_presets_json: String,
@@ -414,6 +410,20 @@ async fn generate(app_data: actix_web::web::Data<AppData>) -> impl Responder {
         prioritizable_items,
         preset_data: &app_data.preset_data,
         full_presets_json,
+        map_presets_json: serde_json::to_string(
+            &[
+                MapPreset::Vanilla,
+                MapPreset::Small,
+                MapPreset::Familiar,
+                MapPreset::Standard,
+                MapPreset::Wild,
+            ]
+            .map(|preset| {
+                MapSettings::from_preset(preset, app_data.preset_data.realtime_map_generation)
+            }),
+        )
+        .unwrap(),
+        realtime_map_generation: app_data.preset_data.realtime_map_generation,
         skill_presets_json,
         item_presets_json,
         qol_presets_json,
@@ -520,6 +530,7 @@ struct AttemptOutput {
 enum AttemptError {
     TooManyAttempts,
     TimedOut,
+    MapGeneration(anyhow::Error),
 }
 
 fn handle_randomize_request(
@@ -559,11 +570,6 @@ fn handle_randomize_request(
         app_data.game_data.vertex_isv.keys.len(),
         0,
     );
-    let mut map_settings = MapSettings::from_map_layout(&settings.map_layout).unwrap();
-    map_settings.area_assignment_base_order = settings.other_settings.area_assignment.base_order;
-    let requires_area_assignment = app_data
-        .map_repository
-        .requires_area_assignment(map_settings);
     let max_attempts = 2000;
     let attempts_timeout = Duration::from_secs(25);
     let max_attempts_per_map = if settings.start_location_settings.mode == StartLocationMode::Random
@@ -588,14 +594,12 @@ fn handle_randomize_request(
         if map_batch.is_empty() {
             map_batch = app_data
                 .map_repository
-                .get_map_batch(map_seed, map_settings, &app_data.game_data)
-                .unwrap();
+                .get_map_batch(map_seed, &settings.map_settings, &app_data.game_data)
+                .map_err(AttemptError::MapGeneration)?;
         }
 
         let mut map = map_batch.pop().unwrap();
-        if requires_area_assignment
-            && !assign_map_areas(&mut map, &settings, map_seed, &app_data.game_data)
-        {
+        if !assign_map_areas(&mut map, &settings, map_seed, &app_data.game_data) {
             info!("Area assignment failed for map seed={map_seed}");
             continue;
         }
@@ -700,6 +704,13 @@ async fn randomize(
         return HttpResponse::BadRequest().body("Invalid Ridley proficiency");
     }
 
+    if let Err(e) = settings
+        .map_settings
+        .validate(app_data.preset_data.realtime_map_generation)
+    {
+        return HttpResponse::BadRequest().body(e.to_string());
+    }
+
     let settings_copy = settings.clone();
 
     let app_data_copy = app_data.clone();
@@ -711,6 +722,11 @@ async fn randomize(
 
     let output = match output_result {
         Ok(x) => x,
+        Err(AttemptError::MapGeneration(e)) => {
+            error!("Map generation failed: {e:#}");
+            return HttpResponse::InternalServerError()
+                .body(format!("Map generation failed: {e:#}"));
+        }
         Err(AttemptError::TimedOut) => {
             return HttpResponse::InternalServerError()
                 .body("Failed too many randomization attempts (timeout reached)");
@@ -801,14 +817,14 @@ async fn randomize(
                 .unwrap()
                 .to_string()
         },
-        map_layout: settings.map_layout.clone(),
+        map_layout: settings.map_settings.label(),
         save_animals: to_variant_name(&settings.save_animals).unwrap().to_string(),
         early_save: settings.quality_of_life_settings.early_save,
         ammo_refill_all: settings.quality_of_life_settings.ammo_refill_all,
         wall_jump: to_variant_name(&settings.other_settings.wall_jump)
             .unwrap()
             .to_string(),
-        vanilla_map: settings.map_layout == "Vanilla",
+        vanilla_map: settings.map_settings.is_vanilla(),
     };
 
     let seed_name = &output.randomization.seed_name;

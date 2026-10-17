@@ -1,5 +1,5 @@
 {
-    "version": 123,
+    "version": 124,
     "name": "Community Race Season 5",
     "skill_assumption_settings": {
         "preset": "Hard",
@@ -4878,7 +4878,70 @@
         "objective_screen": "Enabled",
         "objective_areas": "Enabled"
     },
-    "map_layout": "Standard",
+    "map_settings": {
+        "preset": null,
+        "source": "Standard",
+        "generation": {
+            "small_map": false,
+            "landmarks": [
+                "Ship",
+                "MotherBrain"
+            ],
+            "maridia_water": {
+                "preset": "Unrestricted",
+                "probabilities": [
+                    0.21052631578947367,
+                    0.21052631578947367,
+                    0.21052631578947367
+                ]
+            },
+            "norfair_heat": {
+                "preset": "Unrestricted",
+                "probabilities": [
+                    0.21052631578947367,
+                    0.21052631578947367,
+                    0.21052631578947367
+                ]
+            },
+            "reward_missing_connect_utility": 1.0,
+            "reward_area_x": 10.0,
+            "reward_area_y": 10.0,
+            "target_area_rooms": [
+                150.0,
+                200.0,
+                200.0,
+                100.0,
+                200.0,
+                100.0
+            ],
+            "target_area_x": [
+                16.0,
+                10.0,
+                40.0,
+                48.0,
+                40.0,
+                16.0
+            ],
+            "target_area_y": [
+                12.0,
+                32.0,
+                64.0,
+                12.0,
+                32.0,
+                24.0
+            ],
+            "reward_graph_diameter": 0.1,
+            "reward_save_distance": 0.1,
+            "reward_refill_distance": 0.1,
+            "reward_area_distinct_crossing": 1.0
+        },
+        "area_assignment": {
+            "preset": "Standard",
+            "base_order": "Size",
+            "ship_in_crateria": true,
+            "mother_brain_in_tourian": true
+        }
+    },
     "doors_settings": {
         "preset": "Ammo",
         "red_doors_count": 30,
@@ -4899,12 +4962,6 @@
     "other_settings": {
         "wall_jump": "Vanilla",
         "speed_booster": "Vanilla",
-        "area_assignment": {
-            "preset": "Depth",
-            "base_order": "Depth",
-            "ship_in_crateria": false,
-            "mother_brain_in_tourian": false
-        },
         "door_locks_size": "Large",
         "maps_revealed": null,
         "energy_free_shinesparks": false,

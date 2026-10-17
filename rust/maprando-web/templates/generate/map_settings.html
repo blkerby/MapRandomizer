@@ -1,0 +1,691 @@
+<div class="modal map-settings-modal" id="mapSettingsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-fullscreen-sm-down modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Map settings</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body px-4 py-2">
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('source', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Map source</span>
+                    </div>
+                    <div class="col-md-7 d-flex align-items-center">
+                        <select class="form-select" id="mapSource" aria-label="Map source" onchange="mapSourceChanged(this.value)">
+                            <option value="Vanilla">Vanilla</option>
+                            <option value="Small">Small pool</option>
+                            <option value="Standard">Standard pool</option>
+                            <option value="Wild">Wild pool</option>
+                            <option value="Realtime" {% if !realtime_map_generation %}disabled{% endif %}>Realtime</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('size', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Map size</span>
+                    </div>
+                    <div class="col-md-7 btn-group" role="group" aria-label="size" id="mapGroupsize">
+                        <input type="radio" class="btn-check map-generation-control" name="map_size" id="mapsizeFull" value="Full" onchange="mapChoiceChanged('size', this.value)">
+                        <label class="btn btn-outline-primary p-2" for="mapsizeFull">Full</label>
+                        <input type="radio" class="btn-check map-generation-control" name="map_size" id="mapsizeSmall" value="Small" onchange="mapChoiceChanged('size', this.value)">
+                        <label class="btn btn-outline-primary p-2" for="mapsizeSmall">Small</label>
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('landmarks', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Landmarks</span>
+                    </div>
+                    <div class="col-md-7 btn-group" role="group" aria-label="landmarks" id="mapGrouplandmarks">
+                        <input type="radio" class="btn-check map-generation-control" name="map_landmarks" id="maplandmarksNone" value="None" onchange="mapChoiceChanged('landmarks', this.value)">
+                        <label class="btn btn-outline-primary p-2" for="maplandmarksNone">None</label>
+                        <input type="radio" class="btn-check map-generation-control" name="map_landmarks" id="maplandmarksShipMB" value="ShipMB" onchange="mapChoiceChanged('landmarks', this.value)">
+                        <label class="btn btn-outline-primary p-2" for="maplandmarksShipMB">Ship + Mother Brain</label>
+                        <input type="radio" class="btn-check map-generation-control" name="map_landmarks" id="maplandmarksAll" value="All" onchange="mapChoiceChanged('landmarks', this.value)">
+                        <label class="btn btn-outline-primary p-2" for="maplandmarksAll">All</label>
+                        <button type="button" style="flex:none" class="btn btn-secondary ms-1 p-2 map-generation-control" aria-label="Customize Landmarks" data-bs-toggle="modal" data-bs-target="#mapLandmarksModal" onclick="mapModalNavigation(this)">
+                            <i class="bi bi-gear">
+                            </i>
+                        </button>
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('climate', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Heat and water</span>
+                    </div>
+                    <div class="col-md-7 btn-group" role="group" aria-label="climate" id="mapGroupclimate">
+                        <input type="radio" class="btn-check map-generation-control" name="map_climate" id="mapclimateUnrestricted" value="Unrestricted" onchange="mapChoiceChanged('climate', this.value)">
+                        <label class="btn btn-outline-primary p-2" for="mapclimateUnrestricted">Unrestricted</label>
+                        <input type="radio" class="btn-check map-generation-control" name="map_climate" id="mapclimateConcentrated" value="Concentrated" onchange="mapChoiceChanged('climate', this.value)">
+                        <label class="btn btn-outline-primary p-2" for="mapclimateConcentrated">Concentrated</label>
+                        <button type="button" style="flex:none" class="btn btn-secondary ms-1 p-2 map-generation-control" aria-label="Customize Heat and water" data-bs-toggle="modal" data-bs-target="#mapClimateModal" onclick="mapModalNavigation(this)">
+                            <i class="bi bi-gear">
+                            </i>
+                        </button>
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('locations', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Area locations</span>
+                    </div>
+                    <div class="col-md-7 btn-group" role="group" aria-label="locations" id="mapGrouplocations">
+                        <input type="radio" class="btn-check map-generation-control" name="map_locations" id="maplocationsUnrestricted" value="Unrestricted" onchange="mapChoiceChanged('locations', this.value)">
+                        <label class="btn btn-outline-primary p-2" for="maplocationsUnrestricted">Unrestricted</label>
+                        <input type="radio" class="btn-check map-generation-control" name="map_locations" id="maplocationsPreferred" value="Preferred" onchange="mapChoiceChanged('locations', this.value)">
+                        <label class="btn btn-outline-primary p-2" for="maplocationsPreferred">Preferred</label>
+                        <button type="button" style="flex:none" class="btn btn-secondary ms-1 p-2 map-generation-control" aria-label="Customize Area locations" data-bs-toggle="modal" data-bs-target="#mapLocationsModal" onclick="mapModalNavigation(this)">
+                            <i class="bi bi-gear">
+                            </i>
+                        </button>
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('loops', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Return paths</span>
+                    </div>
+                    <div class="col-md-7 btn-group" role="group" aria-label="loops" id="mapGrouploops">
+                        <input type="radio" class="btn-check map-generation-control" name="map_loops" id="maploopsUnrestricted" value="Unrestricted" onchange="mapChoiceChanged('loops', this.value)">
+                        <label class="btn btn-outline-primary p-2" for="maploopsUnrestricted">Unrestricted</label>
+                        <input type="radio" class="btn-check map-generation-control" name="map_loops" id="maploopsShort" value="Short" onchange="mapChoiceChanged('loops', this.value)">
+                        <label class="btn btn-outline-primary p-2" for="maploopsShort">Short loops</label>
+                        <button type="button" style="flex:none" class="btn btn-secondary ms-1 p-2 map-generation-control" aria-label="Customize Return paths" data-bs-toggle="modal" data-bs-target="#mapLoopsModal" onclick="mapModalNavigation(this)">
+                            <i class="bi bi-gear">
+                            </i>
+                        </button>
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('sizes', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Area sizes</span>
+                    </div>
+                    <div class="col-md-7 btn-group" role="group" aria-label="sizes" id="mapGroupsizes">
+                        <input type="radio" class="btn-check map-generation-control" name="map_sizes" id="mapsizesBalanced" value="Balanced" onchange="mapChoiceChanged('sizes', this.value)">
+                        <label class="btn btn-outline-primary p-2" for="mapsizesBalanced">Balanced</label>
+                        <input type="radio" class="btn-check map-generation-control" name="map_sizes" id="mapsizesFamiliar" value="Familiar" onchange="mapChoiceChanged('sizes', this.value)">
+                        <label class="btn btn-outline-primary p-2" for="mapsizesFamiliar">Familiar</label>
+                        <button type="button" style="flex:none" class="btn btn-secondary ms-1 p-2 map-generation-control" aria-label="Customize Area sizes" data-bs-toggle="modal" data-bs-target="#mapSizesModal" onclick="mapModalNavigation(this)">
+                            <i class="bi bi-gear">
+                            </i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card mt-3" id="mapAdvanced">
+                    <div class="card-header">Advanced</div>
+                    <div class="card-body px-2 py-1">
+                        <div class="row align-items-center my-2">
+                            <div class="col-md-5 d-flex align-items-center">
+                                <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('diameter', this)">
+                                    <i class="bi bi-question-circle">
+                                    </i>
+                                </button>
+                                <span>Graph diameter reward</span>
+                            </div>
+                            <div class="col-md-7 d-flex align-items-center">
+                                <input type="number" step="any" class="form-control map-generation-control" data-map-number="reward_graph_diameter" aria-label="Graph diameter reward" onchange="mapNumberChanged(this)">
+                            </div>
+                        </div>
+                        <div class="row align-items-center my-2">
+                            <div class="col-md-5 d-flex align-items-center">
+                                <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('save', this)">
+                                    <i class="bi bi-question-circle">
+                                    </i>
+                                </button>
+                                <span>Save distance reward</span>
+                            </div>
+                            <div class="col-md-7 d-flex align-items-center">
+                                <input type="number" step="any" class="form-control map-generation-control" data-map-number="reward_save_distance" aria-label="Save distance reward" onchange="mapNumberChanged(this)">
+                            </div>
+                        </div>
+                        <div class="row align-items-center my-2">
+                            <div class="col-md-5 d-flex align-items-center">
+                                <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('refill', this)">
+                                    <i class="bi bi-question-circle">
+                                    </i>
+                                </button>
+                                <span>Refill distance reward</span>
+                            </div>
+                            <div class="col-md-7 d-flex align-items-center">
+                                <input type="number" step="any" class="form-control map-generation-control" data-map-number="reward_refill_distance" aria-label="Refill distance reward" onchange="mapNumberChanged(this)">
+                            </div>
+                        </div>
+                        <div class="row align-items-center my-2">
+                            <div class="col-md-5 d-flex align-items-center">
+                                <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('crossings', this)">
+                                    <i class="bi bi-question-circle">
+                                    </i>
+                                </button>
+                                <span>Distinct area crossings reward</span>
+                            </div>
+                            <div class="col-md-7 d-flex align-items-center">
+                                <input type="number" step="any" class="form-control map-generation-control" data-map-number="reward_area_distinct_crossing" aria-label="Distinct area crossings reward" onchange="mapNumberChanged(this)">
+                            </div>
+                        </div>
+                        <div class="row align-items-center my-2">
+                            <div class="col-md-5 d-flex align-items-center">
+                                <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('relabel', this)">
+                                    <i class="bi bi-question-circle">
+                                    </i>
+                                </button>
+                                <span>Relabel completed areas</span>
+                            </div>
+                            <div class="col-md-7 btn-group" role="group" aria-label="relabel" id="mapGrouprelabel">
+                                <input type="radio" class="btn-check" name="map_relabel" id="maprelabelOff" value="Off" onchange="mapChoiceChanged('relabel', this.value)">
+                                <label class="btn btn-outline-primary p-2" for="maprelabelOff">Off</label>
+                                <input type="radio" class="btn-check" name="map_relabel" id="maprelabelStandard" value="Standard" onchange="mapChoiceChanged('relabel', this.value)">
+                                <label class="btn btn-outline-primary p-2" for="maprelabelStandard">Standard</label>
+                                <input type="radio" class="btn-check" name="map_relabel" id="maprelabelSize" value="Size" onchange="mapChoiceChanged('relabel', this.value)">
+                                <label class="btn btn-outline-primary p-2" for="maprelabelSize">Size</label>
+                                <input type="radio" class="btn-check" name="map_relabel" id="maprelabelDepth" value="Depth" onchange="mapChoiceChanged('relabel', this.value)">
+                                <label class="btn btn-outline-primary p-2" for="maprelabelDepth">Depth</label>
+                                <input type="radio" class="btn-check" name="map_relabel" id="maprelabelRandom" value="Random" onchange="mapChoiceChanged('relabel', this.value)">
+                                <label class="btn btn-outline-primary p-2" for="maprelabelRandom">Random</label>
+                                <button type="button" style="flex:none" class="btn btn-secondary ms-1 p-2" aria-label="Customize relabeling" data-bs-toggle="modal" data-bs-target="#areaAssignmentModal" onclick="mapModalNavigation(this)">
+                                    <i class="bi bi-gear">
+                                    </i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal map-settings-modal" id="mapLandmarksModal" tabindex="-1" data-parent-modal="mapSettingsModal">
+    <div class="modal-dialog modal-lg modal-fullscreen-sm-down modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Landmarks</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body px-4 py-2">
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('landmarks', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Landing Site in Crateria</span>
+                    </div>
+                    <div class="col-md-7 d-flex align-items-center">
+                        <div class="form-check form-switch">
+                            <input type="checkbox" role="switch" class="form-check-input map-generation-control" id="mapLandmarkShip" aria-label="Landing Site in Crateria" onchange="mapLandmarkChanged('Ship', this.checked)">
+                        </div>
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('landmarks', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Kraid in Brinstar</span>
+                    </div>
+                    <div class="col-md-7 d-flex align-items-center">
+                        <div class="form-check form-switch">
+                            <input type="checkbox" role="switch" class="form-check-input map-generation-control" id="mapLandmarkKraid" aria-label="Kraid in Brinstar" onchange="mapLandmarkChanged('Kraid', this.checked)">
+                        </div>
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('landmarks', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Ridley in Norfair</span>
+                    </div>
+                    <div class="col-md-7 d-flex align-items-center">
+                        <div class="form-check form-switch">
+                            <input type="checkbox" role="switch" class="form-check-input map-generation-control" id="mapLandmarkRidley" aria-label="Ridley in Norfair" onchange="mapLandmarkChanged('Ridley', this.checked)">
+                        </div>
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('landmarks', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Phantoon in Wrecked Ship</span>
+                    </div>
+                    <div class="col-md-7 d-flex align-items-center">
+                        <div class="form-check form-switch">
+                            <input type="checkbox" role="switch" class="form-check-input map-generation-control" id="mapLandmarkPhantoon" aria-label="Phantoon in Wrecked Ship" onchange="mapLandmarkChanged('Phantoon', this.checked)">
+                        </div>
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('landmarks', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Draygon in Maridia</span>
+                    </div>
+                    <div class="col-md-7 d-flex align-items-center">
+                        <div class="form-check form-switch">
+                            <input type="checkbox" role="switch" class="form-check-input map-generation-control" id="mapLandmarkDraygon" aria-label="Draygon in Maridia" onchange="mapLandmarkChanged('Draygon', this.checked)">
+                        </div>
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('landmarks', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Mother Brain in Tourian</span>
+                    </div>
+                    <div class="col-md-7 d-flex align-items-center">
+                        <div class="form-check form-switch">
+                            <input type="checkbox" role="switch" class="form-check-input map-generation-control" id="mapLandmarkMotherBrain" aria-label="Mother Brain in Tourian" onchange="mapLandmarkChanged('MotherBrain', this.checked)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal map-settings-modal" id="mapClimateModal" tabindex="-1" data-parent-modal="mapSettingsModal">
+    <div class="modal-dialog modal-lg modal-fullscreen-sm-down modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Heat and water</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body px-4 py-2">
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('climate', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Water in Maridia</span>
+                    </div>
+                    <div class="col-md-7 btn-group" role="group" aria-label="maridia_water" id="mapGroupmaridia_water">
+                        <input type="radio" class="btn-check map-generation-control" name="map_maridia_water" id="mapmaridia_waterUnrestricted" value="Unrestricted" onchange="mapChoiceChanged('maridia_water', this.value)">
+                        <label class="btn btn-outline-primary p-2" for="mapmaridia_waterUnrestricted">Unrestricted</label>
+                        <input type="radio" class="btn-check map-generation-control" name="map_maridia_water" id="mapmaridia_waterConcentrated" value="Concentrated" onchange="mapChoiceChanged('maridia_water', this.value)">
+                        <label class="btn btn-outline-primary p-2" for="mapmaridia_waterConcentrated">Concentrated</label>
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('tiers', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Water in Maridia: tier 1</span>
+                    </div>
+                    <div class="col-md-7 d-flex align-items-center">
+                        <input type="number" step="any" class="form-control map-generation-control" data-map-number="maridia_water.probabilities.0" aria-label="Water in Maridia tier 1 probability" onchange="mapNumberChanged(this)">
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('tiers', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Water in Maridia: tier 2</span>
+                    </div>
+                    <div class="col-md-7 d-flex align-items-center">
+                        <input type="number" step="any" class="form-control map-generation-control" data-map-number="maridia_water.probabilities.1" aria-label="Water in Maridia tier 2 probability" onchange="mapNumberChanged(this)">
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('tiers', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Water in Maridia: tier 3</span>
+                    </div>
+                    <div class="col-md-7 d-flex align-items-center">
+                        <input type="number" step="any" class="form-control map-generation-control" data-map-number="maridia_water.probabilities.2" aria-label="Water in Maridia tier 3 probability" onchange="mapNumberChanged(this)">
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('climate', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Heat in Norfair</span>
+                    </div>
+                    <div class="col-md-7 btn-group" role="group" aria-label="norfair_heat" id="mapGroupnorfair_heat">
+                        <input type="radio" class="btn-check map-generation-control" name="map_norfair_heat" id="mapnorfair_heatUnrestricted" value="Unrestricted" onchange="mapChoiceChanged('norfair_heat', this.value)">
+                        <label class="btn btn-outline-primary p-2" for="mapnorfair_heatUnrestricted">Unrestricted</label>
+                        <input type="radio" class="btn-check map-generation-control" name="map_norfair_heat" id="mapnorfair_heatConcentrated" value="Concentrated" onchange="mapChoiceChanged('norfair_heat', this.value)">
+                        <label class="btn btn-outline-primary p-2" for="mapnorfair_heatConcentrated">Concentrated</label>
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('tiers', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Heat in Norfair: tier 1</span>
+                    </div>
+                    <div class="col-md-7 d-flex align-items-center">
+                        <input type="number" step="any" class="form-control map-generation-control" data-map-number="norfair_heat.probabilities.0" aria-label="Heat in Norfair tier 1 probability" onchange="mapNumberChanged(this)">
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('tiers', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Heat in Norfair: tier 2</span>
+                    </div>
+                    <div class="col-md-7 d-flex align-items-center">
+                        <input type="number" step="any" class="form-control map-generation-control" data-map-number="norfair_heat.probabilities.1" aria-label="Heat in Norfair tier 2 probability" onchange="mapNumberChanged(this)">
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('tiers', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Heat in Norfair: tier 3</span>
+                    </div>
+                    <div class="col-md-7 d-flex align-items-center">
+                        <input type="number" step="any" class="form-control map-generation-control" data-map-number="norfair_heat.probabilities.2" aria-label="Heat in Norfair tier 3 probability" onchange="mapNumberChanged(this)">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal map-settings-modal" id="mapLocationsModal" tabindex="-1" data-parent-modal="mapSettingsModal">
+    <div class="modal-dialog modal-lg modal-fullscreen-sm-down modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Area locations</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body px-4 py-2">
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('locations', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Horizontal position reward</span>
+                    </div>
+                    <div class="col-md-7 d-flex align-items-center">
+                        <input type="number" step="any" class="form-control map-generation-control" data-map-number="reward_area_x" aria-label="Horizontal position reward" onchange="mapNumberChanged(this)">
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('locations', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Vertical position reward</span>
+                    </div>
+                    <div class="col-md-7 d-flex align-items-center">
+                        <input type="number" step="any" class="form-control map-generation-control" data-map-number="reward_area_y" aria-label="Vertical position reward" onchange="mapNumberChanged(this)">
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-1">
+                        <thead>
+                            <tr>
+                                <th>Area</th>
+                                <th>
+                                    <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('centers', this)">
+                                        <i class="bi bi-question-circle">
+                                        </i>
+                                    </button>Center X</th>
+                                <th>
+                                    <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('centers', this)">
+                                        <i class="bi bi-question-circle">
+                                        </i>
+                                    </button>Center Y</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">Crateria</th>
+                                <td>
+                                    <input type="number" step="any" class="form-control map-generation-control" data-map-number="target_area_x.0" aria-label="Crateria center X" onchange="mapNumberChanged(this)">
+                                </td>
+                                <td>
+                                    <input type="number" step="any" class="form-control map-generation-control" data-map-number="target_area_y.0" aria-label="Crateria center Y" onchange="mapNumberChanged(this)">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Brinstar</th>
+                                <td>
+                                    <input type="number" step="any" class="form-control map-generation-control" data-map-number="target_area_x.1" aria-label="Brinstar center X" onchange="mapNumberChanged(this)">
+                                </td>
+                                <td>
+                                    <input type="number" step="any" class="form-control map-generation-control" data-map-number="target_area_y.1" aria-label="Brinstar center Y" onchange="mapNumberChanged(this)">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Norfair</th>
+                                <td>
+                                    <input type="number" step="any" class="form-control map-generation-control" data-map-number="target_area_x.2" aria-label="Norfair center X" onchange="mapNumberChanged(this)">
+                                </td>
+                                <td>
+                                    <input type="number" step="any" class="form-control map-generation-control" data-map-number="target_area_y.2" aria-label="Norfair center Y" onchange="mapNumberChanged(this)">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Wrecked Ship</th>
+                                <td>
+                                    <input type="number" step="any" class="form-control map-generation-control" data-map-number="target_area_x.3" aria-label="Wrecked Ship center X" onchange="mapNumberChanged(this)">
+                                </td>
+                                <td>
+                                    <input type="number" step="any" class="form-control map-generation-control" data-map-number="target_area_y.3" aria-label="Wrecked Ship center Y" onchange="mapNumberChanged(this)">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Maridia</th>
+                                <td>
+                                    <input type="number" step="any" class="form-control map-generation-control" data-map-number="target_area_x.4" aria-label="Maridia center X" onchange="mapNumberChanged(this)">
+                                </td>
+                                <td>
+                                    <input type="number" step="any" class="form-control map-generation-control" data-map-number="target_area_y.4" aria-label="Maridia center Y" onchange="mapNumberChanged(this)">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Tourian</th>
+                                <td>
+                                    <input type="number" step="any" class="form-control map-generation-control" data-map-number="target_area_x.5" aria-label="Tourian center X" onchange="mapNumberChanged(this)">
+                                </td>
+                                <td>
+                                    <input type="number" step="any" class="form-control map-generation-control" data-map-number="target_area_y.5" aria-label="Tourian center Y" onchange="mapNumberChanged(this)">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal map-settings-modal" id="mapLoopsModal" tabindex="-1" data-parent-modal="mapSettingsModal">
+    <div class="modal-dialog modal-lg modal-fullscreen-sm-down modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Return paths</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body px-4 py-2">
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('loops', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Missing-connection utility reward</span>
+                    </div>
+                    <div class="col-md-7 d-flex align-items-center">
+                        <input type="number" step="any" class="form-control map-generation-control" data-map-number="reward_missing_connect_utility" aria-label="Missing-connection utility reward" onchange="mapNumberChanged(this)">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal map-settings-modal" id="mapSizesModal" tabindex="-1" data-parent-modal="mapSettingsModal">
+    <div class="modal-dialog modal-lg modal-fullscreen-sm-down modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Area sizes</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body px-4 py-2">
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('sizes', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Crateria</span>
+                    </div>
+                    <div class="col-md-7 d-flex align-items-center">
+                        <input type="number" step="any" class="form-control map-generation-control" data-map-number="target_area_rooms.0" aria-label="Crateria size weight" onchange="mapNumberChanged(this)">
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('sizes', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Brinstar</span>
+                    </div>
+                    <div class="col-md-7 d-flex align-items-center">
+                        <input type="number" step="any" class="form-control map-generation-control" data-map-number="target_area_rooms.1" aria-label="Brinstar size weight" onchange="mapNumberChanged(this)">
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('sizes', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Norfair</span>
+                    </div>
+                    <div class="col-md-7 d-flex align-items-center">
+                        <input type="number" step="any" class="form-control map-generation-control" data-map-number="target_area_rooms.2" aria-label="Norfair size weight" onchange="mapNumberChanged(this)">
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('sizes', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Wrecked Ship</span>
+                    </div>
+                    <div class="col-md-7 d-flex align-items-center">
+                        <input type="number" step="any" class="form-control map-generation-control" data-map-number="target_area_rooms.3" aria-label="Wrecked Ship size weight" onchange="mapNumberChanged(this)">
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('sizes', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Maridia</span>
+                    </div>
+                    <div class="col-md-7 d-flex align-items-center">
+                        <input type="number" step="any" class="form-control map-generation-control" data-map-number="target_area_rooms.4" aria-label="Maridia size weight" onchange="mapNumberChanged(this)">
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-md-5 d-flex align-items-center">
+                        <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-toggle="modal" data-bs-target="#mapSettingHelpModal" onclick="mapSettingHelp('sizes', this)">
+                            <i class="bi bi-question-circle">
+                            </i>
+                        </button>
+                        <span>Tourian</span>
+                    </div>
+                    <div class="col-md-7 d-flex align-items-center">
+                        <input type="number" step="any" class="form-control map-generation-control" data-map-number="target_area_rooms.5" aria-label="Tourian size weight" onchange="mapNumberChanged(this)">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal map-settings-modal" id="mapSettingHelpModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-fullscreen-sm-down modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Map settings</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body px-4 py-2">
+                <div id="mapSettingHelpBody">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

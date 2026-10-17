@@ -422,6 +422,9 @@ pub fn randomize_map_areas(map: &mut Map, seed: usize) {
 fn get_area_sizes(map: &Map, game_data: &GameData) -> [isize; NUM_AREAS] {
     let mut area_tile_cnt: [isize; NUM_AREAS] = [0; NUM_AREAS];
     for (room_idx, area) in map.area.iter().copied().enumerate() {
+        if !map.room_mask[room_idx] {
+            continue;
+        }
         for row in &game_data.room_geometry[room_idx].map {
             for cell in row {
                 if *cell == 1 {
@@ -436,6 +439,9 @@ fn get_area_sizes(map: &Map, game_data: &GameData) -> [isize; NUM_AREAS] {
 fn get_area_depths(map: &Map, game_data: &GameData) -> [isize; NUM_AREAS] {
     let mut area_depth: [isize; NUM_AREAS] = [isize::MAX; NUM_AREAS];
     for (room_idx, area) in map.area.iter().copied().enumerate() {
+        if !map.room_mask[room_idx] {
+            continue;
+        }
         for (row_idx, row) in game_data.room_geometry[room_idx].map.iter().enumerate() {
             for cell in row {
                 if *cell == 1 {
@@ -452,7 +458,7 @@ fn get_area_depths(map: &Map, game_data: &GameData) -> [isize; NUM_AREAS] {
 
 fn shuffle_subareas<R: Rng>(
     map: &mut Map,
-    settings: &RandomizerSettings,
+    area_assignment: &crate::settings::AreaAssignment,
     game_data: &GameData,
     rng: &mut R,
 ) {
@@ -468,7 +474,7 @@ fn shuffle_subareas<R: Rng>(
         }
     }
 
-    if settings.other_settings.area_assignment.ship_in_crateria {
+    if area_assignment.ship_in_crateria && map.room_mask[game_data.ship_room_idx] {
         // Ensure that the Ship stays in subarea/subsubarea 0:
         let ship_room_idx = game_data.ship_room_idx;
         let ship_area = 0; // Crateria
@@ -486,11 +492,7 @@ fn shuffle_subareas<R: Rng>(
         };
     }
 
-    if settings
-        .other_settings
-        .area_assignment
-        .mother_brain_in_tourian
-    {
+    if area_assignment.mother_brain_in_tourian && map.room_mask[game_data.mother_brain_room_idx] {
         // Ensure that Mother Brain stays in subarea/subsubarea 0:
         let mother_brain_room_idx = game_data.mother_brain_room_idx;
         let mother_brain_area = 5; // Tourian
@@ -522,7 +524,9 @@ pub fn assign_map_areas(
     seed: usize,
     game_data: &GameData,
 ) -> bool {
-    let area_assignment = &settings.other_settings.area_assignment;
+    let Some(area_assignment) = &settings.map_settings.area_assignment else {
+        return true;
+    };
     let mut rng_seed = [0u8; 32];
     rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
     let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
@@ -530,23 +534,25 @@ pub fn assign_map_areas(
     let mut area_mapping: Vec<isize> = vec![-1; NUM_AREAS];
     let mut reverse_area_mapping: Vec<isize> = vec![-1; NUM_AREAS];
 
-    if settings.map_layout == "Vanilla"
+    if settings.map_settings.is_vanilla()
         && area_assignment.base_order != AreaAssignmentBaseOrder::Random
     {
         return true;
     }
-    if area_assignment.ship_in_crateria {
+    if area_assignment.ship_in_crateria && map.room_mask[game_data.ship_room_idx] {
         let ship_area = map.area[game_data.ship_room_idx];
         area_mapping[ship_area] = 0;
         reverse_area_mapping[0] = ship_area as isize;
     }
-    if area_assignment.mother_brain_in_tourian {
+    if area_assignment.mother_brain_in_tourian && map.room_mask[game_data.mother_brain_room_idx] {
         let mb_area = map.area[game_data.mother_brain_room_idx];
         area_mapping[mb_area] = 5;
         reverse_area_mapping[5] = mb_area as isize;
     }
     if area_assignment.ship_in_crateria
         && area_assignment.mother_brain_in_tourian
+        && map.room_mask[game_data.ship_room_idx]
+        && map.room_mask[game_data.mother_brain_room_idx]
         && map.area[game_data.ship_room_idx] == map.area[game_data.mother_brain_room_idx]
     {
         // Landing Site and Mother Brain Room are in the same area, creating a conflict.
@@ -604,7 +610,7 @@ pub fn assign_map_areas(
         map.area[i] = area_mapping[map.area[i]] as usize;
     }
 
-    shuffle_subareas(map, settings, game_data, &mut rng);
+    shuffle_subareas(map, area_assignment, game_data, &mut rng);
 
     true
 }
@@ -5840,7 +5846,7 @@ impl<'r> Randomizer<'r> {
                         }
                     }
 
-                    if self.settings.map_layout != "Small" {
+                    if !self.settings.map_settings.is_small() {
                         // Check that Phantoon can be defeated. This is to rule out the possibility that Phantoon may be locked
                         // behind Bowling Alley. On Small maps we relax this, since Phantoon may not exist; the game is still
                         // verified to be logically beatable, but possibly some part of the map could be inaccessible due

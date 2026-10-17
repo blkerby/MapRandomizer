@@ -6,7 +6,8 @@ use maprando::customize::{
     ControllerConfig, CustomizeSettings, MusicSettings, StatuesHallwayAudio, StatuesHallwayTiling,
 };
 use maprando::difficulty::{get_full_global, get_link_difficulty_length};
-use maprando::map_repository::{MapRepository, MapSettings, OfflineMapRepository};
+use maprando::map_repository::{MapRepository, OfflineMapRepository};
+use maprando::map_settings::MapSettings;
 use maprando::patch::Rom;
 use maprando::patch::make_rom;
 use maprando::preset::PresetData;
@@ -14,6 +15,7 @@ use maprando::randomize::{
     Randomization, Randomizer, assign_map_areas, get_difficulty_tiers, get_objectives,
     randomize_doors,
 };
+use maprando::settings::MapPreset;
 use maprando::settings::{
     ItemProgressionSettings, QualityOfLifeSettings, RandomizerSettings, SkillAssumptionSettings,
     StartLocationMode,
@@ -92,13 +94,15 @@ fn get_randomization(
     settings.skill_assumption_settings = skill_preset.clone();
     settings.item_progression_settings = item_preset.clone();
     settings.quality_of_life_settings = qol_preset.clone();
-    settings.map_layout = match rng.next_u64() % 4 {
-        0 => "Vanilla",
-        1 => "Small",
-        2 => "Standard",
-        _ => "Wild",
-    }
-    .to_string();
+    settings.map_settings = MapSettings::from_preset(
+        match rng.next_u64() % 4 {
+            0 => MapPreset::Vanilla,
+            1 => MapPreset::Small,
+            2 => MapPreset::Standard,
+            _ => MapPreset::Wild,
+        },
+        false,
+    );
 
     let skill_label = match &settings.skill_assumption_settings.preset {
         Some(s) => s.clone(),
@@ -158,12 +162,9 @@ fn get_randomization(
         let door_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
 
         if map_batch.is_empty() {
-            let mut map_settings = MapSettings::from_map_layout(&settings.map_layout)?;
-            map_settings.area_assignment_base_order =
-                settings.other_settings.area_assignment.base_order;
             map_batch = app
                 .map_repo
-                .get_map_batch(map_seed, map_settings, game_data)
+                .get_map_batch(map_seed, &settings.map_settings, game_data)
                 .unwrap();
         }
 

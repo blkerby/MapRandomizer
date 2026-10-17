@@ -10,9 +10,9 @@ use maprando::{
     randomize::{DifficultyConfig, ItemPriorityGroup, Randomization, get_starting_items},
     seed_repository::{Seed, SeedFile},
     settings::{
-        AreaAssignmentBaseOrder, AreaAssignmentPreset, CrashFixesPreset, DisableETankSetting,
-        DoorLocksSize, ETankRefill, FillerItemPriority, ItemCount, MapStationActivationPreset,
-        RandomizerSettings, SaveState, SpeedBooster, WallJump, get_objective_groups,
+        AreaAssignmentBaseOrder, CrashFixesPreset, DisableETankSetting, DoorLocksSize, ETankRefill,
+        FillerItemPriority, ItemCount, MapStationActivationPreset, RandomizerSettings, SaveState,
+        SpeedBooster, WallJump, get_objective_groups,
     },
     spoiler_log::SpoilerLog,
     spoiler_map,
@@ -174,11 +174,22 @@ impl SeedHeaderTemplate<'_> {
             None => "Custom",
         }
     }
+    fn map_source(&self) -> &'static str {
+        use maprando::map_settings::MapSource;
+        match self.settings.map_settings.source {
+            MapSource::Vanilla => "Vanilla",
+            MapSource::Small => "Small pool",
+            MapSource::Standard => "Standard pool",
+            MapSource::Wild => "Wild pool",
+            MapSource::Realtime => "Realtime",
+        }
+    }
+
     fn game_variations(&self) -> Vec<&str> {
         let mut game_variations = vec![];
         let other_settings = &self.settings.other_settings;
-        if other_settings.area_assignment.preset != Some(AreaAssignmentPreset::Standard) {
-            match other_settings.area_assignment.base_order {
+        if let Some(assignment) = self.settings.map_settings.area_assignment {
+            match assignment.base_order {
                 AreaAssignmentBaseOrder::Size => {
                     game_variations.push("Size-based area assignment");
                 }
@@ -189,10 +200,10 @@ impl SeedHeaderTemplate<'_> {
                     game_variations.push("Random area assignment");
                 }
             }
-            if other_settings.area_assignment.ship_in_crateria {
+            if assignment.ship_in_crateria {
                 game_variations.push("Ship in Crateria");
             }
-            if other_settings.area_assignment.mother_brain_in_tourian {
+            if assignment.mother_brain_in_tourian {
                 game_variations.push("Mother Brain in Tourian");
             }
         }

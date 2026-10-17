@@ -1,0 +1,245 @@
+<script>
+const realtimeMapGeneration = {{ realtime_map_generation }};
+const mapPresets = Object.fromEntries({{ map_presets_json|safe }}.map(p => [p.preset, p]));
+const mapLandmarks = mapPresets.Familiar.generation.landmarks;
+let mapSettings = structuredClone(mapPresets.Standard);
+const mapRelabelPresets = {
+    Standard: {preset: 'Standard', base_order: 'Size', ship_in_crateria: true, mother_brain_in_tourian: true},
+    Size: {preset: 'Size', base_order: 'Size', ship_in_crateria: false, mother_brain_in_tourian: false},
+    Depth: {preset: 'Depth', base_order: 'Depth', ship_in_crateria: false, mother_brain_in_tourian: false},
+    Random: {preset: 'Random', base_order: 'Random', ship_in_crateria: false, mother_brain_in_tourian: false},
+};
+let mapRelabelDraft = structuredClone(mapRelabelPresets.Standard);
+
+function buildMapSettings() {
+    return structuredClone(mapSettings);
+}
+
+function applyMapSettings(settings) {
+    mapSettings = structuredClone(settings);
+    mapRelabelDraft = structuredClone(settings.area_assignment ?? mapRelabelPresets.Standard);
+    renderMapSettings();
+}
+
+function mapPresetChanged(preset) {
+    applyMapSettings(mapPresets[preset]);
+    fullSettingsChanged();
+}
+
+function mapSettingsChanged() {
+    mapSettings.preset = null;
+    renderMapSettings();
+    fullSettingsChanged();
+}
+
+function mapSourceChanged(source) {
+    mapSettings.source = source;
+    mapSettings.area_assignment = ['Small', 'Standard', 'Wild'].includes(source)
+        ? structuredClone(mapRelabelPresets.Standard) : null;
+    mapRelabelDraft = structuredClone(mapSettings.area_assignment ?? mapRelabelPresets.Standard);
+    mapSettingsChanged();
+}
+
+function mapAreaShare(area) {
+    const weights = mapSettings.generation.target_area_rooms;
+    return weights[area] / weights.reduce((a, b) => a + b, 0);
+}
+
+function mapClimateChoice(field, choice) {
+    const area = field === 'maridia_water' ? 4 : 2;
+    mapSettings.generation[field] = {
+        preset: choice,
+        probabilities: choice === 'Unrestricted' ? Array(3).fill(mapAreaShare(area))
+            : [...mapPresets.Familiar.generation[field].probabilities],
+    };
+}
+
+function mapChoiceChanged(group, value) {
+    const g = mapSettings.generation;
+    switch (group) {
+        case 'size': g.small_map = value === 'Small'; break;
+        case 'landmarks':
+            g.landmarks = value === 'All' ? [...mapLandmarks]
+                : value === 'None' ? [] : [...mapPresets.Standard.generation.landmarks];
+            break;
+        case 'climate':
+            mapClimateChoice('maridia_water', value);
+            mapClimateChoice('norfair_heat', value);
+            break;
+        case 'maridia_water': case 'norfair_heat': mapClimateChoice(group, value); break;
+        case 'locations':
+            g.reward_area_x = value === 'Preferred' ? mapPresets.Standard.generation.reward_area_x : 0;
+            g.reward_area_y = value === 'Preferred' ? mapPresets.Standard.generation.reward_area_y : 0;
+            g.target_area_x = value === 'Preferred' ? [...mapPresets.Standard.generation.target_area_x] : Array(6).fill(36);
+            g.target_area_y = value === 'Preferred' ? [...mapPresets.Standard.generation.target_area_y] : Array(6).fill(36);
+            break;
+        case 'loops':
+            g.reward_missing_connect_utility = mapPresets[value === 'Short' ? 'Standard' : 'Wild'].generation.reward_missing_connect_utility;
+            break;
+        case 'sizes':
+            g.target_area_rooms = value === 'Familiar' ? [...mapPresets.Standard.generation.target_area_rooms] : Array(6).fill(1);
+            break;
+        case 'relabel':
+            mapSettings.area_assignment = value === 'Off' ? null : structuredClone(mapRelabelPresets[value]);
+            if (mapSettings.area_assignment) mapRelabelDraft = structuredClone(mapSettings.area_assignment);
+            break;
+    }
+    mapSettingsChanged();
+}
+
+function mapLandmarkChanged(landmark, checked) {
+    const g = mapSettings.generation;
+    g.landmarks = mapLandmarks.filter(name => name === landmark ? checked : g.landmarks.includes(name));
+    mapSettingsChanged();
+}
+
+function mapNumberChanged(input) {
+    const path = input.dataset.mapNumber.split('.');
+    let target = mapSettings.generation;
+    for (const key of path.slice(0, -1)) target = target[key];
+    target[path.at(-1)] = input.value === '' ? null : Number(input.value);
+    if (['maridia_water', 'norfair_heat'].includes(path[0])) {
+        mapSettings.generation[path[0]].preset = null;
+    }
+    mapSettingsChanged();
+}
+
+function mapRelabelChanged() {
+    const value = name => document.querySelector(`input[name="${name}"]:checked`).value;
+    mapRelabelDraft = {
+        preset: null,
+        base_order: value('area_assignment_base_order'),
+        ship_in_crateria: value('area_assignment_ship_in_crateria') === 'true',
+        mother_brain_in_tourian: value('area_assignment_mother_brain_in_tourian') === 'true',
+    };
+    for (const [name, preset] of Object.entries(mapRelabelPresets)) {
+        if (preset.base_order === mapRelabelDraft.base_order
+            && preset.ship_in_crateria === mapRelabelDraft.ship_in_crateria
+            && preset.mother_brain_in_tourian === mapRelabelDraft.mother_brain_in_tourian) {
+            mapRelabelDraft.preset = name;
+            break;
+        }
+    }
+    mapSettings.area_assignment = structuredClone(mapRelabelDraft);
+    mapSettingsChanged();
+}
+
+function renderMapSettings() {
+    const g = mapSettings.generation;
+    const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+    const select = (group, value) => {
+        for (const radio of document.querySelectorAll(`#mapGroup${group} input`)) {
+            radio.checked = radio.value === value;
+        }
+    };
+    for (const radio of document.querySelectorAll('#mapLayout input')) {
+        radio.checked = radio.value === mapSettings.preset;
+    }
+    document.getElementById('mapSource').value = mapSettings.source;
+    select('size', mapSettings.source === 'Small' || (mapSettings.source === 'Realtime' && g.small_map) ? 'Small' : 'Full');
+    const sameLandmarks = expected => expected.length === g.landmarks.length && expected.every(name => g.landmarks.includes(name));
+    select('landmarks', g.landmarks.length === 0 ? 'None' : sameLandmarks(mapLandmarks) ? 'All'
+        : sameLandmarks(mapPresets.Standard.generation.landmarks) ? 'ShipMB' : null);
+    for (const landmark of mapLandmarks) {
+        document.getElementById(`mapLandmark${landmark}`).checked = g.landmarks.includes(landmark);
+    }
+    for (const [field, area] of [['maridia_water', 4], ['norfair_heat', 2]]) {
+        if (g[field].preset === 'Unrestricted') g[field].probabilities = Array(3).fill(mapAreaShare(area));
+        select(field, g[field].preset);
+    }
+    select('climate', g.maridia_water.preset === g.norfair_heat.preset ? g.maridia_water.preset : null);
+    select('locations', g.reward_area_x === 0 && g.reward_area_y === 0 ? 'Unrestricted'
+        : g.reward_area_x === mapPresets.Standard.generation.reward_area_x
+            && g.reward_area_y === mapPresets.Standard.generation.reward_area_y
+            && same(g.target_area_x, mapPresets.Standard.generation.target_area_x)
+            && same(g.target_area_y, mapPresets.Standard.generation.target_area_y) ? 'Preferred' : null);
+    select('loops', g.reward_missing_connect_utility === mapPresets.Wild.generation.reward_missing_connect_utility ? 'Unrestricted'
+        : g.reward_missing_connect_utility === mapPresets.Standard.generation.reward_missing_connect_utility ? 'Short' : null);
+    select('sizes', g.target_area_rooms.every(x => x > 0 && x === g.target_area_rooms[0]) ? 'Balanced'
+        : same(g.target_area_rooms, mapPresets.Standard.generation.target_area_rooms) ? 'Familiar' : null);
+    for (const input of document.querySelectorAll('[data-map-number]')) {
+        input.value = input.dataset.mapNumber.split('.').reduce((value, key) => value[key], g) ?? '';
+    }
+    for (const control of document.querySelectorAll('.map-generation-control')) {
+        control.disabled = mapSettings.source !== 'Realtime';
+    }
+    select('relabel', mapSettings.area_assignment === null ? 'Off' : mapSettings.area_assignment.preset);
+    for (const [name, value] of [
+        ['area_assignment_base_order', mapRelabelDraft.base_order],
+        ['area_assignment_ship_in_crateria', mapRelabelDraft.ship_in_crateria],
+        ['area_assignment_mother_brain_in_tourian', mapRelabelDraft.mother_brain_in_tourian],
+    ]) {
+        for (const radio of document.querySelectorAll(`input[name="${name}"]`)) radio.checked = radio.value === String(value);
+    }
+}
+
+const mapSettingHelpText = {
+    presets: ['Map layout', `<p>Vanilla uses the original layout. The randomized presets are:</p>
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle text-center">
+                <thead>
+                    <tr><th scope="col" class="text-start">Setting</th><th scope="col">Small</th><th scope="col">Familiar</th><th scope="col">Standard</th><th scope="col">Wild</th></tr>
+                </thead>
+                <tbody>
+                    <tr><th scope="row" class="text-start">Map size</th><td>Small</td><td>Full</td><td>Full</td><td>Full</td></tr>
+                    <tr><th scope="row" class="text-start">Landmarks in original areas</th><td>None</td><td>All six</td><td>Ship + Mother Brain</td><td>None</td></tr>
+                    <tr><th scope="row" class="text-start">Heat and water</th><td>Unrestricted</td><td>Concentrated</td><td>Unrestricted</td><td>Unrestricted</td></tr>
+                    <tr><th scope="row" class="text-start">Area locations</th><td>Unrestricted</td><td>Preferred</td><td>Preferred</td><td>Unrestricted</td></tr>
+                    <tr><th scope="row" class="text-start">Return loops</th><td>Short</td><td>Short</td><td>Short</td><td>Unrestricted</td></tr>
+                    <tr><th scope="row" class="text-start">Area sizes</th><td>Familiar</td><td>Familiar</td><td>Familiar</td><td>Balanced</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p>These presets use Realtime map generation. The cog opens map settings, where you can also select a pre-generated pool.</p>`],
+    source: ['Map source', `<p>Realtime generates a new map using your generation settings. The pools contain previously generated maps; generation controls are disabled and ignored when a pool is selected. Relabeling is available with either source.</p>
+        <p>Selecting a randomized pool defaults relabeling to Standard. Selecting Realtime or Vanilla turns relabeling off. Your inactive generation settings are retained when switching sources.</p>`],
+    size: ['Map size', `<p>Full includes all rooms. Realtime Small generates a subset with a target of 150 rooms and a range of 120–180. The existing Small pool contains maps made by removing some areas from Standard maps. Missing objectives are excluded.</p>`],
+    landmarks: ['Landmarks', `<p>Force selected landmarks into their original areas. None disables all six constraints; Ship + Mother Brain enables only Landing Site in Crateria and Mother Brain in Tourian; All enables all six. The cog allows individual choices.</p>
+        <p>An unchecked landmark has no original-area reward. Relabeling completed areas can change its final area even when it was forced during generation.</p>`],
+    climate: ['Heat and water', `<p>Concentrated favors placing water rooms in Maridia and heated rooms in Norfair. Unrestricted adds no preference beyond the selected area-size proportions. These settings affect room placement, not the amount of water or heat in a room.</p>
+        <p>The cog separates heat and water and exposes the three tier probabilities. Concentrated uses 0.5, 0.6, and 0.7; Unrestricted follows the corresponding area's size share.</p>`],
+    tiers: ['Heat and water tiers', `<p>Rooms are tagged with tiers 1–3 in map-gen's room definitions. Each number is the preferred probability for placing that tier's rooms in Maridia (water) or Norfair (heat).</p>
+        <p>Probabilities must be positive, nondecreasing across the tiers, below 1, and at least the corresponding area's share of the size weights. Unrestricted tracks that share automatically; editing a number creates an explicit preference.</p>`],
+    locations: ['Area locations', `<p>Preferred uses familiar target centers with horizontal and vertical rewards of 10. Unrestricted sets both rewards to zero, so centers have no influence. The cog edits centers and the two reward strengths independently.</p>
+        <p>Centers are soft preferences; they do not fix area boundaries or guarantee a depth ordering.</p>`],
+    centers: ['Area centers', `<p>X increases to the right and Y increases downward. Preferred centers, in Crateria/Brinstar/Norfair/Wrecked Ship/Maridia/Tourian order, are X: 16, 10, 40, 48, 40, 16 and Y: 12, 32, 64, 12, 32, 24.</p>
+        <p>Unrestricted stores 36 for each coordinate with zero position rewards. Coordinates only influence generation when their corresponding reward is nonzero.</p>`],
+    loops: ['Return paths', `<p>Short loops uses a missing-connection utility reward of 1, favoring shorter return paths after one-way passages. Unrestricted uses 0, removing that preference. Neither setting guarantees a particular path length.</p>
+        <p>The cog edits the nonnegative reward directly. Paths are assessed using the generator's room connectivity, not the player's current inventory.</p>`],
+    sizes: ['Area sizes', `<p>Balanced gives all six areas equal weights. Familiar uses 150, 200, 200, 100, 200, 100 for Crateria, Brinstar, Norfair, Wrecked Ship, Maridia, Tourian.</p>
+        <p>These are positive relative weights, not exact room counts or a guaranteed size ordering. Heat/water preferences and forced landmarks also influence effective area sizes. Unrestricted heat/water probabilities follow changes to these weights.</p>`],
+    diameter: ['Graph diameter reward', '<p>A higher nonnegative reward penalizes greater graph diameter, favoring shorter maximum distances across the room graph. The default is 0.1.</p>'],
+    save: ['Save distance reward', '<p>A higher nonnegative reward favors shorter paths to and from save stations. The default is 0.1.</p>'],
+    refill: ['Refill distance reward', '<p>A higher nonnegative reward favors shorter paths to and from refill stations. The default is 0.1.</p>'],
+    crossings: ['Distinct area crossings reward', '<p>This reward favors connections between distinct pairs of areas. Higher values encourage more pairs of areas to connect directly. The default is 1.</p>'],
+    relabel: ['Relabel completed areas', `<p>Off preserves the map's generated area assignments. Other options relabel completed regions, overwriting the assignment produced by generation. This can undo landmark, heat/water, and area-location preferences.</p>
+        <ul><li><strong>Standard:</strong> Landing Site in Crateria, Mother Brain in Tourian; remaining areas assigned by size.</li>
+        <li><strong>Size:</strong> largest to smallest: Norfair, Brinstar, Maridia, Crateria, Tourian, Wrecked Ship.</li>
+        <li><strong>Depth:</strong> highest map tile to lowest: Crateria, Wrecked Ship, Tourian, Brinstar, Maridia, Norfair.</li>
+        <li><strong>Random:</strong> random area labels.</li></ul>
+        <p>The cog independently selects a base order and ship/Mother Brain overrides. With Vanilla, only Random changes the area assignment, matching the existing behavior.</p>`],
+};
+
+function mapModalNavigation(button) {
+    const current = button.closest('.modal');
+    if (current) current.dataset.mapNextModal = button.dataset.bsTarget;
+}
+
+function mapSettingHelp(topic, button) {
+    mapModalNavigation(button);
+    const help = document.getElementById('mapSettingHelpModal');
+    help.dataset.parentModal = button.closest('.modal')?.id ?? '';
+    help.querySelector('.modal-title').textContent = mapSettingHelpText[topic][0];
+    document.getElementById('mapSettingHelpBody').innerHTML = mapSettingHelpText[topic][1];
+}
+
+for (const modal of document.querySelectorAll('.map-settings-modal')) {
+    modal.addEventListener('hidden.bs.modal', () => {
+        if (modal.dataset.mapNextModal) {
+            delete modal.dataset.mapNextModal;
+        } else if (modal.dataset.parentModal) {
+            bootstrap.Modal.getOrCreateInstance(document.getElementById(modal.dataset.parentModal)).show();
+        }
+    });
+}
+</script>

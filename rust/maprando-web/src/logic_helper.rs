@@ -1167,7 +1167,10 @@ fn get_vanilla_map_data(
 ) -> Result<VanillaMapData> {
     let randomization = get_vanilla_randomization(vanilla_map);
     let mut settings = settings.clone();
-    settings.map_layout = "Vanilla".to_string();
+    settings.map_settings = maprando::map_settings::MapSettings::from_preset(
+        maprando::settings::MapPreset::Vanilla,
+        false,
+    );
     let (img, _) = spoiler_map::get_spoiler_images(&randomization, game_data, &settings, true)?;
 
     let mut cropped_img = RgbaImage::new(68 * 8 + 1, 59 * 8 + 1);
