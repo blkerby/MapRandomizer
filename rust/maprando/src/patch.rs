@@ -571,14 +571,14 @@ impl Patcher<'_> {
             patches.push("missile_refill_all");
         }
 
+        if self.settings.quality_of_life_settings.animated_tiles {
+            patches.push("animated_map_tiles");
+        }
+
         if self.settings.quality_of_life_settings.crash_fixes.preset
             != Some(CrashFixesPreset::Crash)
         {
             patches.push("crash_handle_base");
-        }
-
-        if self.settings.quality_of_life_settings.animated_tiles{
-            patches.push("animated_map_tiles");
         }
 
         let fixes = &self.settings.quality_of_life_settings.crash_fixes;
