@@ -2693,9 +2693,9 @@ impl<'a> MapPatcher<'a> {
         &mut self,
         area_data: &[Vec<(ItemIdx, RoomId, MapTile)>],
     ) -> Result<()> {
-        let mut doubles: Vec<[u16; 4]> = vec![];
+        let mut doubles: Vec<[u16; 8]> = vec![];
         for (area_idx, data) in area_data.iter().enumerate() {
-            for (i, (_, _, a)) in data.iter().enumerate() {
+            for (i, (item_a, _, a)) in data.iter().enumerate() {
                 for (_, _, b) in &data[i + 1..] {
                     if a.coords != b.coords {
                         continue;
@@ -2706,16 +2706,25 @@ impl<'a> MapPatcher<'a> {
                     let y = a.coords.1 as isize - self.area_offset_y[area_idx];
                     let dest = 0x3000 + xy_to_map_offset(x, y) / 2;
                     let tile_a = if wa == wb { 0xFFFF } else { wb };
-                    doubles.push([area_idx as u16, dest as u16, tile_a, wa]);
+                    doubles.push([
+                        area_idx as u16,
+                        dest as u16,
+                        tile_a,
+                        wa,
+                        (item_a / 8) as u16,
+                        1u16 << (item_a % 8),
+                        0,
+                        0,
+                    ]);
                 }
             }
         }
         assert!(doubles.len() <= 6);
-        doubles.resize(6, [0xFFFF, 0, 0xFFFF, 0]);
+        doubles.resize(6, [0xFFFF, 0, 0xFFFF, 0, 0, 0, 0, 0]);
         for (i, e) in doubles.iter().enumerate() {
             for (j, &w) in e.iter().enumerate() {
                 self.rom
-                    .write_u16(snes2pc(0xDFE212 + i * 8 + j * 2), w as isize)?;
+                    .write_u16(snes2pc(0xDFE212 + i * 16 + j * 2), w as isize)?;
             }
         }
         Ok(())

@@ -37,12 +37,12 @@ org !bank_df_free_space_start
 ; table is ordered by area for the 6 double_item rooms, upto 6, if small maps / missing etc table is padded with FFFF to fill this table.
 
 DoubleItemTable:
-  dw $0000, $0000, $0000, $0000 ; Billy Mays
-  dw $0000, $0000, $0000, $0000 ; West Sand Pit
-  dw $0000, $0000, $0000, $0000 ; Watering Hole
-  dw $0000, $0000, $0000, $0000 ; Green Pirates Shaft
-  dw $0000, $0000, $0000, $0000 ; Green Brinstar Reserve
-  dw $0000, $0000, $0000, $0000 ; Norfair Reserve
+  dw $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000 ; Billy Mays
+  dw $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000 ; West Sand Pit
+  dw $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000 ; Watering Hole
+  dw $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000 ; Green Pirates Shaft
+  dw $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000 ; Green Brinstar Reserve
+  dw $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000 ; Norfair Reserve
 
 
 RowBitMasks:
@@ -79,14 +79,22 @@ BuildAnimateBitMask:
   tax
 
   lda $7e4000,x
-  and #$e3ff ; remove the pallete bits to keep animation running if tiles have been marked as explored.
+  and #$E3FF
   cmp.w DoubleItemTable+4,y
+  bne .next_entry
+
+  lda.w DoubleItemTable+8,y
+  tax
+  lda $7ed870,x
+  and.w DoubleItemTable+10,y
   bne .next_entry
 
   tya
   lsr
   lsr
+  lsr
   tax
+  
   lda.w RowBitMasks,x
   ora !animate_mask
   sta !animate_mask
@@ -94,11 +102,11 @@ BuildAnimateBitMask:
 .next_entry
   tya
   clc
-  adc #$0008
+  adc #$0010
   tay
-  cpy #$0030
+  cpy #$0060
   bne .loop
-
+  
   ; cleanup
   ply
   plx
@@ -196,9 +204,9 @@ AnimateTile:
 .next
   tya
   clc
-  adc #$0008
+  adc #$0010
   tay
-  cpy #$0030
+  cpy #$0060
   bne .loop
 
   txa
@@ -214,4 +222,5 @@ AnimateTile:
   sta $0763   
   rtl
   
+  print pc
   assert pc() <= !bank_df_free_space_end
