@@ -5,7 +5,7 @@ lorom
 arch 65816
 
 !bank_df_free_space_start = $dfe212 ; values in this table are overwritten in patch.rs
-!bank_df_free_space_end = $dffeef
+!bank_df_free_space_end = $dffe3af
 
 !tile_timer = $7e09ee      
 !tile_state = $7e09a0
@@ -195,7 +195,7 @@ AnimateTile:
   adc #DoubleItemTable+4
   adc $7e00d2,x
   sta $7e00d2,x           ; source = tile_a or tile_b, revealed or visited
-  lda #$00DF
+  lda #$00df
   sta $7e00d4,x           ; bank (dest write below overwrites the stray high byte)
   lda DoubleItemTable+2,y
   sta $7e00d5,x           ; VRAM dest
@@ -225,7 +225,4 @@ AnimateTile:
   sta $0763   
   rtl
   
-  
-  print pc
-  
-  assert pc() <= !bank_df_free_space_end
+assert pc() <= !bank_df_free_space_end
