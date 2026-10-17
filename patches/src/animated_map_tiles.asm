@@ -79,6 +79,7 @@ BuildAnimateBitMask:
   tax
 
   lda $7e4000,x
+  and #$e3ff ; remove the pallete bits to keep animation running if tiles have been marked as explored.
   cmp.w DoubleItemTable+4,y
   bne .next_entry
 
@@ -117,8 +118,15 @@ AnimateTile:
   lda !tile_timer
   inc
   cmp !interval
-  bcc .quick_exit
+  bcs .run
   
+  sta !tile_timer
+  plp
+  lda #$0000
+  sta $0763
+  rtl
+  
+.run  
   phx
   phy
   phb
@@ -150,17 +158,36 @@ AnimateTile:
   cmp !current_area
   bne .next
 
-  lda #$0002
-  sta $7e00d0,x           ; size
-  tya
+  phx
+  lda DoubleItemTable+2,y
+  sec
+  sbc #$3000
+  asl
+  tax
+  lda $7e4000,x
+  and #$1C00
+  pha
+  lda !tile_state
+  bne .tile_b
+  lda DoubleItemTable+4,y
+  bra .merge
+.tile_b
+  lda DoubleItemTable+6,y
+.merge
+  ora $01,s
+  sta $7e4000,x
+  pla
+  txa
   clc
-  adc #DoubleItemTable+4
-  adc !tile_state
-  sta $7e00d2,x           ; source = tile_a or tile_b
-  lda #$00DF
+  adc #$4000
+  plx
+  sta $7e00d2,x
+  lda #$0002
+  sta $7e00d0,x
+  lda #$007E
   sta $7e00d4,x           ; bank (dest write below overwrites the stray high byte)
   lda DoubleItemTable+2,y
-  sta $7e00d5,x           ; VRAM dest
+  sta $7e00d5,x
   txa
   clc
   adc #$0007
@@ -185,13 +212,6 @@ AnimateTile:
   plp
   lda #$0000 
   sta $0763   
-  rtl
-  
-.quick_exit
-  sta !tile_timer
-  plp
-  lda #$0000
-  sta $0763
   rtl
   
   assert pc() <= !bank_df_free_space_end
