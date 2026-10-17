@@ -79,7 +79,6 @@ BuildAnimateBitMask:
   tax
 
   lda $7e4000,x
-  and #$E3FF
   cmp.w DoubleItemTable+4,y
   bne .next_entry
 
@@ -166,36 +165,17 @@ AnimateTile:
   cmp !current_area
   bne .next
 
-  phx
-  lda DoubleItemTable+2,y
-  sec
-  sbc #$3000
-  asl
-  tax
-  lda $7e4000,x
-  and #$1C00
-  pha
-  lda !tile_state
-  bne .tile_b
-  lda DoubleItemTable+4,y
-  bra .merge
-.tile_b
-  lda DoubleItemTable+6,y
-.merge
-  ora $01,s
-  sta $7e4000,x
-  pla
-  txa
-  clc
-  adc #$4000
-  plx
-  sta $7e00d2,x
   lda #$0002
-  sta $7e00d0,x
-  lda #$007E
+  sta $7e00d0,x           ; size
+  tya
+  clc
+  adc #DoubleItemTable+4
+  adc !tile_state
+  sta $7e00d2,x           ; source = tile_a or tile_b
+  lda #$00DF
   sta $7e00d4,x           ; bank (dest write below overwrites the stray high byte)
   lda DoubleItemTable+2,y
-  sta $7e00d5,x
+  sta $7e00d5,x           ; VRAM dest
   txa
   clc
   adc #$0007
@@ -222,5 +202,7 @@ AnimateTile:
   sta $0763   
   rtl
   
+  
   print pc
+  
   assert pc() <= !bank_df_free_space_end

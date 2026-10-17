@@ -2,8 +2,8 @@ D4DF - D761: ; credits.asm
 D91B - DF0A: ; credits.asm
 E000 - E127: ; credits.asm
 E200 - E212: ; alternate_door_colors.asm
-E212 - E33F: ; animated_map_tiles.asm
-E33F - FEF0: [free]
+E212 - E3A4: ; animated_map_tiles.asm
+E3A4 - FEF0: [free]
 FEF0 - FEFF: seed name (null-terminated ASCII string)
 FF00 - FF03: display seed / internal seed hash
 FF04 - FF04: [free]
