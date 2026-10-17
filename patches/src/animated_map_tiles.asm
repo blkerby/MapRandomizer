@@ -4,16 +4,16 @@
 lorom
 arch 65816
 
-!bank_df_free_space_start = $dfe212 ; values in this table are overwritten in patch.rs
+!bank_df_free_space_start = $dfe212 ; this location must match fn write_double_item_table in map_tiles.rs
 !bank_df_free_space_end = $dffe3af
 
-!tile_timer = $7e09ee      
-!tile_state = $7e09a0
-!interval   = #$0030           
+!interval = #$0030           
 !current_area = $7e1f5b    
-!animate_mask = $7ef5a0    
+!animate_mask = $7ef5a0
+!tile_timer = $7ef5a2      
+!tile_state = $7ef5a4
 
-; Vanilla hooks
+;;; Vanilla hooks
 
 org $82913B     ;;; $9120: Pause menu - index 0: map screen ;;;
     jsl AnimateTile
@@ -22,21 +22,30 @@ org $82913B     ;;; $9120: Pause menu - index 0: map screen ;;;
 
 org $82941e     ;;; ;;; $93C3: Load pause menu map tilemap and area label ;;;
     jsl BuildAnimateBitMask
-    nop ;$82:941E C9 07 00    CMP #$0007             ;\
-    nop ;$82:9421 30 03       BMI $03    [$9426]     ;} If [area index] >= debug:
-    nop ;$82:9423 A9 00 00    LDA #$0000             ; A = 0
+    nop 
+    nop 
+    nop 
     nop
     
     
-; Custom code
+;;; Custom code
 
 org !bank_df_free_space_start
 
-; area, vram_dest, tile_a, tile b
-; tile_a will be set to FFFF on the server side if both items are of the same type so it is never animated as it will just waste cycles reloading an identical tile.
-; table is ordered by area for the 6 double_item rooms, upto 6, if small maps / missing etc table is padded with FFFF to fill this table.
+; the contents of this table is modified by fn write_double_item_table in map_tiles.rs
+;
+; +0	area index [table is generated in area order of the rooms]
+;	+2	VRAM tilemap dest
+;	+4	tile_a, the priority tile, revealed (palette 7). $FFFF if both items are the same type, so it never matches and tries to flip a tile to an identical tile
+;	+6	tile_b, the other item’s tile, revealed (palette 7)
+;	+8	byte offset of tile_b’s item in the collected-items array at $7ED870
+;	+10	bit mask for tile_b’s item within that byte
+;	+12	tile_a for visited tiles (palette 2). $FFFF if same type
+;	+14	tile_b for visited tiles (palette 2)
 
-DoubleItemTable:
+; Padding: unused entries are $FFFF, $0000, $FFFF, $0000, $0000, $0000, $FFFF, $0000.
+
+DoubleItemTable: 
   dw $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000 ; Billy Mays
   dw $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000 ; West Sand Pit
   dw $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000 ; Watering Hole
@@ -44,6 +53,7 @@ DoubleItemTable:
   dw $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000 ; Green Brinstar Reserve
   dw $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000 ; Norfair Reserve
 
+; Mask layout: !animate_mask uses bit n for “animate entry n” and bit n+8 for “entry n is visited” (VisitedRowMasks).
 
 RowBitMasks:
   dw $0001, $0002, $0004, $0008, $0010, $0020
@@ -53,7 +63,6 @@ VisitedRowMasks:
     
 BuildAnimateBitMask:
 
-  ; entry
   phb
   php
   rep #$30
@@ -120,7 +129,6 @@ BuildAnimateBitMask:
   cpy #$0060
   bne .loop
 
-  ; cleanup
   ply
   plx
   pla
