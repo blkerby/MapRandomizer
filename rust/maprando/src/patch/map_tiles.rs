@@ -2700,27 +2700,29 @@ impl<'a> MapPatcher<'a> {
                     if a.coords != b.coords {
                         continue;
                     }
-                    let wa = self.index_tile(a.clone(), None)? & 0x1C00;
-                    let wb = self.index_tile(b.clone(), None)? & 0x1C00;
+                    let wa = self.index_tile(a.clone(), None)? | 0x1C00;
+                    let wb = self.index_tile(b.clone(), None)? | 0x1C00;
+                    let wa2 = (wa & !0x1C00) | 0x0800;
+                    let wb2 = (wb & !0x1C00) | 0x0800;
                     let x = a.coords.0 as isize - self.area_offset_x[area_idx];
                     let y = a.coords.1 as isize - self.area_offset_y[area_idx];
                     let dest = 0x3000 + xy_to_map_offset(x, y) / 2;
-                    let tile_a = if wa == wb { 0xFFFF } else { wb };
+                    let same = wa == wb;
                     doubles.push([
                         area_idx as u16,
                         dest as u16,
-                        tile_a,
+                        if same { 0xFFFF } else { wb },
                         wa,
                         (item_a / 8) as u16,
                         1u16 << (item_a % 8),
-                        0,
-                        0,
+                        if same { 0xFFFF } else { wb2 },
+                        wa2,
                     ]);
                 }
             }
         }
         assert!(doubles.len() <= 6);
-        doubles.resize(6, [0xFFFF, 0, 0xFFFF, 0, 0, 0, 0, 0]);
+        doubles.resize(6, [0xFFFF, 0, 0xFFFF, 0, 0, 0, 0xFFFF, 0]);
         for (i, e) in doubles.iter().enumerate() {
             for (j, &w) in e.iter().enumerate() {
                 self.rom

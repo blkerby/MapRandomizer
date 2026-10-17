@@ -47,6 +47,9 @@ DoubleItemTable:
 
 RowBitMasks:
   dw $0001, $0002, $0004, $0008, $0010, $0020
+  
+VisitedRowMasks:
+  dw $0101, $0202, $0404, $0808, $1010, $2020
     
 BuildAnimateBitMask:
 
@@ -72,20 +75,21 @@ BuildAnimateBitMask:
   cmp !current_area
   bne .next_entry
 
+  lda.w DoubleItemTable+8,y
+  tax
+  lda $7ed870,x
+  and.w DoubleItemTable+10,y
+  bne .next_entry
+
   lda.w DoubleItemTable+2,y
   sec
   sbc #$3000
   asl
   tax
-
   lda $7e4000,x
   cmp.w DoubleItemTable+4,y
-  bne .next_entry
-
-  lda.w DoubleItemTable+8,y
-  tax
-  lda $7ed870,x
-  and.w DoubleItemTable+10,y
+  beq .revealed
+  cmp.w DoubleItemTable+12,y
   bne .next_entry
 
   tya
@@ -93,8 +97,18 @@ BuildAnimateBitMask:
   lsr
   lsr
   tax
-  
+  lda.w VisitedRowMasks,x
+  bra .set_mask
+
+.revealed
+  tya
+  lsr
+  lsr
+  lsr
+  tax
   lda.w RowBitMasks,x
+
+.set_mask
   ora !animate_mask
   sta !animate_mask
 
@@ -105,7 +119,7 @@ BuildAnimateBitMask:
   tay
   cpy #$0060
   bne .loop
-  
+
   ; cleanup
   ply
   plx
@@ -167,11 +181,20 @@ AnimateTile:
 
   lda #$0002
   sta $7e00d0,x           ; size
+  lda $01,s
+  and #$0080
+  lsr
+  lsr
+  lsr
+  lsr
+  clc
+  adc !tile_state
+  sta $7e00d2,x
   tya
   clc
   adc #DoubleItemTable+4
-  adc !tile_state
-  sta $7e00d2,x           ; source = tile_a or tile_b
+  adc $7e00d2,x
+  sta $7e00d2,x           ; source = tile_a or tile_b, revealed or visited
   lda #$00DF
   sta $7e00d4,x           ; bank (dest write below overwrites the stray high byte)
   lda DoubleItemTable+2,y
