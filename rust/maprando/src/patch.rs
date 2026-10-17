@@ -571,6 +571,10 @@ impl Patcher<'_> {
             patches.push("missile_refill_all");
         }
 
+        if self.settings.quality_of_life_settings.animated_tiles {
+            patches.push("animated_map_tiles");
+        }
+
         if self.settings.quality_of_life_settings.crash_fixes.preset
             != Some(CrashFixesPreset::Crash)
         {
@@ -1069,16 +1073,13 @@ impl Patcher<'_> {
     }
 
     fn get_arrow_xy(&self, door: &RoomGeometryDoor) -> (isize, isize) {
-        if door.direction == "left" {
-            (door.x as isize - 1, door.y as isize)
-        } else if door.direction == "right" {
-            (door.x as isize + 1, door.y as isize)
-        } else if door.direction == "up" {
-            (door.x as isize, door.y as isize - 1)
-        } else if door.direction == "down" {
-            (door.x as isize, door.y as isize + 1)
-        } else {
-            panic!("Unrecognized door direction: {}", door.direction);
+        let (x, y) = (door.x as isize, door.y as isize);
+        match door.direction.as_str() {
+            "left" => (x - 1, y),
+            "right" => (x + 1, y),
+            "up" => (x, y - 1),
+            "down" => (x, y + 1),
+            other => panic!("Unrecognized door direction: {}", other),
         }
     }
 

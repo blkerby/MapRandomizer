@@ -4665,6 +4665,7 @@
         "room_outline_revealed": true,
         "opposite_area_revealed": true,
         "hazard_markers": true,
+        "animated_tiles": true,
         "mother_brain_fight": "Short",
         "supers_double": true,
         "escape_autosave": true,
