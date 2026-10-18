@@ -987,6 +987,36 @@ fn assign_presets(settings: &mut serde_json::Value, preset_data: &PresetData) ->
     Ok(())
 }
 
+// Insert `default` if the key is missing, null, or not a string.
+fn default_str_if_unset(
+    obj: &mut serde_json::Map<String, serde_json::Value>,
+    key: &str,
+    default: &str,
+) {
+    if obj.get(key).and_then(|v| v.as_str()).is_none() {
+        obj.insert(key.to_string(), default.into());
+    }
+}
+
+// Recursively remove object keys whose value is null, so a null
+// behaves exactly like a missing key in the upgrade functions.
+fn strip_nulls(value: &mut serde_json::Value) {
+    match value {
+        serde_json::Value::Object(map) => {
+            map.retain(|_, v| !v.is_null());
+            for v in map.values_mut() {
+                strip_nulls(v);
+            }
+        }
+        serde_json::Value::Array(arr) => {
+            for v in arr.iter_mut() {
+                strip_nulls(v);
+            }
+        }
+        _ => {}
+    }
+}
+
 fn upgrade_tech_settings(settings: &mut serde_json::Value, preset_data: &PresetData) -> Result<()> {
     // This updates the names of tech, discards any obsolete tech settings, and disables
     // any new tech that are not referenced in the settings.
@@ -1437,6 +1467,12 @@ fn upgrade_objective_settings(
     let settings_obj = settings
         .as_object_mut()
         .context("expected settings to be object")?;
+    let objective_settings = settings_obj
+        .get_mut("objective_settings")
+        .and_then(|v| v.as_object_mut())
+        .context("expected objective_settings to be object")?;
+    default_str_if_unset(objective_settings, "objective_screen", "Enabled");
+    default_str_if_unset(objective_settings, "objective_areas", "Enabled");
 
     if !settings_obj.contains_key("objective_settings") {
         settings_obj.insert(
@@ -1536,9 +1572,7 @@ fn upgrade_other_settings(settings: &mut serde_json::Value) -> Result<()> {
         other_settings.insert("all_enemies_respawn".to_string(), false.into());
     }
 
-    if other_settings.get("savestate").is_none() {
-        other_settings.insert("savestate".to_string(), "No".into());
-    }
+    default_str_if_unset(other_settings, "savestate", "No");
 
     if other_settings.get("disable_spikesuit").is_none()
         || other_settings["disable_spikesuit"].as_bool().is_none()
@@ -1558,11 +1592,7 @@ fn upgrade_other_settings(settings: &mut serde_json::Value) -> Result<()> {
         other_settings.insert("enable_major_glitches".to_string(), false.into());
     }
 
-    if other_settings.get("speed_booster").is_none()
-        || other_settings["speed_booster"].as_str().is_none()
-    {
-        other_settings.insert("speed_booster".to_string(), "Vanilla".into());
-    }
+    default_str_if_unset(other_settings, "speed_booster", "Vanilla");
 
     Ok(())
 }
@@ -1573,6 +1603,7 @@ pub fn try_upgrade_settings(
     apply_presets: bool,
 ) -> Result<(String, RandomizerSettings)> {
     let mut settings: serde_json::Value = serde_json::from_str(&settings_str)?;
+    strip_nulls(&mut settings);
 
     upgrade_objective_settings(&mut settings, preset_data)?;
     upgrade_doors_settings(&mut settings, preset_data)?;

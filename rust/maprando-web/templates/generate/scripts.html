@@ -4,12 +4,12 @@ function applyRadioValue(id, value) {
     if (el === null) {
         throw new Error(`Id "${id}" not found`);
     }
-    for (inp of el.getElementsByClassName("btn-check")) {
-        if (inp.value == String(value)) {
-            inp.checked = true;
-        } else {
-            inp.checked = false;
-        }
+    const inputs = Array.from(el.getElementsByClassName("btn-check"));
+    if (!inputs.some(inp => inp.value == String(value))) {
+        return;  // unknown or missing value: keep the current/default selection
+    }
+    for (const inp of inputs) {
+        inp.checked = (inp.value == String(value));
     }
 }
 
