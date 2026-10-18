@@ -35,10 +35,6 @@
     document.getElementById("navigation-generate").classList.add("active");
 
     let fullPresetsArr = {{ full_presets_json|safe }};
-    let fullPresets = {};
-    for (p of fullPresetsArr) {
-        fullPresets[p.name] = p;
-    }
 
     let skillPresetsArr = {{ skill_presets_json|safe }};
     let skillPresets = {};
