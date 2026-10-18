@@ -1,0 +1,68 @@
+name: Auto-deploy experimental
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [experimental]
+
+permissions:
+  actions: read
+  deployments: write
+
+jobs:
+  publish:
+    name: Request experimental deployment
+    runs-on: ubuntu-latest
+    if: >-
+      github.repository == 'blkerby/MapRandomizer' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'experimental'
+    steps:
+      - name: Download image metadata from the triggering build attempt
+        uses: actions/download-artifact@v8
+        with:
+          name: image-metadata-${{ github.event.workflow_run.run_attempt }}
+          path: image-metadata
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Publish deployment request
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('node:fs/promises');
+            const run = context.payload.workflow_run;
+            const metadata = JSON.parse(await fs.readFile('image-metadata/image-metadata.json', 'utf8'));
+            // Rerunning this publisher creates a new request, including to retry a failed rollout.
+            const response = await github.rest.repos.createDeployment({
+              ...context.repo,
+              ref: run.head_sha,
+              environment: 'experimental',
+              task: 'deploy:image',
+              auto_merge: false,
+              required_contexts: [],
+              production_environment: false,
+              transient_environment: false,
+              description: `Experimental CI run ${run.id}, attempt ${run.run_attempt}`,
+              payload: {
+                digest: metadata.digest,
+                build_run_id: run.id,
+                build_run_attempt: run.run_attempt
+              }
+            });
+            if (response.status !== 201) {
+              throw new Error(`Expected a deployment request, received HTTP ${response.status}`);
+            }
+            const deployment = response.data;
+
+            await core.summary
+              .addHeading('Experimental deployment request')
+              .addRaw([
+                `Image digest: ${metadata.digest}`,
+                `Commit: [${run.head_sha}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/commit/${run.head_sha})`,
+                `Build: [run ${run.id}, attempt ${run.run_attempt}](${run.html_url}/attempts/${run.run_attempt})`,
+                `Deployment: [${deployment.id}](${deployment.url})`
+              ].map(item => `- ${item}`).join('\n') + '\n')
+              .write();
