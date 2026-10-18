@@ -106,9 +106,8 @@ fn test_upgrade_null_equals_missing() -> Result<()> {
             let mut null = base.clone();
             tweak(&mut null, section, key, Some(Value::Null));
 
-            let (_, from_missing) =
-                try_upgrade_settings(missing.to_string(), &preset_data, false)
-                    .with_context(|| format!("missing {section}.{key} failed"))?;
+            let (_, from_missing) = try_upgrade_settings(missing.to_string(), &preset_data, false)
+                .with_context(|| format!("missing {section}.{key} failed"))?;
             let (_, from_null) = try_upgrade_settings(null.to_string(), &preset_data, false)
                 .with_context(|| format!("null {section}.{key} failed"))?;
 
@@ -195,7 +194,7 @@ fn test_upgrade_null_and_missing_all_scalars() -> Result<()> {
                 let r_missing = try_upgrade_settings(missing.to_string(), &preset_data, false);
                 let r_null = try_upgrade_settings(null.to_string(), &preset_data, false);
 
-match (&r_missing, &r_null) {
+                match (&r_missing, &r_null) {
                     (Ok((_, a)), Ok((_, b))) => {
                         if a != b {
                             failures.insert(format!("{section}.{key}: null and missing differ"));
@@ -218,7 +217,10 @@ match (&r_missing, &r_null) {
         for f in &failures {
             println!("FAIL {f}");
         }
-        bail!("{} field(s) lack a default for null/missing", failures.len());
+        bail!(
+            "{} field(s) lack a default for null/missing",
+            failures.len()
+        );
     }
     Ok(())
 }
