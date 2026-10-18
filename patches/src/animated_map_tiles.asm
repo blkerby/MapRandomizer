@@ -52,14 +52,15 @@ DoubleItemTable:
   dw $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000 ; Green Pirates Shaft
   dw $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000 ; Green Brinstar Reserve
   dw $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000 ; Norfair Reserve
+  dw $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000 ; Bomb Torizo (when it's an objective)
 
 ; Mask layout: !animate_mask uses bit n for “animate entry n” and bit n+8 for “entry n is visited” (VisitedRowMasks).
 
 RowBitMasks:
-  dw $0001, $0002, $0004, $0008, $0010, $0020
-  
+  dw $0001, $0002, $0004, $0008, $0010, $0020, $0040
+
 VisitedRowMasks:
-  dw $0101, $0202, $0404, $0808, $1010, $2020
+  dw $0101, $0202, $0404, $0808, $1010, $2020, $4040
     
 BuildAnimateBitMask:
 
@@ -126,7 +127,7 @@ BuildAnimateBitMask:
   clc
   adc #$0010
   tay
-  cpy #$0060
+  cpy #$0070
   bne .loop
 
   ply
@@ -217,7 +218,7 @@ AnimateTile:
   clc
   adc #$0010
   tay
-  cpy #$0060
+  cpy #$0070
   bne .loop
 
   txa

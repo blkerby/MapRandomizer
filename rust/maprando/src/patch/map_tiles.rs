@@ -44,6 +44,7 @@ pub struct MapPatcher<'a> {
     pub free_tiles: Vec<TilemapWord>, // set of free tile indexes
     pub locked_door_state_indices: &'a [usize],
     pub dynamic_tile_data: Vec<Vec<(ItemIdx, RoomId, MapTile)>>,
+    pub bt_objective_item: Option<(usize, usize, MapTile)>,
     pub transition_tile_coords: Vec<(AreaIdx, isize, isize)>,
     pub area_min_x: [isize; NUM_AREAS],
     pub area_max_x: [isize; NUM_AREAS],
@@ -1792,6 +1793,7 @@ impl<'a> MapPatcher<'a> {
             free_tiles,
             locked_door_state_indices,
             dynamic_tile_data: vec![vec![]; 6],
+            bt_objective_item: None,
             transition_tile_coords: vec![],
             area_min_x: [isize::MAX; NUM_AREAS],
             area_min_y: [isize::MAX; NUM_AREAS],
@@ -2723,6 +2725,31 @@ impl<'a> MapPatcher<'a> {
         }
         assert!(doubles.len() <= 6);
         doubles.resize(6, [0xFFFF, 0, 0xFFFF, 0, 0, 0, 0xFFFF, 0]);
+
+        let mut bt_entry = [0xFFFF, 0, 0xFFFF, 0, 0, 0, 0xFFFF, 0];
+        if let Some((area_idx, item_idx, item_tile)) = self.bt_objective_item.clone() {
+            let mut x_tile = item_tile.clone();
+            x_tile.interior = MapTileInterior::Objective;
+            let wx = self.index_tile(x_tile.clone(), None)? | 0x1C00;
+            let wi = self.index_tile(item_tile.clone(), None)? | 0x1C00;
+            let wx2 = (wx & !0x1C00) | 0x0800;
+            let wi2 = (wi & !0x1C00) | 0x0800;
+            let x = x_tile.coords.0 as isize - self.area_offset_x[area_idx];
+            let y = x_tile.coords.1 as isize - self.area_offset_y[area_idx];
+            let dest = 0x3000 + xy_to_map_offset(x, y) / 2;
+            bt_entry = [
+                area_idx as u16,
+                dest as u16,
+                wx,
+                wi,
+                (item_idx / 8) as u16,
+                1u16 << (item_idx % 8),
+                wx2,
+                wi2,
+            ];
+        }
+        doubles.push(bt_entry);
+
         for (i, e) in doubles.iter().enumerate() {
             for (j, &w) in e.iter().enumerate() {
                 self.rom
@@ -2740,14 +2767,6 @@ impl<'a> MapPatcher<'a> {
             if !self.map.room_mask[room_idx] {
                 continue;
             }
-            if room_id == 19
-                && self
-                    .randomization
-                    .objectives
-                    .contains(&Objective::BombTorizo)
-            {
-                continue;
-            }
             let item_ptr = self.game_data.node_ptr_map[&(room_id, node_id)];
             let item_idx = self.rom.read_u8(item_ptr + 4)? as usize;
             let room = &self.game_data.room_geometry[room_idx];
@@ -2757,6 +2776,19 @@ impl<'a> MapPatcher<'a> {
             let mut tile = orig_tile.clone();
             tile.faded = MapTileFade::None;
             tile.interior = get_item_interior(item, self.settings);
+            // If BT is an objective, we don't draw item dot there since an objective X tile will be drawn instead.
+            // We will clone the tile though for animating it if it's an objective
+            if room_id == 19
+                && self
+                    .randomization
+                    .objectives
+                    .contains(&Objective::BombTorizo)
+            {
+                self.index_tile(tile.clone(), None)?;
+                self.bt_objective_item = Some((area, item_idx, tile.clone()));
+                continue;
+            }
+
             self.dynamic_tile_data[area].push((item_idx, room_id, tile.clone()));
 
             tile.interior = apply_item_interior(orig_tile, item, self.settings);
