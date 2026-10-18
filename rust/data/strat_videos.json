@@ -481,6 +481,22 @@
   },
   {
     "room_id": 11,
+    "strat_id": 61,
+    "video_id": 11013,
+    "created_user": "nn",
+    "note": "",
+    "dev_note": "Recorded with 33% slowdown"
+  },
+  {
+    "room_id": 11,
+    "strat_id": 61,
+    "video_id": 11024,
+    "created_user": "Sam",
+    "note": "Minimal dash speed of $4.4",
+    "dev_note": "Caveat/FIXME: Breaking the bomb blocks with temporary blue is not part of the strat"
+  },
+  {
+    "room_id": 11,
     "strat_id": 62,
     "video_id": 7041,
     "created_user": "Sam",
@@ -797,6 +813,14 @@
     "video_id": 2520,
     "created_user": "maddo",
     "note": "Top Right Entry",
+    "dev_note": ""
+  },
+  {
+    "room_id": 11,
+    "strat_id": 115,
+    "video_id": 11055,
+    "created_user": "nn",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -1660,6 +1684,14 @@
     "strat_id": 24,
     "video_id": 6721,
     "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 13,
+    "strat_id": 26,
+    "video_id": 11056,
+    "created_user": "nn",
     "note": "",
     "dev_note": ""
   },
@@ -3315,6 +3347,14 @@
     "room_id": 10,
     "strat_id": 155,
     "video_id": 2994,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 10,
+    "strat_id": 182,
+    "video_id": 10833,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -7361,6 +7401,14 @@
   },
   {
     "room_id": 32,
+    "strat_id": 103,
+    "video_id": 10969,
+    "created_user": "nn",
+    "note": "",
+    "dev_note": "FIXME: mention this variant in the strat note.\nAlternative to random wiggle: slide forwards off the Zeb to clip through the floating platform when fall speed is 03/02.. if you fall any faster you clip through the bridge to the bottom"
+  },
+  {
+    "room_id": 32,
     "strat_id": 104,
     "video_id": 7277,
     "created_user": "Sam",
@@ -7550,6 +7598,14 @@
     "created_user": "Sam",
     "note": "Wall jump bomb boosts with blue suit",
     "dev_note": "FIXME, typo in strat note: \"walljump in bomb boosts\""
+  },
+  {
+    "room_id": 32,
+    "strat_id": 160,
+    "video_id": 10991,
+    "created_user": "Sam",
+    "note": "Blue Suit",
+    "dev_note": ""
   },
   {
     "room_id": 32,
@@ -14137,6 +14193,30 @@
   },
   {
     "room_id": 59,
+    "strat_id": 101,
+    "video_id": 10953,
+    "created_user": "Osse101",
+    "note": "Spazer + Bombs",
+    "dev_note": ""
+  },
+  {
+    "room_id": 59,
+    "strat_id": 101,
+    "video_id": 10965,
+    "created_user": "Osse101",
+    "note": "Spazer shooting up",
+    "dev_note": ""
+  },
+  {
+    "room_id": 59,
+    "strat_id": 101,
+    "video_id": 10966,
+    "created_user": "Osse101",
+    "note": "Spazer shooting up",
+    "dev_note": ""
+  },
+  {
+    "room_id": 59,
     "strat_id": 133,
     "video_id": 644,
     "created_user": "maddo",
@@ -16273,6 +16353,14 @@
   },
   {
     "room_id": 63,
+    "strat_id": 21,
+    "video_id": 10939,
+    "created_user": "nn",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 63,
     "strat_id": 5,
     "video_id": 2570,
     "created_user": "Nito",
@@ -18029,6 +18117,22 @@
     "video_id": 10995,
     "created_user": "Sinth",
     "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 67,
+    "strat_id": 110,
+    "video_id": 11001,
+    "created_user": "nn",
+    "note": "Low position",
+    "dev_note": ""
+  },
+  {
+    "room_id": 67,
+    "strat_id": 110,
+    "video_id": 11003,
+    "created_user": "maddo",
+    "note": "From ceiling",
     "dev_note": ""
   },
   {
@@ -20081,6 +20185,14 @@
   },
   {
     "room_id": 80,
+    "strat_id": 6,
+    "video_id": 10963,
+    "created_user": "maddo",
+    "note": "Tricky Dodge with Ice",
+    "dev_note": ""
+  },
+  {
+    "room_id": 80,
     "strat_id": 10,
     "video_id": 4500,
     "created_user": "Nito",
@@ -20141,6 +20253,14 @@
     "video_id": 6479,
     "created_user": "maddo",
     "note": "Maddo's manipulation (air entry)",
+    "dev_note": ""
+  },
+  {
+    "room_id": 80,
+    "strat_id": 25,
+    "video_id": 10964,
+    "created_user": "maddo",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -22221,6 +22341,22 @@
     "video_id": 5267,
     "created_user": "Sam",
     "note": "X-Ray, Morph",
+    "dev_note": ""
+  },
+  {
+    "room_id": 97,
+    "strat_id": 91,
+    "video_id": 10948,
+    "created_user": "lusername_not_available",
+    "note": "Bottom door entry",
+    "dev_note": ""
+  },
+  {
+    "room_id": 97,
+    "strat_id": 91,
+    "video_id": 10949,
+    "created_user": "lusername_not_available",
+    "note": "Second-cycle setup",
     "dev_note": ""
   },
   {
@@ -27041,6 +27177,30 @@
   },
   {
     "room_id": 103,
+    "strat_id": 86,
+    "video_id": 10875,
+    "created_user": "Sam",
+    "note": "Springball Bomb Boosts",
+    "dev_note": ""
+  },
+  {
+    "room_id": 103,
+    "strat_id": 86,
+    "video_id": 10876,
+    "created_user": "Sam",
+    "note": "Springball & Hi-Jump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 103,
+    "strat_id": 86,
+    "video_id": 10877,
+    "created_user": "Sam",
+    "note": "Bombs",
+    "dev_note": ""
+  },
+  {
+    "room_id": 103,
     "strat_id": 20,
     "video_id": 7523,
     "created_user": "Sam",
@@ -27153,6 +27313,38 @@
   },
   {
     "room_id": 103,
+    "strat_id": 91,
+    "video_id": 10871,
+    "created_user": "Sam",
+    "note": "Springball Bomb Boosts",
+    "dev_note": ""
+  },
+  {
+    "room_id": 103,
+    "strat_id": 91,
+    "video_id": 10872,
+    "created_user": "Sam",
+    "note": "Springball & Hi-Jump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 103,
+    "strat_id": 91,
+    "video_id": 10873,
+    "created_user": "Sam",
+    "note": "Bombs",
+    "dev_note": ""
+  },
+  {
+    "room_id": 103,
+    "strat_id": 91,
+    "video_id": 10874,
+    "created_user": "Sam",
+    "note": "Springball Bomb Boosts",
+    "dev_note": ""
+  },
+  {
+    "room_id": 103,
     "strat_id": 35,
     "video_id": 8823,
     "created_user": "Sam",
@@ -27245,6 +27437,22 @@
     "video_id": 9215,
     "created_user": "Sam",
     "note": "Suitless",
+    "dev_note": ""
+  },
+  {
+    "room_id": 103,
+    "strat_id": 96,
+    "video_id": 10869,
+    "created_user": "Sam",
+    "note": "Springball & Hi-Jump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 103,
+    "strat_id": 96,
+    "video_id": 10870,
+    "created_user": "Sam",
+    "note": "Bombs",
     "dev_note": ""
   },
   {
@@ -29329,6 +29537,14 @@
   },
   {
     "room_id": 121,
+    "strat_id": 5,
+    "video_id": 10984,
+    "created_user": "nn",
+    "note": "from frog-speedway",
+    "dev_note": "superhud used to show horiztonal speed & horizontal position."
+  },
+  {
+    "room_id": 121,
     "strat_id": 48,
     "video_id": 5170,
     "created_user": "Sam",
@@ -30206,6 +30422,14 @@
     "created_user": "maddo",
     "note": "",
     "dev_note": ""
+  },
+  {
+    "room_id": 120,
+    "strat_id": 151,
+    "video_id": 10974,
+    "created_user": "Sinth",
+    "note": "",
+    "dev_note": "Caveat: this spends many more shinecharge frames than logically expected, and the video is lacking the setup in the other room."
   },
   {
     "room_id": 120,
@@ -31217,6 +31441,22 @@
   },
   {
     "room_id": 106,
+    "strat_id": 13,
+    "video_id": 10849,
+    "created_user": "Sam",
+    "note": "From Top Left Door with Blue Suit",
+    "dev_note": ""
+  },
+  {
+    "room_id": 106,
+    "strat_id": 13,
+    "video_id": 10851,
+    "created_user": "Sam",
+    "note": "From Top Left Door with Power Bomb",
+    "dev_note": ""
+  },
+  {
+    "room_id": 106,
     "strat_id": 14,
     "video_id": 2137,
     "created_user": "Sam",
@@ -31229,6 +31469,22 @@
     "video_id": 1600,
     "created_user": "Sam",
     "note": "From top door",
+    "dev_note": ""
+  },
+  {
+    "room_id": 106,
+    "strat_id": 19,
+    "video_id": 10853,
+    "created_user": "Sam",
+    "note": "Blue Suit",
+    "dev_note": ""
+  },
+  {
+    "room_id": 106,
+    "strat_id": 19,
+    "video_id": 10854,
+    "created_user": "Sam",
+    "note": "Power Bomb",
     "dev_note": ""
   },
   {
@@ -31633,10 +31889,50 @@
   },
   {
     "room_id": 108,
+    "strat_id": 59,
+    "video_id": 10809,
+    "created_user": "Sam",
+    "note": "Walljumpless Springball Jump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 108,
+    "strat_id": 59,
+    "video_id": 10811,
+    "created_user": "Sam",
+    "note": "Walljumpless Ice Platform",
+    "dev_note": ""
+  },
+  {
+    "room_id": 108,
+    "strat_id": 59,
+    "video_id": 10812,
+    "created_user": "Sam",
+    "note": "Walljumpless Space Jump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 108,
     "strat_id": 60,
     "video_id": 1989,
     "created_user": "Sam",
     "note": "With Bombs",
+    "dev_note": ""
+  },
+  {
+    "room_id": 108,
+    "strat_id": 60,
+    "video_id": 10806,
+    "created_user": "Sam",
+    "note": "Springball Bomb Boosts",
+    "dev_note": ""
+  },
+  {
+    "room_id": 108,
+    "strat_id": 60,
+    "video_id": 10808,
+    "created_user": "Sam",
+    "note": "Springball & Hi-Jump",
     "dev_note": ""
   },
   {
@@ -31761,6 +32057,14 @@
   },
   {
     "room_id": 108,
+    "strat_id": 64,
+    "video_id": 10805,
+    "created_user": "Sam",
+    "note": "Springball",
+    "dev_note": ""
+  },
+  {
+    "room_id": 108,
     "strat_id": 70,
     "video_id": 1991,
     "created_user": "Sam",
@@ -31853,6 +32157,30 @@
     "video_id": 3860,
     "created_user": "maddo",
     "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 108,
+    "strat_id": 67,
+    "video_id": 10813,
+    "created_user": "Sam",
+    "note": "Walljumpless Springball Jump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 108,
+    "strat_id": 67,
+    "video_id": 10815,
+    "created_user": "Sam",
+    "note": "Walljumpless Ice Platform",
+    "dev_note": ""
+  },
+  {
+    "room_id": 108,
+    "strat_id": 67,
+    "video_id": 10816,
+    "created_user": "Sam",
+    "note": "Walljumpless Space Jump",
     "dev_note": ""
   },
   {
@@ -35417,6 +35745,54 @@
   },
   {
     "room_id": 153,
+    "strat_id": 28,
+    "video_id": 11039,
+    "created_user": "Sam",
+    "note": "Suitless with Screw Attack",
+    "dev_note": ""
+  },
+  {
+    "room_id": 153,
+    "strat_id": 28,
+    "video_id": 11041,
+    "created_user": "Sam",
+    "note": "Suitless with Supers",
+    "dev_note": ""
+  },
+  {
+    "room_id": 153,
+    "strat_id": 30,
+    "video_id": 11035,
+    "created_user": "Sam",
+    "note": "Screw Attack",
+    "dev_note": ""
+  },
+  {
+    "room_id": 153,
+    "strat_id": 30,
+    "video_id": 11036,
+    "created_user": "Sam",
+    "note": "Blue Suit",
+    "dev_note": ""
+  },
+  {
+    "room_id": 153,
+    "strat_id": 30,
+    "video_id": 11037,
+    "created_user": "Sam",
+    "note": "Ice Beam",
+    "dev_note": ""
+  },
+  {
+    "room_id": 153,
+    "strat_id": 31,
+    "video_id": 11033,
+    "created_user": "Sam",
+    "note": "With 1 Power Bomb",
+    "dev_note": ""
+  },
+  {
+    "room_id": 153,
     "strat_id": 66,
     "video_id": 9621,
     "created_user": "Sam",
@@ -35497,6 +35873,22 @@
   },
   {
     "room_id": 153,
+    "strat_id": 35,
+    "video_id": 11046,
+    "created_user": "Sam",
+    "note": "Suitless with Supers",
+    "dev_note": ""
+  },
+  {
+    "room_id": 153,
+    "strat_id": 35,
+    "video_id": 11047,
+    "created_user": "Sam",
+    "note": "Suitless with Screw Attack",
+    "dev_note": ""
+  },
+  {
+    "room_id": 153,
     "strat_id": 40,
     "video_id": 6007,
     "created_user": "Sam",
@@ -35565,6 +35957,30 @@
     "video_id": 8865,
     "created_user": "maddo",
     "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 153,
+    "strat_id": 61,
+    "video_id": 11043,
+    "created_user": "Sam",
+    "note": "Speedball",
+    "dev_note": ""
+  },
+  {
+    "room_id": 153,
+    "strat_id": 63,
+    "video_id": 11044,
+    "created_user": "Sam",
+    "note": "Blue Springball Bounce",
+    "dev_note": ""
+  },
+  {
+    "room_id": 153,
+    "strat_id": 64,
+    "video_id": 11042,
+    "created_user": "Sam",
+    "note": "Blue Space Jump",
     "dev_note": ""
   },
   {
@@ -35774,6 +36190,14 @@
     "created_user": "Sam",
     "note": "With 15 Supers and 6 Energy Tanks",
     "dev_note": "Shows a Drops grab with Pause Abuse"
+  },
+  {
+    "room_id": 150,
+    "strat_id": 50,
+    "video_id": 10999,
+    "created_user": "nn",
+    "note": "",
+    "dev_note": ""
   },
   {
     "room_id": 150,
@@ -39953,6 +40377,14 @@
   },
   {
     "room_id": 140,
+    "strat_id": 40,
+    "video_id": 11049,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 140,
     "strat_id": 41,
     "video_id": 6448,
     "created_user": "Sam",
@@ -40017,9 +40449,17 @@
   },
   {
     "room_id": 140,
+    "strat_id": 66,
+    "video_id": 11053,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 140,
     "strat_id": 12,
-    "video_id": 611,
-    "created_user": "NZT",
+    "video_id": 10997,
+    "created_user": "Sinth",
     "note": "",
     "dev_note": ""
   },
@@ -40029,6 +40469,14 @@
     "video_id": 5372,
     "created_user": "Sam",
     "note": "From Colosseum (Top Position)",
+    "dev_note": ""
+  },
+  {
+    "room_id": 140,
+    "strat_id": 44,
+    "video_id": 11050,
+    "created_user": "Sam",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -41889,6 +42337,14 @@
   },
   {
     "room_id": 138,
+    "strat_id": 77,
+    "video_id": 11032,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 138,
     "strat_id": 84,
     "video_id": 6551,
     "created_user": "Osse101",
@@ -43729,6 +44185,14 @@
   },
   {
     "room_id": 164,
+    "strat_id": 37,
+    "video_id": 10921,
+    "created_user": "Sam",
+    "note": "Blue Space Jump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 164,
     "strat_id": 38,
     "video_id": 6536,
     "created_user": "Sam",
@@ -43886,6 +44350,30 @@
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
+  },
+  {
+    "room_id": 163,
+    "strat_id": 30,
+    "video_id": 10986,
+    "created_user": "nn",
+    "note": "Using spikes (more damage)",
+    "dev_note": ""
+  },
+  {
+    "room_id": 163,
+    "strat_id": 30,
+    "video_id": 10987,
+    "created_user": "nn",
+    "note": "Using right spikes (more damage)",
+    "dev_note": ""
+  },
+  {
+    "room_id": 163,
+    "strat_id": 30,
+    "video_id": 10988,
+    "created_user": "nn",
+    "note": "Morphing into the middle of the broken turret (multi-hit, not recommended)",
+    "dev_note": "does continuous damage until sparking. not recommended. only to demonstrate what happens."
   },
   {
     "room_id": 163,
@@ -45640,6 +46128,14 @@
     "dev_note": ""
   },
   {
+    "room_id": 176,
+    "strat_id": 53,
+    "video_id": 11002,
+    "created_user": "nn",
+    "note": "",
+    "dev_note": ""
+  },
+  {
     "room_id": 201,
     "strat_id": 5,
     "video_id": 1917,
@@ -46382,6 +46878,22 @@
     "created_user": "Sam",
     "note": "Springball & Damage Reduction",
     "dev_note": ""
+  },
+  {
+    "room_id": 201,
+    "strat_id": 174,
+    "video_id": 10720,
+    "created_user": "Sam",
+    "note": "Gravity & Bombs (IBJ over the Scisers)",
+    "dev_note": "Roll over the first Sciser then IBJ over the Fast Sciser and 2 slower incoming Scisers. Position Samus in the Bottom-right Corner of the room then wait for the next Sciser to be on the doorway's floor to lay a Power Bomb, roll out and back in after it dies to Crystal Flash.\nFIXME: See if this should be mentioned in the logic"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 174,
+    "video_id": 10727,
+    "created_user": "Sam",
+    "note": "Gravity & Bombs (Horizontal Bomb Jumps)",
+    "dev_note": "FIXME: See if this should be mentioned in the logic"
   },
   {
     "room_id": 201,
@@ -47182,6 +47694,14 @@
     "created_user": "Sam",
     "note": "Gravity & Bombs",
     "dev_note": ""
+  },
+  {
+    "room_id": 201,
+    "strat_id": 186,
+    "video_id": 10094,
+    "created_user": "nn",
+    "note": "Normalized setup for Mt. Everest",
+    "dev_note": "Moonwalk to the platform and perform a buffered turnaround spin jump through the open door. After landing perform a series of angle turnaround hops to get into the correct position to do the X-Mode setup."
   },
   {
     "room_id": 173,
@@ -48897,6 +49417,14 @@
   },
   {
     "room_id": 172,
+    "strat_id": 80,
+    "video_id": 10996,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 172,
     "strat_id": 81,
     "video_id": 452,
     "created_user": "NZT",
@@ -49006,6 +49534,14 @@
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
+  },
+  {
+    "room_id": 172,
+    "strat_id": 248,
+    "video_id": 10093,
+    "created_user": "nn",
+    "note": "Normalized setup for Mt. Everest",
+    "dev_note": "buffer a spin jump to jump through the door after moonwalking into the platform. Perform several quick angle turnaround jumps to get into the correct position to do the door x-mode setup."
   },
   {
     "room_id": 172,
@@ -49601,6 +50137,14 @@
   },
   {
     "room_id": 178,
+    "strat_id": 20,
+    "video_id": 10978,
+    "created_user": "Sinth",
+    "note": "Simple/Safe Method",
+    "dev_note": ""
+  },
+  {
+    "room_id": 178,
     "strat_id": 21,
     "video_id": 655,
     "created_user": "NZT",
@@ -49813,6 +50357,22 @@
     "video_id": 298,
     "created_user": "Osse101",
     "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 178,
+    "strat_id": 42,
+    "video_id": 10961,
+    "created_user": "Sam",
+    "note": "Position Samus at the Edge then Moonwalk pixel by pixel until the Camera unlocks. Perform a Dashing Stationary Spinjump into a Walljump from the wall to get enough distance and Walljump off the Grapple Block",
+    "dev_note": "Moonwalk Setup"
+  },
+  {
+    "room_id": 178,
+    "strat_id": 42,
+    "video_id": 10962,
+    "created_user": "nn",
+    "note": "without delayed walljump",
     "dev_note": ""
   },
   {
@@ -51001,6 +51561,14 @@
   },
   {
     "room_id": 174,
+    "strat_id": 303,
+    "video_id": 10954,
+    "created_user": "nn",
+    "note": "With 1 reserve energy",
+    "dev_note": "Caveat: not very clear since the InfoHUD doesn't show energy or reserves.\nshows using a reserve trigger (with 1hp) is possible too. Doesn't include the full traversal as its the same as the main video)"
+  },
+  {
+    "room_id": 174,
     "strat_id": 18,
     "video_id": 40,
     "created_user": "maddo",
@@ -51865,6 +52433,54 @@
   },
   {
     "room_id": 174,
+    "strat_id": 259,
+    "video_id": 11011,
+    "created_user": "Sam",
+    "note": "Blue Suit, Hi-Jump & Grapple",
+    "dev_note": ""
+  },
+  {
+    "room_id": 174,
+    "strat_id": 259,
+    "video_id": 11012,
+    "created_user": "Sam",
+    "note": "Blue Suit, Hi-Jump & Springball",
+    "dev_note": ""
+  },
+  {
+    "room_id": 174,
+    "strat_id": 259,
+    "video_id": 11022,
+    "created_user": "Sam",
+    "note": "Blue Suit & Gravity Jumps",
+    "dev_note": ""
+  },
+  {
+    "room_id": 174,
+    "strat_id": 259,
+    "video_id": 11023,
+    "created_user": "Sam",
+    "note": "Blue Suit, Gravity & Space Jump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 174,
+    "strat_id": 131,
+    "video_id": 10865,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 174,
+    "strat_id": 137,
+    "video_id": 10885,
+    "created_user": "Nito",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 174,
     "strat_id": 138,
     "video_id": 4196,
     "created_user": "Sam",
@@ -52229,6 +52845,14 @@
     "video_id": 6243,
     "created_user": "Sam",
     "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 174,
+    "strat_id": 188,
+    "video_id": 10977,
+    "created_user": "Osse101",
+    "note": "canTurnaroundSpinJump",
     "dev_note": ""
   },
   {
@@ -53825,6 +54449,14 @@
   },
   {
     "room_id": 183,
+    "strat_id": 128,
+    "video_id": 11057,
+    "created_user": "maddo",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 183,
     "strat_id": 129,
     "video_id": 106,
     "created_user": "maddo",
@@ -54457,6 +55089,54 @@
   },
   {
     "room_id": 186,
+    "strat_id": 66,
+    "video_id": 10925,
+    "created_user": "Sam",
+    "note": "Gravity & Bombs",
+    "dev_note": ""
+  },
+  {
+    "room_id": 186,
+    "strat_id": 66,
+    "video_id": 10926,
+    "created_user": "Sam",
+    "note": "Gravity & Springball",
+    "dev_note": ""
+  },
+  {
+    "room_id": 186,
+    "strat_id": 66,
+    "video_id": 10927,
+    "created_user": "Sam",
+    "note": "Hi-Jump & Springball",
+    "dev_note": ""
+  },
+  {
+    "room_id": 186,
+    "strat_id": 68,
+    "video_id": 10922,
+    "created_user": "Sam",
+    "note": "Gravity & Bombs",
+    "dev_note": ""
+  },
+  {
+    "room_id": 186,
+    "strat_id": 68,
+    "video_id": 10923,
+    "created_user": "Sam",
+    "note": "Gravity & Springball",
+    "dev_note": ""
+  },
+  {
+    "room_id": 186,
+    "strat_id": 68,
+    "video_id": 10924,
+    "created_user": "Sam",
+    "note": "Hi-Jump & Springball",
+    "dev_note": ""
+  },
+  {
+    "room_id": 186,
     "strat_id": 72,
     "video_id": 1942,
     "created_user": "Sam",
@@ -54468,6 +55148,14 @@
     "strat_id": 124,
     "video_id": 9592,
     "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 186,
+    "strat_id": 138,
+    "video_id": 10990,
+    "created_user": "nn",
     "note": "",
     "dev_note": ""
   },
@@ -61849,6 +62537,22 @@
   },
   {
     "room_id": 180,
+    "strat_id": 21,
+    "video_id": 10957,
+    "created_user": "Sam",
+    "note": "Damageless, Bounce on The Menu",
+    "dev_note": ""
+  },
+  {
+    "room_id": 180,
+    "strat_id": 21,
+    "video_id": 10958,
+    "created_user": "Sam",
+    "note": "Damageless, Precise Freeze",
+    "dev_note": ""
+  },
+  {
+    "room_id": 180,
     "strat_id": 22,
     "video_id": 1763,
     "created_user": "Sam",
@@ -61877,6 +62581,14 @@
     "video_id": 630,
     "created_user": "NZT",
     "note": "Plenty of ways to do this, one of them being jumping into the Menus to lure them out and turning back to land on the platform below and then proceeding to wall jump to the top. ",
+    "dev_note": ""
+  },
+  {
+    "room_id": 180,
+    "strat_id": 24,
+    "video_id": 10959,
+    "created_user": "Sam",
+    "note": "Walljumpless, Springball Jump",
     "dev_note": ""
   },
   {
@@ -61961,6 +62673,30 @@
   },
   {
     "room_id": 180,
+    "strat_id": 30,
+    "video_id": 10955,
+    "created_user": "Sam",
+    "note": "Avoid The Menus",
+    "dev_note": ""
+  },
+  {
+    "room_id": 180,
+    "strat_id": 30,
+    "video_id": 10956,
+    "created_user": "Sinth",
+    "note": "Tank the Menu",
+    "dev_note": ""
+  },
+  {
+    "room_id": 180,
+    "strat_id": 31,
+    "video_id": 10960,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "FIXME: This is much tighter than what's in logic"
+  },
+  {
+    "room_id": 180,
     "strat_id": 32,
     "video_id": 632,
     "created_user": "NZT",
@@ -62041,6 +62777,22 @@
   },
   {
     "room_id": 219,
+    "strat_id": 17,
+    "video_id": 11016,
+    "created_user": "Osse101",
+    "note": "Vertical Spark, Shooting Pose, Walljump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 219,
+    "strat_id": 17,
+    "video_id": 11017,
+    "created_user": "Osse101",
+    "note": "Diagonal Spark, Walljump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 219,
     "strat_id": 41,
     "video_id": 1055,
     "created_user": "kyleb",
@@ -62061,6 +62813,38 @@
     "video_id": 10697,
     "created_user": "Sam",
     "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 219,
+    "strat_id": 43,
+    "video_id": 11004,
+    "created_user": "nn",
+    "note": "iframes / horizontal spark",
+    "dev_note": ""
+  },
+  {
+    "room_id": 219,
+    "strat_id": 43,
+    "video_id": 11006,
+    "created_user": "Sinth",
+    "note": "Morph Manipulation",
+    "dev_note": ""
+  },
+  {
+    "room_id": 219,
+    "strat_id": 43,
+    "video_id": 11007,
+    "created_user": "Sinth",
+    "note": "Alternate Lure",
+    "dev_note": ""
+  },
+  {
+    "room_id": 219,
+    "strat_id": 43,
+    "video_id": 11009,
+    "created_user": "Sinth",
+    "note": "Camera Manipulation",
     "dev_note": ""
   },
   {
@@ -62804,6 +63588,14 @@
     "strat_id": 76,
     "video_id": 3020,
     "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 179,
+    "strat_id": 84,
+    "video_id": 11005,
+    "created_user": "nn",
     "note": "",
     "dev_note": ""
   },
@@ -66029,6 +66821,14 @@
     "video_id": 10459,
     "created_user": "Infinityoverinfinity",
     "note": "Spin jump entry, from West Sand Pit",
+    "dev_note": ""
+  },
+  {
+    "room_id": 199,
+    "strat_id": 51,
+    "video_id": 10998,
+    "created_user": "nn",
+    "note": "",
     "dev_note": ""
   },
   {
