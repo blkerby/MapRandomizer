@@ -76,6 +76,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
         name: Build and push
+        id: build
         uses: docker/build-push-action@v3
         with:
           push: true
@@ -86,6 +87,32 @@ jobs:
           cache-to: type=registry,ref=bkerby/map-rando:buildcache,mode=max
           build-args: |
             GIT_COMMIT_HASH=${{ github.sha }}
+      -
+        name: Write image metadata
+        env:
+          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          jq -n \
+            --arg digest "$IMAGE_DIGEST" \
+            --arg commit "$GITHUB_SHA" \
+            --argjson run_id "$GITHUB_RUN_ID" \
+            --argjson run_attempt "$GITHUB_RUN_ATTEMPT" \
+            '{digest: $digest, commit: $commit, run_id: $run_id, run_attempt: $run_attempt}' \
+            > image-metadata.json
+
+          printf '### Published image\n\n- Image: `docker.io/bkerby/map-rando@%s`\n- Commit: [%s](%s/%s/commit/%s)\n- Build: [run %s, attempt %s](%s/%s/actions/runs/%s/attempts/%s)\n' \
+            "$IMAGE_DIGEST" \
+            "$GITHUB_SHA" "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_SHA" \
+            "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" \
+            "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" \
+            >> "$GITHUB_STEP_SUMMARY"
+      -
+        name: Upload image metadata
+        uses: actions/upload-artifact@v7
+        with:
+          name: image-metadata-${{ github.run_attempt }}
+          path: image-metadata.json
+          if-no-files-found: error
   deploy-dev:
     name: Deploy to dev site
     runs-on: ubuntu-latest
