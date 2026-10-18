@@ -26,7 +26,7 @@ pub trait MapRepository: Send + Sync {
 
 pub struct SelectableMapRepository {
     pub offline: OfflineMapRepository,
-    pub realtime: Option<HttpMapRepository>,
+    pub fresh: Option<HttpMapRepository>,
 }
 
 impl MapRepository for SelectableMapRepository {
@@ -36,10 +36,10 @@ impl MapRepository for SelectableMapRepository {
         settings: &MapSettings,
         game_data: &GameData,
     ) -> Result<Vec<Map>> {
-        if settings.source == MapSource::Realtime {
-            self.realtime
+        if settings.source == MapSource::Fresh {
+            self.fresh
                 .as_ref()
-                .context("Realtime map generation is not configured")?
+                .context("Fresh map generation is not configured")?
                 .get_map_batch(seed, settings, game_data)
         } else {
             self.offline.get_map_batch(seed, settings, game_data)
@@ -103,7 +103,7 @@ impl OfflineMapRepository {
             MapSource::Small => Ok("Small"),
             MapSource::Standard => Ok("Standard"),
             MapSource::Wild => Ok("Wild"),
-            MapSource::Realtime => bail!("Realtime maps are not available from an offline pool"),
+            MapSource::Fresh => bail!("Fresh maps are not available from an offline pool"),
         }
     }
 }
@@ -399,7 +399,7 @@ impl MapRepository for HttpMapRepository {
         game_data: &GameData,
     ) -> Result<Vec<Map>> {
         settings.generation.validate()?;
-        // TODO: if it is feasible to make realtime map generation reproducible,
+        // TODO: if it is feasible to make fresh map generation reproducible,
         // plumb the `_seed` through to the request. It is ignored for now.
         let response = self.request_generate(settings)?;
         let maps = Self::response_to_maps(response, game_data)?;

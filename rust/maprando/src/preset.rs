@@ -33,7 +33,7 @@ pub struct NotableData {
 }
 
 pub struct PresetData {
-    pub realtime_map_generation: bool,
+    pub fresh_map_generation: bool,
     pub tech_data_map: HashMap<TechId, TechData>,
     pub notable_data_map: HashMap<(RoomId, NotableId), NotableData>,
     pub difficulty_levels: IndexedVec<String>,
@@ -259,7 +259,7 @@ impl PresetData {
             logic_page_presets.push(preset);
         }
         let preset_data = Self {
-            realtime_map_generation: false,
+            fresh_map_generation: false,
             tech_data_map,
             notable_data_map,
             difficulty_levels,

@@ -178,10 +178,10 @@ impl SeedHeaderTemplate<'_> {
         use maprando::map_settings::MapSource;
         match self.settings.map_settings.source {
             MapSource::Vanilla => "Vanilla",
-            MapSource::Small => "Small pool",
-            MapSource::Standard => "Standard pool",
-            MapSource::Wild => "Wild pool",
-            MapSource::Realtime => "Realtime",
+            MapSource::Small => "Legacy small pool",
+            MapSource::Standard => "Legacy standard pool",
+            MapSource::Wild => "Legacy wild pool",
+            MapSource::Fresh => "Fresh",
         }
     }
 

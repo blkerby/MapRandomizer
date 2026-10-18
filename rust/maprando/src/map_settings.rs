@@ -9,7 +9,7 @@ pub enum MapSource {
     Small,
     Standard,
     Wild,
-    Realtime,
+    Fresh,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
@@ -126,7 +126,7 @@ pub struct MapSettings {
 }
 
 impl MapSettings {
-    pub fn from_preset(preset: MapPreset, realtime_available: bool) -> Self {
+    pub fn from_preset(preset: MapPreset, fresh_available: bool) -> Self {
         let preferred = matches!(preset, MapPreset::Standard | MapPreset::Familiar);
         let concentrated = preset == MapPreset::Familiar;
         let climate = AreaPreference {
@@ -145,11 +145,11 @@ impl MapSettings {
         };
         let source = match preset {
             MapPreset::Vanilla => MapSource::Vanilla,
-            _ if realtime_available => MapSource::Realtime,
+            _ if fresh_available => MapSource::Fresh,
             MapPreset::Small => MapSource::Small,
             MapPreset::Standard => MapSource::Standard,
             MapPreset::Wild => MapSource::Wild,
-            MapPreset::Familiar => MapSource::Realtime,
+            MapPreset::Familiar => MapSource::Fresh,
         };
         Self {
             preset: Some(preset),
@@ -208,7 +208,7 @@ impl MapSettings {
 
     pub fn is_small(&self) -> bool {
         self.source == MapSource::Small
-            || (self.source == MapSource::Realtime && self.generation.small_map)
+            || (self.source == MapSource::Fresh && self.generation.small_map)
     }
 
     pub fn label(&self) -> String {
@@ -217,10 +217,10 @@ impl MapSettings {
             .unwrap_or_else(|| "Custom".to_string())
     }
 
-    pub fn validate(&self, realtime_available: bool) -> Result<()> {
-        if self.source == MapSource::Realtime {
-            if !realtime_available {
-                bail!("Realtime map generation is not configured on this server");
+    pub fn validate(&self, fresh_available: bool) -> Result<()> {
+        if self.source == MapSource::Fresh {
+            if !fresh_available {
+                bail!("Fresh map generation is not configured on this server");
             }
             self.generation.validate()?;
         }

@@ -4792,7 +4792,7 @@
     },
     "map_settings": {
         "preset": "Familiar",
-        "source": "Realtime",
+        "source": "Fresh",
         "generation": {
             "small_map": false,
             "landmarks": [

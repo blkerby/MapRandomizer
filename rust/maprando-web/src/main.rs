@@ -138,7 +138,7 @@ fn build_app_data() -> AppData {
 
     let mut preset_data =
         PresetData::load(tech_path, notable_path, presets_path, &game_data).unwrap();
-    preset_data.realtime_map_generation = args.map_server.is_some();
+    preset_data.fresh_map_generation = args.map_server.is_some();
     let global = get_full_global(&game_data);
     game_data.make_links_data(&|link, game_data| {
         get_link_difficulty_length(link, game_data, &preset_data, &global)
@@ -162,7 +162,7 @@ fn build_app_data() -> AppData {
             ("Wild", wild_maps_path),
         ])
         .unwrap(),
-        realtime: args
+        fresh: args
             .map_server
             .as_ref()
             .map(|server| HttpMapRepository::new(server).unwrap()),
@@ -257,7 +257,7 @@ struct GenerateTemplate<'a> {
     preset_data: &'a PresetData,
     full_presets_json: String,
     map_presets_json: String,
-    realtime_map_generation: bool,
+    fresh_map_generation: bool,
     skill_presets_json: String,
     item_presets_json: String,
     qol_presets_json: String,
@@ -419,11 +419,11 @@ async fn generate(app_data: actix_web::web::Data<AppData>) -> impl Responder {
                 MapPreset::Wild,
             ]
             .map(|preset| {
-                MapSettings::from_preset(preset, app_data.preset_data.realtime_map_generation)
+                MapSettings::from_preset(preset, app_data.preset_data.fresh_map_generation)
             }),
         )
         .unwrap(),
-        realtime_map_generation: app_data.preset_data.realtime_map_generation,
+        fresh_map_generation: app_data.preset_data.fresh_map_generation,
         skill_presets_json,
         item_presets_json,
         qol_presets_json,
@@ -706,7 +706,7 @@ async fn randomize(
 
     if let Err(e) = settings
         .map_settings
-        .validate(app_data.preset_data.realtime_map_generation)
+        .validate(app_data.preset_data.fresh_map_generation)
     {
         return HttpResponse::BadRequest().body(e.to_string());
     }

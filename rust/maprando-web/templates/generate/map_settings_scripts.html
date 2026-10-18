@@ -1,5 +1,5 @@
 <script>
-const realtimeMapGeneration = {{ realtime_map_generation }};
+const freshMapGeneration = {{ fresh_map_generation }};
 const mapPresets = Object.fromEntries({{ map_presets_json|safe }}.map(p => [p.preset, p]));
 const mapLandmarks = mapPresets.Familiar.generation.landmarks;
 let mapSettings = structuredClone(mapPresets.Standard);
@@ -136,12 +136,14 @@ function renderMapSettings() {
         radio.checked = radio.value === mapSettings.preset;
     }
     document.getElementById('mapSource').value = mapSettings.source;
-    select('size', mapSettings.source === 'Small' || (mapSettings.source === 'Realtime' && g.small_map) ? 'Small' : 'Full');
+    select('size', mapSettings.source === 'Small' || (mapSettings.source === 'Fresh' && g.small_map) ? 'Small' : 'Full');
     const sameLandmarks = expected => expected.length === g.landmarks.length && expected.every(name => g.landmarks.includes(name));
     select('landmarks', g.landmarks.length === 0 ? 'None' : sameLandmarks(mapLandmarks) ? 'All'
         : sameLandmarks(mapPresets.Standard.generation.landmarks) ? 'ShipMB' : null);
     for (const landmark of mapLandmarks) {
-        document.getElementById(`mapLandmark${landmark}`).checked = g.landmarks.includes(landmark);
+        const enabled = g.landmarks.includes(landmark);
+        document.getElementById(`mapLandmark${landmark}Off`).checked = !enabled;
+        document.getElementById(`mapLandmark${landmark}On`).checked = enabled;
     }
     for (const [field, area] of [['maridia_water', 4], ['norfair_heat', 2]]) {
         if (g[field].preset === 'Unrestricted') g[field].probabilities = Array(3).fill(mapAreaShare(area));
@@ -155,13 +157,16 @@ function renderMapSettings() {
             && same(g.target_area_y, mapPresets.Standard.generation.target_area_y) ? 'Preferred' : null);
     select('loops', g.reward_missing_connect_utility === mapPresets.Wild.generation.reward_missing_connect_utility ? 'Unrestricted'
         : g.reward_missing_connect_utility === mapPresets.Standard.generation.reward_missing_connect_utility ? 'Short' : null);
-    select('sizes', g.target_area_rooms.every(x => x > 0 && x === g.target_area_rooms[0]) ? 'Balanced'
+    select('sizes', g.target_area_rooms.every(x => x > 0 && x === g.target_area_rooms[0]) ? 'Unbiased'
         : same(g.target_area_rooms, mapPresets.Standard.generation.target_area_rooms) ? 'Familiar' : null);
     for (const input of document.querySelectorAll('[data-map-number]')) {
-        input.value = input.dataset.mapNumber.split('.').reduce((value, key) => value[key], g) ?? '';
+        const path = input.dataset.mapNumber.split('.');
+        const value = path.reduce((value, key) => value[key], g);
+        input.value = path[1] === 'probabilities' && g[path[0]].preset === 'Unrestricted'
+            ? Number(value.toFixed(3)) : value ?? '';
     }
     for (const control of document.querySelectorAll('.map-generation-control')) {
-        control.disabled = mapSettings.source !== 'Realtime';
+        control.disabled = mapSettings.source !== 'Fresh';
     }
     select('relabel', mapSettings.area_assignment === null ? 'Off' : mapSettings.area_assignment.preset);
     for (const [name, value] of [
@@ -173,64 +178,11 @@ function renderMapSettings() {
     }
 }
 
-const mapSettingHelpText = {
-    presets: ['Map layout', `<p>Vanilla uses the original layout. The randomized presets are:</p>
-        <div class="table-responsive">
-            <table class="table table-bordered align-middle text-center">
-                <thead>
-                    <tr><th scope="col" class="text-start">Setting</th><th scope="col">Small</th><th scope="col">Familiar</th><th scope="col">Standard</th><th scope="col">Wild</th></tr>
-                </thead>
-                <tbody>
-                    <tr><th scope="row" class="text-start">Map size</th><td>Small</td><td>Full</td><td>Full</td><td>Full</td></tr>
-                    <tr><th scope="row" class="text-start">Landmarks in original areas</th><td>None</td><td>All six</td><td>Ship + Mother Brain</td><td>None</td></tr>
-                    <tr><th scope="row" class="text-start">Heat and water</th><td>Unrestricted</td><td>Concentrated</td><td>Unrestricted</td><td>Unrestricted</td></tr>
-                    <tr><th scope="row" class="text-start">Area locations</th><td>Unrestricted</td><td>Preferred</td><td>Preferred</td><td>Unrestricted</td></tr>
-                    <tr><th scope="row" class="text-start">Return loops</th><td>Short</td><td>Short</td><td>Short</td><td>Unrestricted</td></tr>
-                    <tr><th scope="row" class="text-start">Area sizes</th><td>Familiar</td><td>Familiar</td><td>Familiar</td><td>Balanced</td></tr>
-                </tbody>
-            </table>
-        </div>
-        <p>These presets use Realtime map generation. The cog opens map settings, where you can also select a pre-generated pool.</p>`],
-    source: ['Map source', `<p>Realtime generates a new map using your generation settings. The pools contain previously generated maps; generation controls are disabled and ignored when a pool is selected. Relabeling is available with either source.</p>
-        <p>Selecting a randomized pool defaults relabeling to Standard. Selecting Realtime or Vanilla turns relabeling off. Your inactive generation settings are retained when switching sources.</p>`],
-    size: ['Map size', `<p>Full includes all rooms. Realtime Small generates a subset with a target of 150 rooms and a range of 120–180. The existing Small pool contains maps made by removing some areas from Standard maps. Missing objectives are excluded.</p>`],
-    landmarks: ['Landmarks', `<p>Force selected landmarks into their original areas. None disables all six constraints; Ship + Mother Brain enables only Landing Site in Crateria and Mother Brain in Tourian; All enables all six. The cog allows individual choices.</p>
-        <p>An unchecked landmark has no original-area reward. Relabeling completed areas can change its final area even when it was forced during generation.</p>`],
-    climate: ['Heat and water', `<p>Concentrated favors placing water rooms in Maridia and heated rooms in Norfair. Unrestricted adds no preference beyond the selected area-size proportions. These settings affect room placement, not the amount of water or heat in a room.</p>
-        <p>The cog separates heat and water and exposes the three tier probabilities. Concentrated uses 0.5, 0.6, and 0.7; Unrestricted follows the corresponding area's size share.</p>`],
-    tiers: ['Heat and water tiers', `<p>Rooms are tagged with tiers 1–3 in map-gen's room definitions. Each number is the preferred probability for placing that tier's rooms in Maridia (water) or Norfair (heat).</p>
-        <p>Probabilities must be positive, nondecreasing across the tiers, below 1, and at least the corresponding area's share of the size weights. Unrestricted tracks that share automatically; editing a number creates an explicit preference.</p>`],
-    locations: ['Area locations', `<p>Preferred uses familiar target centers with horizontal and vertical rewards of 10. Unrestricted sets both rewards to zero, so centers have no influence. The cog edits centers and the two reward strengths independently.</p>
-        <p>Centers are soft preferences; they do not fix area boundaries or guarantee a depth ordering.</p>`],
-    centers: ['Area centers', `<p>X increases to the right and Y increases downward. Preferred centers, in Crateria/Brinstar/Norfair/Wrecked Ship/Maridia/Tourian order, are X: 16, 10, 40, 48, 40, 16 and Y: 12, 32, 64, 12, 32, 24.</p>
-        <p>Unrestricted stores 36 for each coordinate with zero position rewards. Coordinates only influence generation when their corresponding reward is nonzero.</p>`],
-    loops: ['Return paths', `<p>Short loops uses a missing-connection utility reward of 1, favoring shorter return paths after one-way passages. Unrestricted uses 0, removing that preference. Neither setting guarantees a particular path length.</p>
-        <p>The cog edits the nonnegative reward directly. Paths are assessed using the generator's room connectivity, not the player's current inventory.</p>`],
-    sizes: ['Area sizes', `<p>Balanced gives all six areas equal weights. Familiar uses 150, 200, 200, 100, 200, 100 for Crateria, Brinstar, Norfair, Wrecked Ship, Maridia, Tourian.</p>
-        <p>These are positive relative weights, not exact room counts or a guaranteed size ordering. Heat/water preferences and forced landmarks also influence effective area sizes. Unrestricted heat/water probabilities follow changes to these weights.</p>`],
-    diameter: ['Graph diameter reward', '<p>A higher nonnegative reward penalizes greater graph diameter, favoring shorter maximum distances across the room graph. The default is 0.1.</p>'],
-    save: ['Save distance reward', '<p>A higher nonnegative reward favors shorter paths to and from save stations. The default is 0.1.</p>'],
-    refill: ['Refill distance reward', '<p>A higher nonnegative reward favors shorter paths to and from refill stations. The default is 0.1.</p>'],
-    crossings: ['Distinct area crossings reward', '<p>This reward favors connections between distinct pairs of areas. Higher values encourage more pairs of areas to connect directly. The default is 1.</p>'],
-    relabel: ['Relabel completed areas', `<p>Off preserves the map's generated area assignments. Other options relabel completed regions, overwriting the assignment produced by generation. This can undo landmark, heat/water, and area-location preferences.</p>
-        <ul><li><strong>Standard:</strong> Landing Site in Crateria, Mother Brain in Tourian; remaining areas assigned by size.</li>
-        <li><strong>Size:</strong> largest to smallest: Norfair, Brinstar, Maridia, Crateria, Tourian, Wrecked Ship.</li>
-        <li><strong>Depth:</strong> highest map tile to lowest: Crateria, Wrecked Ship, Tourian, Brinstar, Maridia, Norfair.</li>
-        <li><strong>Random:</strong> random area labels.</li></ul>
-        <p>The cog independently selects a base order and ship/Mother Brain overrides. With Vanilla, only Random changes the area assignment, matching the existing behavior.</p>`],
-};
-
 function mapModalNavigation(button) {
     const current = button.closest('.modal');
     if (current) current.dataset.mapNextModal = button.dataset.bsTarget;
-}
-
-function mapSettingHelp(topic, button) {
-    mapModalNavigation(button);
-    const help = document.getElementById('mapSettingHelpModal');
-    help.dataset.parentModal = button.closest('.modal')?.id ?? '';
-    help.querySelector('.modal-title').textContent = mapSettingHelpText[topic][0];
-    document.getElementById('mapSettingHelpBody').innerHTML = mapSettingHelpText[topic][1];
+    const target = document.getElementById(button.dataset.bsTarget.slice(1));
+    target.dataset.parentModal = current?.id ?? '';
 }
 
 for (const modal of document.querySelectorAll('.map-settings-modal')) {

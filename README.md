@@ -113,7 +113,7 @@ cargo run --release --bin maprando-web -- --seed-repository-url mem
 
 Without a map-generation server, the presets (Small, Standard, Wild) fall back to
 selection from pre-generated map pools, while the Familiar preset and customized
-map settings are unavailable. To also enable Realtime generation, run a serving
+map settings are unavailable. To also enable Fresh generation, run a serving
 instance from the `map-gen` submodule and pass its HTTP address:
 
 ```sh

@@ -1,0 +1,43 @@
+<div class="modal map-settings-modal" id="mapLayoutHelpModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-fullscreen-sm-down modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Map layout</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        This setting affects how the rooms are arranged on the map:
+        <ul>
+          <li><strong>Vanilla:</strong> The rooms are arranged as they are in the vanilla game, i.e. there is no map randomization. Consider checking out <a href="https://randommetroidsolver.pythonanywhere.com/randomizer">VARIA Randomizer</a>, which has more specialized support for vanilla map.</li>
+          <li><strong>Small:</strong> Only a subset of rooms is included, with some areas removed from a full map.</li>
+          <li><strong>Familiar:</strong> A randomized map that keeps the Ship and major boss rooms in their original areas and favors heated/water rooms in Norfair/Maridia. Area positions and sizes also tend to imitate the vanilla game to an extent.</li>
+          <li><strong>Standard:</strong> Rooms are arranged randomly but still relatively friendly to navigation: one-way passages tend to have short return paths that loop back around. The Ship stays in Crateria and Mother Brain in Tourian.</li>
+          <li><strong>Wild:</strong> Rooms are arranged in a more random and less friendly way: one-way passages may have long return paths. The Ship and Mother Brain can be anywhere.</li>
+        </ul>
+        <p>Randomized maps (even Familiar) tend to be more difficult than the vanilla map. Expect frequent risks of death and softlock, particularly at the beginning of the game. Familiar and Standard maps should typically be relatively straightforward to navigate once you have collected enough items, but reaching that point probably won't be easy. Wild maps are even more spicy and can contain very long one-way loops, like the Lower Norfair loop in the vanilla map or even longer.</p>
+        <p>With Small maps, some doors are replaced with walls. Objectives which do not exist in the map are excluded and do not appear in the pause menu objective screen.</p>
+        <h5>Details</h5>
+        <p>The randomized presets use the following settings:</p>
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle text-center">
+                <thead>
+                    <tr><td style="border-top-style: hidden; border-left-style: hidden;"></td><th scope="col">Small</th><th scope="col">Familiar</th><th scope="col">Standard</th><th scope="col">Wild</th></tr>
+                </thead>
+                <tbody>
+                    <tr><th scope="row" class="text-start">Map size</th><td>Small</td><td>Full</td><td>Full</td><td>Full</td></tr>
+                    <tr><th scope="row" class="text-start">Landmarks in original areas</th><td>None</td><td>All six</td><td>Ship + Mother Brain</td><td>None</td></tr>
+                    <tr><th scope="row" class="text-start">Heat and water</th><td>Unrestricted</td><td>Concentrated</td><td>Unrestricted</td><td>Unrestricted</td></tr>
+                    <tr><th scope="row" class="text-start">Area locations</th><td>Unrestricted</td><td>Preferred</td><td>Preferred</td><td>Unrestricted</td></tr>
+                    <tr><th scope="row" class="text-start">Area sizes</th><td>Familiar</td><td>Familiar</td><td>Familiar</td><td>Unbiased</td></tr>
+                    <tr><th scope="row" class="text-start">Return loops</th><td>Short</td><td>Short</td><td>Short</td><td>Unrestricted</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p>These presets use Fresh map generation. Use the gear button to open detailed map settings, where a legacy pool can be selected instead.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
