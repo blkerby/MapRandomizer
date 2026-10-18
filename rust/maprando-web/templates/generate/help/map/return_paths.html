@@ -1,4 +1,4 @@
-<div class="modal map-settings-modal" id="mapLoopsHelpModal" tabindex="-1">
+<div class="modal map-settings-modal" id="mapLoopsHelpModal" tabindex="-1" data-parent-modal="mapSettingsModal">
   <div class="modal-dialog modal-lg modal-fullscreen-sm-down modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
@@ -11,7 +11,7 @@
           <li><strong>Unrestricted:</strong> No preference for shorter return loops. After taking a one-way passage, the route back may be short or long.</li>
           <li><strong>Short loops:</strong> Favors shorter routes back after taking a one-way passage.</li>
         </ul>
-        <p>This is a tendency, not a guarantee. Use the gear button to adjust how strongly shorter return paths are favored.</p>
+        <p>This is a tendency, not a guarantee. Use the gear button to adjust how strongly shorter return paths are favored: 1 is the default for Short loops, and 0 means no preference (Unrestricted). Higher values give a stronger preference for shorter return paths.</p>
         <h5>Details</h5>
         <p>On all settings, the randomizer guarantees that one-way passages always loop back around somehow, though the path back could be long and require certain items. This setting affects the typical length of those paths.</p>
         <p>The "one-ways" considered here are situations where navigating in the reverse direction within a room may be impossible, even with all items collected, without techniques above Basic:</p>

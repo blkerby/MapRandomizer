@@ -178,20 +178,4 @@ function renderMapSettings() {
     }
 }
 
-function mapModalNavigation(button) {
-    const current = button.closest('.modal');
-    if (current) current.dataset.mapNextModal = button.dataset.bsTarget;
-    const target = document.getElementById(button.dataset.bsTarget.slice(1));
-    target.dataset.parentModal = current?.id ?? '';
-}
-
-for (const modal of document.querySelectorAll('.map-settings-modal')) {
-    modal.addEventListener('hidden.bs.modal', () => {
-        if (modal.dataset.mapNextModal) {
-            delete modal.dataset.mapNextModal;
-        } else if (modal.dataset.parentModal) {
-            bootstrap.Modal.getOrCreateInstance(document.getElementById(modal.dataset.parentModal)).show();
-        }
-    });
-}
 </script>
