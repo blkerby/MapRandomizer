@@ -56,6 +56,9 @@
                 "Yes": "true",
                 "No": "false"
             },
+            "door_theme": {
+                "alternative": "vibrant"
+            },
         };
         if (migrationMapping[name] !== undefined) {
             var newValue = migrationMapping[name][value];
@@ -80,9 +83,12 @@
             }
             if (element.type == "radio") {
                 var value = migrateValue(element.name, data[element.name]);
+                var known = Array.from(form.elements).some(
+                    e => e.name == element.name && e.value == value
+                );
                 if (value == element.value) {
                     element.checked = true;
-                } else if (value !== undefined) {
+                } else if (value !== undefined && known) {
                     element.checked = false;
                 }
             } else if (data[element.name] !== undefined) {
