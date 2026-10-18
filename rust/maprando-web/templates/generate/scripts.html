@@ -734,7 +734,6 @@ async function populateFullPresetOptions() {
     let customPresets = await getCustomPresets();
     if (customPresets.length > 0) {
         for (preset of customPresets) {
-            fullPresets[preset.name] = preset;
             optionEl = document.createElement("option");
             optionEl.value = preset.name;
             optionEl.innerText = preset.name;
@@ -1556,32 +1555,28 @@ async function loadSettings() {
     let settings = await localforage.getItem("generateSettings");
 
     if (settings !== null) {
-        let newSettings = null;
-        try {
-            newSettings = await upgradeSettings(settings);
-        } catch (error) {
-            showError(error);
-        }
-        if (newSettings !== null) {
-            settings = newSettings;
-            await localforage.setItem("generateSettings", settings);
-        }
         await populateFullPresetOptions();
-
-        let found = false;
-        for (presetName in fullPresets) {
-            if (presetName == settings.name) {
-                settings = fullPresets[presetName];
-                found = true;
-            }
-        }    
         try {
+            let preset = null;
+            if (settings.name !== null && settings.name !== "") {
+                preset = await getFullSettings(settings.name);
+            }
+            if (preset !== null) {
+                settings = preset;
+            } else {
+                const upgradedSettings = await upgradeSettings(settings);
+                if (upgradedSettings !== null) {
+                    settings = upgradedSettings;
+                }
+            }
+            await localforage.setItem("generateSettings", settings);
             applyFullSettingsPreset(settings);
+            if (preset === null) {
+                document.getElementById("saveSettingsButton").classList.remove("d-none");
+            }
         } catch (error) {
             showError(error);
-        }
-        if (!found) {
-            document.getElementById("saveSettingsButton").classList.remove("d-none");
+            return;
         }
     } else {
         // For backwards compatibility: load the form data the old way, if a settings JSON is not found.
