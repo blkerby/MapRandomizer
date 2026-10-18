@@ -58,7 +58,7 @@ jobs:
             const deployment = response.data;
 
             await core.summary
-              .addHeading('Experimental deployment request')
+              .addRaw('## Experimental deployment request\n\n')
               .addRaw([
                 `Image digest: ${metadata.digest}`,
                 `Commit: [${run.head_sha}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/commit/${run.head_sha})`,
