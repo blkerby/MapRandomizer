@@ -15,6 +15,13 @@
         <h5>Details</h5>
         <p>Use the gear button to adjust separate settings for heat and water, each with placement preferences for three groups of rooms called tiers. Tier 1 has the weakest preference for its original area, tier 2 has a stronger preference, and tier 3 has the strongest preference. Note that the Ridley and Draygon boss rooms are excluded from these settings, as they are covered by the "Landmarks" settings.</p>
         
+        <p>Each tier's number is the preferred chance of placing its rooms in Maridia (water) or Norfair (heat). For example, 0.5 means 50%. This is a target across generated maps, not a guaranteed fraction of rooms on each map.</p>
+        <ul>
+          <li>Values must be greater than 0 and less than 1.</li>
+          <li>Each tier's value must be at least as high as the previous tier's value.</li>
+          <li>Values must also be at least the area's share of the total area-size weights. For example, if Maridia has one quarter of the total weight, its water values must be at least 0.25.</li>
+        </ul>
+        <p>Unrestricted automatically follows that area's share when you change area sizes. Entering a number switches to a custom preference.</p>
         <h6>Water rooms</h6>
         <div class="table-responsive">
           <table class="table table-bordered align-middle">
