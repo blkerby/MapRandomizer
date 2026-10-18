@@ -1410,8 +1410,7 @@ fn upgrade_map_setting(settings: &mut serde_json::Value, preset_data: &PresetDat
         } else {
             MapPreset::from_preset(name).context("Unrecognized map layout")?
         };
-        let mut map_settings =
-            MapSettings::from_preset(preset, preset_data.fresh_map_generation);
+        let mut map_settings = MapSettings::from_preset(preset, preset_data.fresh_map_generation);
         map_settings.area_assignment = None;
         settings["map_settings"] = serde_json::to_value(map_settings)?;
     }
