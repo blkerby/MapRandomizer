@@ -732,7 +732,7 @@ impl Patcher<'_> {
             }
         }
 
-        if self.settings.map_layout != "Vanilla" {
+        if !self.settings.map_settings.is_vanilla() {
             patches.push("zebes_asleep_music");
         }
 
@@ -2096,7 +2096,10 @@ impl Patcher<'_> {
     }
 
     fn write_autotracker_map_layout(&mut self) -> Result<()> {
-        let value: u8 = MapPreset::from_preset(&self.settings.map_layout)
+        let value: u8 = self
+            .settings
+            .map_settings
+            .preset
             .map(MapPreset::to_byte)
             .unwrap_or(0);
         self.rom.write_u8(snes2pc(0xdfff0d), value as isize)?;
@@ -3882,9 +3885,11 @@ pub fn make_rom(
     patcher.remove_non_blue_doors()?;
     patcher.write_crash_handler(&patcher.settings.quality_of_life_settings.crash_fixes)?;
     override_music(patcher.rom)?;
-    if randomizer_settings.map_layout != "Vanilla"
-        || randomizer_settings.other_settings.area_assignment.preset
-            != Some(AreaAssignmentPreset::Standard)
+    if !randomizer_settings.map_settings.is_vanilla()
+        || randomizer_settings
+            .map_settings
+            .area_assignment
+            .is_some_and(|a| a.preset != Some(AreaAssignmentPreset::Standard))
     {
         patcher.use_area_based_music()?;
     }

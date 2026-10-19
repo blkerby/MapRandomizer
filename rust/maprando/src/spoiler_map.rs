@@ -113,7 +113,7 @@ pub fn get_spoiler_images(
     let mut tiles: Vec<Vec<MapTile>> = vec![vec![MapTile::default(); width]; height];
     let customize_settings = CustomizeSettings::default();
 
-    if settings.map_layout == "Vanilla" {
+    if settings.map_settings.is_vanilla() {
         add_vanilla_elevators(&mut tiles);
     }
 

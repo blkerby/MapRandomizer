@@ -11,101 +11,38 @@ use std::{
     time::Duration,
 };
 
+use crate::map_settings::{Landmark, MapSettings, MapSource};
 use crate::randomize::Randomizer;
-use crate::settings::AreaAssignmentBaseOrder;
 use maprando_game::{GameData, Map, NodeId, RoomId};
-
-#[derive(Clone, Copy, Debug)]
-pub struct MapSettings {
-    pub small: bool,
-    pub wild: bool,
-    pub vanilla: bool,
-    pub area_assignment_base_order: AreaAssignmentBaseOrder,
-}
-
-impl Default for MapSettings {
-    fn default() -> Self {
-        Self {
-            small: false,
-            wild: false,
-            vanilla: false,
-            area_assignment_base_order: AreaAssignmentBaseOrder::Size,
-        }
-    }
-}
-
-impl MapSettings {
-    pub fn from_map_layout(map_layout: &str) -> Result<Self> {
-        Ok(match map_layout {
-            "Vanilla" => Self {
-                vanilla: true,
-                ..Default::default()
-            },
-            "Small" => Self {
-                small: true,
-                ..Default::default()
-            },
-            "Standard" => Self::default(),
-            "Wild" => Self {
-                wild: true,
-                ..Default::default()
-            },
-            _ => bail!("Unrecognized map layout option: {map_layout}"),
-        })
-    }
-}
 
 pub trait MapRepository: Send + Sync {
     fn get_map_batch(
         &self,
         seed: usize,
-        settings: MapSettings,
+        settings: &MapSettings,
         game_data: &GameData,
     ) -> Result<Vec<Map>>;
-
-    fn requires_area_assignment(&self, _settings: MapSettings) -> bool {
-        true
-    }
 }
 
-pub struct LocalVanillaMapRepository {
-    vanilla_repository: Box<dyn MapRepository>,
-    other_repository: Box<dyn MapRepository>,
+pub struct SelectableMapRepository {
+    pub offline: OfflineMapRepository,
+    pub fresh: Option<HttpMapRepository>,
 }
 
-impl LocalVanillaMapRepository {
-    pub fn new(
-        vanilla_repository: OfflineMapRepository,
-        other_repository: Box<dyn MapRepository>,
-    ) -> Self {
-        Self {
-            vanilla_repository: Box::new(vanilla_repository),
-            other_repository,
-        }
-    }
-}
-
-impl MapRepository for LocalVanillaMapRepository {
+impl MapRepository for SelectableMapRepository {
     fn get_map_batch(
         &self,
         seed: usize,
-        settings: MapSettings,
+        settings: &MapSettings,
         game_data: &GameData,
     ) -> Result<Vec<Map>> {
-        if settings.vanilla {
-            self.vanilla_repository
+        if settings.source == MapSource::Fresh {
+            self.fresh
+                .as_ref()
+                .context("Fresh map generation is not configured")?
                 .get_map_batch(seed, settings, game_data)
         } else {
-            self.other_repository
-                .get_map_batch(seed, settings, game_data)
-        }
-    }
-
-    fn requires_area_assignment(&self, settings: MapSettings) -> bool {
-        if settings.vanilla {
-            self.vanilla_repository.requires_area_assignment(settings)
-        } else {
-            self.other_repository.requires_area_assignment(settings)
+            self.offline.get_map_batch(seed, settings, game_data)
         }
     }
 }
@@ -160,22 +97,13 @@ impl OfflineMapRepository {
         })
     }
 
-    fn pool_name(settings: MapSettings) -> Result<&'static str> {
-        let enabled = [settings.small, settings.wild, settings.vanilla]
-            .into_iter()
-            .filter(|x| *x)
-            .count();
-        if enabled > 1 {
-            bail!("Offline maps support at most one map setting");
-        }
-        if settings.vanilla {
-            Ok("Vanilla")
-        } else if settings.small {
-            Ok("Small")
-        } else if settings.wild {
-            Ok("Wild")
-        } else {
-            Ok("Standard")
+    fn pool_name(settings: &MapSettings) -> Result<&'static str> {
+        match settings.source {
+            MapSource::Vanilla => Ok("Vanilla"),
+            MapSource::Small => Ok("Small"),
+            MapSource::Standard => Ok("Standard"),
+            MapSource::Wild => Ok("Wild"),
+            MapSource::Fresh => bail!("Fresh maps are not available from an offline pool"),
         }
     }
 }
@@ -184,7 +112,7 @@ impl MapRepository for OfflineMapRepository {
     fn get_map_batch(
         &self,
         seed: usize,
-        settings: MapSettings,
+        settings: &MapSettings,
         game_data: &GameData,
     ) -> Result<Vec<Map>> {
         let pool_name = Self::pool_name(settings)?;
@@ -347,7 +275,16 @@ impl HttpMapRepository {
         })
     }
 
-    fn generate_request(settings: MapSettings) -> GenerateRequest {
+    fn generate_request(settings: &MapSettings) -> GenerateRequest {
+        let g = &settings.generation;
+        let water = g.maridia_water.effective_probabilities(g.area_share(4));
+        let heat = g.norfair_heat.effective_probabilities(g.area_share(2));
+        let ship = g.landmarks.contains(&Landmark::Ship);
+        let kraid = g.landmarks.contains(&Landmark::Kraid);
+        let ridley = g.landmarks.contains(&Landmark::Ridley);
+        let phantoon = g.landmarks.contains(&Landmark::Phantoon);
+        let draygon = g.landmarks.contains(&Landmark::Draygon);
+        let mother_brain = g.landmarks.contains(&Landmark::MotherBrain);
         GenerateRequest {
             episode_length: 253,
             recommended_candidates: 8,
@@ -364,42 +301,42 @@ impl HttpMapRepository {
             reward_phantoon_pair: 1.0,
             reward_phantoon_area: 1.0,
             reward_success: 0.0,
-            reward_ship_in_crateria: 1.0,
-            reward_kraid_in_brinstar: 1.0,
-            reward_ridley_in_norfair: 1.0,
-            reward_phantoon_in_wrecked_ship: 1.0,
-            reward_draygon_in_maridia: 1.0,
-            reward_mother_brain_in_tourian: 1.0,
-            force_ship_in_crateria: true,
-            force_kraid_in_brinstar: true,
-            force_ridley_in_norfair: true,
-            force_phantoon_in_wrecked_ship: true,
-            force_draygon_in_maridia: true,
-            force_mother_brain_in_tourian: true,
+            reward_ship_in_crateria: if ship { 1.0 } else { 0.0 },
+            reward_kraid_in_brinstar: if kraid { 1.0 } else { 0.0 },
+            reward_ridley_in_norfair: if ridley { 1.0 } else { 0.0 },
+            reward_phantoon_in_wrecked_ship: if phantoon { 1.0 } else { 0.0 },
+            reward_draygon_in_maridia: if draygon { 1.0 } else { 0.0 },
+            reward_mother_brain_in_tourian: if mother_brain { 1.0 } else { 0.0 },
+            force_ship_in_crateria: ship,
+            force_kraid_in_brinstar: kraid,
+            force_ridley_in_norfair: ridley,
+            force_phantoon_in_wrecked_ship: phantoon,
+            force_draygon_in_maridia: draygon,
+            force_mother_brain_in_tourian: mother_brain,
             reward_frontier: 0.0,
-            reward_graph_diameter: 0.1,
-            maridia_water_preferred_probability_1: 0.5,
-            maridia_water_preferred_probability_2: 0.6,
-            maridia_water_preferred_probability_3: 0.7,
-            norfair_heat_preferred_probability_1: 0.5,
-            norfair_heat_preferred_probability_2: 0.6,
-            norfair_heat_preferred_probability_3: 0.7,
-            reward_save_distance: 0.1,
-            reward_refill_distance: 0.1,
-            reward_missing_connect_utility: if settings.wild { 0.0 } else { 1.0 },
-            reward_area_distinct_crossing: 1.0,
+            reward_graph_diameter: g.reward_graph_diameter,
+            maridia_water_preferred_probability_1: water[0],
+            maridia_water_preferred_probability_2: water[1],
+            maridia_water_preferred_probability_3: water[2],
+            norfair_heat_preferred_probability_1: heat[0],
+            norfair_heat_preferred_probability_2: heat[1],
+            norfair_heat_preferred_probability_3: heat[2],
+            reward_save_distance: g.reward_save_distance,
+            reward_refill_distance: g.reward_refill_distance,
+            reward_missing_connect_utility: g.reward_missing_connect_utility,
+            reward_area_distinct_crossing: g.reward_area_distinct_crossing,
             reward_area_crossing: 0.0,
             reward_area_size_valid: 1.0,
             reward_area_map_station: 1.0,
-            reward_area_x: 10.0,
-            reward_area_y: 10.0,
-            target_area_rooms: [150.0, 200.0, 200.0, 100.0, 200.0, 100.0],
-            target_area_x: [16.0, 10.0, 40.0, 48.0, 40.0, 16.0],
-            target_area_y: [12.0, 32.0, 64.0, 12.0, 32.0, 24.0],
-            small_map: settings.small,
-            min_rooms: settings.small.then_some(120),
-            max_rooms: settings.small.then_some(180),
-            target_rooms: settings.small.then_some(150),
+            reward_area_x: g.reward_area_x,
+            reward_area_y: g.reward_area_y,
+            target_area_rooms: g.target_area_rooms,
+            target_area_x: g.target_area_x,
+            target_area_y: g.target_area_y,
+            small_map: g.small_map,
+            min_rooms: g.small_map.then_some(120),
+            max_rooms: g.small_map.then_some(180),
+            target_rooms: g.small_map.then_some(150),
         }
     }
 
@@ -415,7 +352,7 @@ impl HttpMapRepository {
         Ok(maps)
     }
 
-    fn request_generate(&self, settings: MapSettings) -> Result<GenerateResponse> {
+    fn request_generate(&self, settings: &MapSettings) -> Result<GenerateResponse> {
         let body = serde_json::to_vec(&Self::generate_request(settings))?;
         let mut stream =
             TcpStream::connect((self.host.as_str(), self.port)).with_context(|| {
@@ -457,21 +394,19 @@ impl HttpMapRepository {
 impl MapRepository for HttpMapRepository {
     fn get_map_batch(
         &self,
-        seed: usize,
-        settings: MapSettings,
+        _seed: usize,
+        settings: &MapSettings,
         game_data: &GameData,
     ) -> Result<Vec<Map>> {
+        settings.generation.validate()?;
+        // TODO: if it is feasible to make fresh map generation reproducible,
+        // plumb the `_seed` through to the request. It is ignored for now.
         let response = self.request_generate(settings)?;
-        let mut maps = Self::response_to_maps(response, game_data)?;
+        let maps = Self::response_to_maps(response, game_data)?;
         if maps.is_empty() {
             bail!("Map generation server returned no valid maps");
         }
-        shuffle_maps(&mut maps, seed);
         Ok(maps)
-    }
-
-    fn requires_area_assignment(&self, _settings: MapSettings) -> bool {
-        false
     }
 }
 

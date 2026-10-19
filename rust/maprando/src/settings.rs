@@ -5,7 +5,7 @@ use hashbrown::HashMap;
 use maprando_game::{Item, NotableId, RoomId, TechId};
 use serde::{Deserialize, Serialize};
 
-use crate::preset::PresetData;
+use crate::{map_settings::MapSettings, preset::PresetData};
 
 const VERSION: usize = include!("../../VERSION");
 
@@ -17,7 +17,7 @@ pub struct RandomizerSettings {
     pub item_progression_settings: ItemProgressionSettings,
     pub quality_of_life_settings: QualityOfLifeSettings,
     pub objective_settings: ObjectiveSettings,
-    pub map_layout: String,
+    pub map_settings: MapSettings,
     pub doors_settings: DoorsSettings,
     pub start_location_settings: StartLocationSettings,
     pub save_animals: SaveAnimals,
@@ -231,12 +231,13 @@ impl ProgressionPreset {
 }
 
 #[repr(u8)]
-#[derive(Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
 pub enum MapPreset {
     Vanilla = 1,
     Small = 2,
     Standard = 3,
     Wild = 4,
+    Familiar = 5,
 }
 
 impl MapPreset {
@@ -246,6 +247,7 @@ impl MapPreset {
             "small" => Some(Self::Small),
             "standard" => Some(Self::Standard),
             "wild" => Some(Self::Wild),
+            "familiar" => Some(Self::Familiar),
             _ => None,
         }
     }
@@ -657,7 +659,6 @@ pub struct StartLocationSettings {
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct OtherSettings {
     pub wall_jump: WallJump,
-    pub area_assignment: AreaAssignment,
     pub door_locks_size: DoorLocksSize,
     pub energy_free_shinesparks: bool,
     pub all_enemies_respawn: bool,
@@ -980,7 +981,11 @@ fn assign_presets(settings: &mut serde_json::Value, preset_data: &PresetData) ->
         let preset = preset.to_owned();
         for p in &preset_data.full_presets {
             if p.name.as_ref() == Some(&preset) {
+                let map_settings = settings.get("map_settings").cloned();
                 *settings = serde_json::to_value(p)?;
+                if let Some(map_settings) = map_settings {
+                    settings["map_settings"] = map_settings;
+                }
             }
         }
     }
@@ -1397,9 +1402,17 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
     Ok(())
 }
 
-fn upgrade_map_setting(settings: &mut serde_json::Value) -> Result<()> {
-    if settings["map_layout"].as_str() == Some("Tame") {
-        *settings.get_mut("map_layout").unwrap() = "Standard".into();
+fn upgrade_map_setting(settings: &mut serde_json::Value, preset_data: &PresetData) -> Result<()> {
+    if let Some(layout) = settings.as_object_mut().unwrap().remove("map_layout") {
+        let name = layout.as_str().context("invalid map_layout")?;
+        let preset = if name == "Tame" {
+            MapPreset::Standard
+        } else {
+            MapPreset::from_preset(name).context("Unrecognized map layout")?
+        };
+        let mut map_settings = MapSettings::from_preset(preset, preset_data.fresh_map_generation);
+        map_settings.area_assignment = None;
+        settings["map_settings"] = serde_json::to_value(map_settings)?;
     }
     Ok(())
 }
@@ -1513,22 +1526,7 @@ fn upgrade_other_settings(settings: &mut serde_json::Value) -> Result<()> {
         .context("missing other_settings")?
         .as_object_mut()
         .context("expected other_settings to be object")?;
-    {
-        let area_assignment = other_settings
-            .get_mut("area_assignment")
-            .context("missing area_assignment")?;
-
-        if area_assignment.is_string() {
-            let preset_str = area_assignment.as_str().unwrap();
-            let preset = match preset_str {
-                "Standard" => AreaAssignmentPreset::Standard,
-                "Ordered" => AreaAssignmentPreset::Size,
-                "Random" => AreaAssignmentPreset::Random,
-                _ => bail!("Unrecognized area assignment preset: {}", preset_str),
-            };
-            *area_assignment = serde_json::to_value(AreaAssignment::from_preset(preset))?;
-        }
-    }
+    other_settings.remove("area_assignment");
 
     if other_settings.get("all_enemies_respawn").is_none()
         || other_settings["all_enemies_respawn"].as_bool().is_none()
@@ -1574,6 +1572,8 @@ pub fn try_upgrade_settings(
 ) -> Result<(String, RandomizerSettings)> {
     let mut settings: serde_json::Value = serde_json::from_str(&settings_str)?;
 
+    let legacy_map_layout = settings.get("map_layout").cloned();
+
     upgrade_objective_settings(&mut settings, preset_data)?;
     upgrade_doors_settings(&mut settings, preset_data)?;
     if apply_presets {
@@ -1584,7 +1584,10 @@ pub fn try_upgrade_settings(
     upgrade_other_skill_settings(&mut settings)?;
     upgrade_item_progression_settings(&mut settings)?;
     upgrade_qol_settings(&mut settings)?;
-    upgrade_map_setting(&mut settings)?;
+    if let Some(layout) = legacy_map_layout {
+        settings["map_layout"] = layout;
+    }
+    upgrade_map_setting(&mut settings, preset_data)?;
     upgrade_other_settings(&mut settings)?;
     upgrade_start_location_setings(&mut settings)?;
     upgrade_animals_setting(&mut settings)?;

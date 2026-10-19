@@ -324,7 +324,10 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             objective_screen: maprando::settings::ObjectiveScreen::Disabled,
             objective_areas: maprando::settings::ObjectiveAreas::Disabled,
         },
-        map_layout: String::new(),
+        map_settings: maprando::map_settings::MapSettings::from_preset(
+            maprando::settings::MapPreset::Standard,
+            false,
+        ),
         doors_settings: DoorsSettings {
             preset: Some("Blue".to_string()),
             red_doors_count: 0,
@@ -348,9 +351,6 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             } else {
                 maprando::settings::WallJump::Vanilla
             },
-            area_assignment: maprando::settings::AreaAssignment::from_preset(
-                maprando::settings::AreaAssignmentPreset::Standard,
-            ),
             door_locks_size: maprando::settings::DoorLocksSize::Large,
             energy_free_shinesparks: settings.energy_free_shinesparks.unwrap_or(false),
             all_enemies_respawn: false,

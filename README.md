@@ -111,6 +111,15 @@ For significantly faster performance (at the cost of taking longer to build), us
 cargo run --release --bin maprando-web -- --seed-repository-url mem
 ```
 
+Without a map-generation server, the presets (Small, Standard, Wild) fall back to
+selection from pre-generated map pools, while the Familiar preset and customized
+map settings are unavailable. To also enable Fresh generation, run a serving
+instance from the `map-gen` submodule and pass its HTTP address:
+
+```sh
+cargo run --bin maprando-web -- --seed-repository-url mem --map-server localhost:8000
+```
+
 ### Use local copy of videos
 
 If you want to be able to have full functionality of the site while offline, including being able to browse the library of videos in the Logic pages, a local copy of the video library can be downloaded or synced as follows:
