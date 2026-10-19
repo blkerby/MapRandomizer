@@ -5,7 +5,7 @@ lorom
 arch 65816
 
 !bank_df_free_space_start = $dfe212 ; this location must match fn write_double_item_table in map_tiles.rs
-!bank_df_free_space_end = $dffe3af
+!bank_df_free_space_end = $dfe3bf
 
 !interval = #$0030           
 !current_area = $7e1f5b    
@@ -53,6 +53,7 @@ DoubleItemTable:
   dw $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000 ; Green Brinstar Reserve
   dw $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000 ; Norfair Reserve
   dw $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000 ; Bomb Torizo (when it's an objective)
+DoubleItemTableEnd:
 
 ; Mask layout: !animate_mask uses bit n for “animate entry n” and bit n+8 for “entry n is visited” (VisitedRowMasks).
 
@@ -127,7 +128,7 @@ BuildAnimateBitMask:
   clc
   adc #$0010
   tay
-  cpy #$0070
+  cpy #DoubleItemTableEnd-DoubleItemTable
   bne .loop
 
   ply
@@ -218,7 +219,7 @@ AnimateTile:
   clc
   adc #$0010
   tay
-  cpy #$0070
+  cpy #DoubleItemTableEnd-DoubleItemTable
   bne .loop
 
   txa
