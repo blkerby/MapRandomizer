@@ -71,6 +71,9 @@ struct Args {
     port: u16,
     #[arg(long)]
     map_server: Option<String>,
+    /// Send a test generation request during startup.
+    #[arg(long, requires = "map_server")]
+    test_map_server: bool,
 }
 
 fn load_visualizer_files() -> Vec<(String, Vec<u8>)> {
@@ -162,10 +165,26 @@ fn build_app_data() -> AppData {
             ("Wild", wild_maps_path),
         ])
         .unwrap(),
-        fresh: args
-            .map_server
-            .as_ref()
-            .map(|server| HttpMapRepository::new(server).unwrap()),
+        fresh: args.map_server.as_ref().map(|server| {
+            let repository = HttpMapRepository::new(server).unwrap();
+            if args.test_map_server {
+                info!("Sending test generation request to map server {server}");
+                let start = Instant::now();
+                let maps = repository
+                    .get_map_batch(
+                        0,
+                        &MapSettings::from_preset(MapPreset::Standard, true),
+                        &game_data,
+                    )
+                    .expect("Map server test request failed");
+                info!(
+                    "Map server test request succeeded: {} maps in {:.3}s",
+                    maps.len(),
+                    start.elapsed().as_secs_f32()
+                );
+            }
+            repository
+        }),
     });
 
     let logic_data = LogicData::new(
