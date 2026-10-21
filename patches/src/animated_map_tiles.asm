@@ -7,7 +7,7 @@ arch 65816
 !bank_df_free_space_start = $dfe212 ; this location must match fn write_double_item_table in map_tiles.rs
 !bank_df_free_space_end = $dfe3bf
 
-!interval = #$0030           
+!interval = #$001B
 !current_area = $7e1f5b    
 !animate_mask = $7ef5a0
 !tile_timer = $7ef5a2      
