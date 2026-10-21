@@ -1334,7 +1334,7 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
         qol_settings.insert("hazard_markers".to_string(), true.into());
     }
     if !qol_settings.contains_key("animated_tiles") {
-        qol_settings.insert("animated_tiles".to_string(), true.into());
+        qol_settings.insert("animated_tiles".to_string(), false.into());
     }
     if !qol_settings.contains_key("persist_flash_suit") {
         qol_settings.insert("persist_flash_suit".to_string(), false.into());
