@@ -5,7 +5,7 @@ lorom
 arch 65816
 
 !bank_df_free_space_start = $dfe212 ; this location must match fn write_double_item_table in map_tiles.rs
-!bank_df_free_space_end = $dfe3bf
+!bank_df_free_space_end = $dfe3c2
 
 !interval = #$001B
 !current_area = $7e1f5b    
@@ -74,8 +74,9 @@ BuildAnimateBitMask:
   phk
   plb
 
-  lda #$0000
+  lda #$0015
   sta !tile_timer
+  lda #$0000
   sta !tile_state
   sta !animate_mask
 
