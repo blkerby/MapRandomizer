@@ -270,6 +270,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             room_outline_revealed: false,
             opposite_area_revealed: false,
             hazard_markers: false,
+            animated_tiles: false,
             mother_brain_fight: maprando::settings::MotherBrainFight::Vanilla,
             supers_double: false,
             escape_autosave: false,
