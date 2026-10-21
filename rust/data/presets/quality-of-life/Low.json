@@ -48,7 +48,7 @@
     "room_outline_revealed": false,
     "opposite_area_revealed": false,
     "hazard_markers": true,
-    "animated_tiles": true,
+    "animated_tiles": false,
     "mother_brain_fight": "Short",
     "supers_double": true,
     "escape_autosave": true,
