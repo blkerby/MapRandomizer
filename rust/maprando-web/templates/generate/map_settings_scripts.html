@@ -75,6 +75,7 @@ function mapChoiceChanged(group, value) {
             break;
         case 'loops':
             g.reward_missing_connect_utility = mapPresets[value === 'Short' ? 'Standard' : 'Wild'].generation.reward_missing_connect_utility;
+            g.max_return_distance = mapPresets[value === 'Short' ? 'Standard' : 'Wild'].generation.max_return_distance;
             break;
         case 'sizes':
             g.target_area_rooms = value === 'Familiar' ? [...mapPresets.Standard.generation.target_area_rooms] : Array(6).fill(1);
@@ -155,8 +156,10 @@ function renderMapSettings() {
             && g.reward_area_y === mapPresets.Standard.generation.reward_area_y
             && same(g.target_area_x, mapPresets.Standard.generation.target_area_x)
             && same(g.target_area_y, mapPresets.Standard.generation.target_area_y) ? 'Preferred' : null);
-    select('loops', g.reward_missing_connect_utility === mapPresets.Wild.generation.reward_missing_connect_utility ? 'Unrestricted'
-        : g.reward_missing_connect_utility === mapPresets.Standard.generation.reward_missing_connect_utility ? 'Short' : null);
+    select('loops', g.reward_missing_connect_utility === mapPresets.Wild.generation.reward_missing_connect_utility
+        && g.max_return_distance == null ? 'Unrestricted'
+        : g.reward_missing_connect_utility === mapPresets.Standard.generation.reward_missing_connect_utility
+            && g.max_return_distance === mapPresets.Standard.generation.max_return_distance ? 'Short' : null);
     select('sizes', g.target_area_rooms.every(x => x > 0 && x === g.target_area_rooms[0]) ? 'Unbiased'
         : same(g.target_area_rooms, mapPresets.Standard.generation.target_area_rooms) ? 'Familiar' : null);
     for (const input of document.querySelectorAll('[data-map-number]')) {

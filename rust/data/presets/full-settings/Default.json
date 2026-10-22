@@ -4820,7 +4820,8 @@
                     0.7
                 ]
             },
-            "reward_missing_connect_utility": 1.0,
+            "reward_missing_connect_utility": 2.0,
+            "max_return_distance": 13.0,
             "reward_area_x": 10.0,
             "reward_area_y": 10.0,
             "target_area_rooms": [

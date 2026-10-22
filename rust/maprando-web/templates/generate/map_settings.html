@@ -501,6 +501,14 @@
             <div class="modal-body px-4 py-2">
                 <div class="row align-items-center my-2">
                     <div class="col-sm-8 d-flex align-items-center">
+                        <label for="mapMaxReturnDistance">Max return distance</label>
+                    </div>
+                    <div class="col-sm-4 d-flex align-items-center">
+                        <input type="number" min="0" step="any" id="mapMaxReturnDistance" class="form-control map-generation-control" data-map-number="max_return_distance" onchange="mapNumberChanged(this)">
+                    </div>
+                </div>
+                <div class="row align-items-center my-2">
+                    <div class="col-sm-8 d-flex align-items-center">
                         <span>Missing-connection utility reward</span>
                     </div>
                     <div class="col-sm-4 d-flex align-items-center">

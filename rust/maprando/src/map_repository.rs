@@ -325,7 +325,7 @@ impl HttpMapRepository {
             reward_save_distance: g.reward_save_distance,
             reward_refill_distance: g.reward_refill_distance,
             reward_missing_connect_utility: g.reward_missing_connect_utility,
-            max_return_distance: None,
+            max_return_distance: g.max_return_distance,
             reward_area_distinct_crossing: g.reward_area_distinct_crossing,
             reward_area_crossing: 0.0,
             reward_area_size_valid: 1.0,
