@@ -164,7 +164,7 @@ fn get_randomization(
         if map_batch.is_empty() {
             map_batch = app
                 .map_repo
-                .get_map_batch(map_seed, &settings.map_settings, game_data)
+                .get_map_batch(map_seed, &settings, game_data)
                 .unwrap();
         }
 

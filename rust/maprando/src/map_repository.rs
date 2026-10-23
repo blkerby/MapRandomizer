@@ -13,13 +13,14 @@ use std::{
 
 use crate::map_settings::{Landmark, MapSettings, MapSource};
 use crate::randomize::Randomizer;
+use crate::settings::{RandomizerSettings, SkillAssumptionSettings, StartLocationMode, WallJump};
 use maprando_game::{GameData, Map, NodeId, RoomId};
 
 pub trait MapRepository: Send + Sync {
     fn get_map_batch(
         &self,
         seed: usize,
-        settings: &MapSettings,
+        settings: &RandomizerSettings,
         game_data: &GameData,
     ) -> Result<Vec<Map>>;
 }
@@ -33,10 +34,10 @@ impl MapRepository for SelectableMapRepository {
     fn get_map_batch(
         &self,
         seed: usize,
-        settings: &MapSettings,
+        settings: &RandomizerSettings,
         game_data: &GameData,
     ) -> Result<Vec<Map>> {
-        if settings.source == MapSource::Fresh {
+        if settings.map_settings.source == MapSource::Fresh {
             self.fresh
                 .as_ref()
                 .context("Fresh map generation is not configured")?
@@ -112,10 +113,10 @@ impl MapRepository for OfflineMapRepository {
     fn get_map_batch(
         &self,
         seed: usize,
-        settings: &MapSettings,
+        settings: &RandomizerSettings,
         game_data: &GameData,
     ) -> Result<Vec<Map>> {
-        let pool_name = Self::pool_name(settings)?;
+        let pool_name = Self::pool_name(&settings.map_settings)?;
         let pool = self
             .pools
             .get(pool_name)
@@ -171,6 +172,7 @@ pub struct HttpMapRepository {
     host: String,
     port: u16,
     path: String,
+    difficulty_bins: Vec<(String, f32)>,
 }
 
 #[derive(Serialize)]
@@ -190,6 +192,10 @@ struct GenerateRequest {
     reward_phantoon_pair: f64,
     reward_phantoon_area: f64,
     reward_success: f64,
+    reward_initial_item: f64,
+    initial_item_start: Option<(RoomId, NodeId)>,
+    initial_item_difficulty: String,
+    initial_item_wall_jump: bool,
     reward_ship_in_crateria: f64,
     reward_kraid_in_brinstar: f64,
     reward_ridley_in_norfair: f64,
@@ -256,7 +262,7 @@ struct GenerateResponseEdges {
 }
 
 impl HttpMapRepository {
-    pub fn new(server: &str) -> Result<Self> {
+    pub fn new(server: &str, skill_presets: &[SkillAssumptionSettings]) -> Result<Self> {
         let server = server
             .strip_prefix("http://")
             .unwrap_or(server)
@@ -269,15 +275,64 @@ impl HttpMapRepository {
         } else {
             bail!("Map generation server must be in host:port format");
         };
+        let mut difficulty_bins: Vec<_> = skill_presets
+            .iter()
+            .filter(|preset| preset.preset.as_deref() != Some("Implicit"))
+            .map(|preset| {
+                (
+                    preset.preset.clone().unwrap(),
+                    preset.escape_timer_multiplier,
+                )
+            })
+            .collect();
+        difficulty_bins.sort_by(|a, b| b.1.total_cmp(&a.1));
         Ok(Self {
             host,
             port,
             path: "/generate".to_string(),
+            difficulty_bins,
         })
     }
 
-    fn generate_request(settings: &MapSettings) -> GenerateRequest {
-        let g = &settings.generation;
+    fn initial_item_difficulty(&self, skill: &SkillAssumptionSettings) -> Result<String> {
+        if let Some(name) = &skill.preset {
+            if !self
+                .difficulty_bins
+                .iter()
+                .any(|(preset, _)| preset == name)
+            {
+                bail!("Unsupported initial-item difficulty preset: {name}");
+            }
+            return Ok(name.clone());
+        }
+        // Midpoints belong to the larger multiplier (the more conservative tier).
+        let preset = self
+            .difficulty_bins
+            .windows(2)
+            .find(|pair| skill.escape_timer_multiplier >= (pair[0].1 + pair[1].1) / 2.0);
+        Ok(preset.map_or_else(
+            || self.difficulty_bins.last().unwrap().0.clone(),
+            |pair| pair[0].0.clone(),
+        ))
+    }
+
+    fn generate_request(&self, settings: &RandomizerSettings) -> Result<GenerateRequest> {
+        let g = &settings.map_settings.generation;
+        let initial_item_start = match settings.start_location_settings.mode {
+            StartLocationMode::Ship => Some((8, 5)),
+            StartLocationMode::Custom => Some((
+                settings
+                    .start_location_settings
+                    .room_id
+                    .context("expected start room_id")?,
+                settings
+                    .start_location_settings
+                    .node_id
+                    .context("expected start node_id")?,
+            )),
+            StartLocationMode::Random | StartLocationMode::Escape => None,
+        };
+        let initial_item_wall_jump = settings.other_settings.wall_jump == WallJump::Vanilla;
         let water = g.maridia_water.effective_probabilities(g.area_share(4));
         let heat = g.norfair_heat.effective_probabilities(g.area_share(2));
         let ship = g.landmarks.contains(&Landmark::Ship);
@@ -286,7 +341,7 @@ impl HttpMapRepository {
         let phantoon = g.landmarks.contains(&Landmark::Phantoon);
         let draygon = g.landmarks.contains(&Landmark::Draygon);
         let mother_brain = g.landmarks.contains(&Landmark::MotherBrain);
-        GenerateRequest {
+        Ok(GenerateRequest {
             episode_length: 253,
             recommended_candidates: 8,
             shortlist_candidates: 1024,
@@ -302,6 +357,15 @@ impl HttpMapRepository {
             reward_phantoon_pair: 1.0,
             reward_phantoon_area: 1.0,
             reward_success: 0.0,
+            reward_initial_item: if initial_item_start.is_some() {
+                1.0
+            } else {
+                0.0
+            },
+            initial_item_start,
+            initial_item_difficulty: self
+                .initial_item_difficulty(&settings.skill_assumption_settings)?,
+            initial_item_wall_jump,
             reward_ship_in_crateria: if ship { 1.0 } else { 0.0 },
             reward_kraid_in_brinstar: if kraid { 1.0 } else { 0.0 },
             reward_ridley_in_norfair: if ridley { 1.0 } else { 0.0 },
@@ -339,7 +403,7 @@ impl HttpMapRepository {
             min_rooms: g.small_map.then_some(120),
             max_rooms: g.small_map.then_some(180),
             target_rooms: g.small_map.then_some(150),
-        }
+        })
     }
 
     fn response_to_maps(response: GenerateResponse, game_data: &GameData) -> Result<Vec<Map>> {
@@ -354,8 +418,8 @@ impl HttpMapRepository {
         Ok(maps)
     }
 
-    fn request_generate(&self, settings: &MapSettings) -> Result<GenerateResponse> {
-        let body = serde_json::to_vec(&Self::generate_request(settings))?;
+    fn request_generate(&self, settings: &RandomizerSettings) -> Result<GenerateResponse> {
+        let body = serde_json::to_vec(&self.generate_request(settings)?)?;
         let mut stream =
             TcpStream::connect((self.host.as_str(), self.port)).with_context(|| {
                 format!(
@@ -397,10 +461,10 @@ impl MapRepository for HttpMapRepository {
     fn get_map_batch(
         &self,
         _seed: usize,
-        settings: &MapSettings,
+        settings: &RandomizerSettings,
         game_data: &GameData,
     ) -> Result<Vec<Map>> {
-        settings.generation.validate()?;
+        settings.map_settings.generation.validate()?;
         // TODO: if it is feasible to make fresh map generation reproducible,
         // plumb the `_seed` through to the request. It is ignored for now.
         let response = self.request_generate(settings)?;

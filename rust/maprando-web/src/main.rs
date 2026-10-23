@@ -149,12 +149,10 @@ fn build_app_data() -> AppData {
 
     let vanilla_map_repository =
         OfflineMapRepository::new(vec![("Vanilla", vanilla_map_path)]).unwrap();
+    let mut vanilla_settings = preset_data.default_preset.clone();
+    vanilla_settings.map_settings = MapSettings::from_preset(MapPreset::Vanilla, false);
     let vanilla_map = vanilla_map_repository
-        .get_map_batch(
-            0,
-            &MapSettings::from_preset(MapPreset::Vanilla, false),
-            &game_data,
-        )
+        .get_map_batch(0, &vanilla_settings, &game_data)
         .unwrap()[0]
         .clone();
     let map_repository: Box<dyn MapRepository> = Box::new(SelectableMapRepository {
@@ -166,16 +164,14 @@ fn build_app_data() -> AppData {
         ])
         .unwrap(),
         fresh: args.map_server.as_ref().map(|server| {
-            let repository = HttpMapRepository::new(server).unwrap();
+            let repository = HttpMapRepository::new(server, &preset_data.skill_presets).unwrap();
             if args.test_map_server {
                 info!("Sending test generation request to map server {server}");
                 let start = Instant::now();
+                let mut test_settings = preset_data.default_preset.clone();
+                test_settings.map_settings = MapSettings::from_preset(MapPreset::Standard, true);
                 let maps = repository
-                    .get_map_batch(
-                        0,
-                        &MapSettings::from_preset(MapPreset::Standard, true),
-                        &game_data,
-                    )
+                    .get_map_batch(0, &test_settings, &game_data)
                     .expect("Map server test request failed");
                 info!(
                     "Map server test request succeeded: {} maps in {:.3}s",
@@ -613,7 +609,7 @@ fn handle_randomize_request(
         if map_batch.is_empty() {
             map_batch = app_data
                 .map_repository
-                .get_map_batch(map_seed, &settings.map_settings, &app_data.game_data)
+                .get_map_batch(map_seed, &settings, &app_data.game_data)
                 .map_err(AttemptError::MapGeneration)?;
         }
 
