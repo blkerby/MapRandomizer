@@ -18,7 +18,7 @@ use actix_web::{
 use askama::Template;
 use clap::Parser;
 use hashbrown::HashMap;
-use log::{error, info};
+use log::{error, info, warn};
 use rand::{RngCore, SeedableRng};
 use serde_derive::{Deserialize, Serialize};
 use serde_variant::to_variant_name;
@@ -71,7 +71,7 @@ struct Args {
     port: u16,
     #[arg(long)]
     map_server: Option<String>,
-    /// Send a test generation request during startup.
+    /// Test each full-settings preset's map source and request fresh-map refills during startup.
     #[arg(long, requires = "map_server")]
     test_map_server: bool,
 }
@@ -163,25 +163,32 @@ fn build_app_data() -> AppData {
             ("Wild", wild_maps_path),
         ])
         .unwrap(),
-        fresh: args.map_server.as_ref().map(|server| {
-            let repository = HttpMapRepository::new(server, &preset_data.skill_presets).unwrap();
-            if args.test_map_server {
-                info!("Sending test generation request to map server {server}");
-                let start = Instant::now();
-                let mut test_settings = preset_data.default_preset.clone();
-                test_settings.map_settings = MapSettings::from_preset(MapPreset::Standard, true);
-                let maps = repository
-                    .get_map_batch(0, &test_settings, &game_data)
-                    .expect("Map server test request failed");
-                info!(
-                    "Map server test request succeeded: {} maps in {:.3}s",
-                    maps.len(),
-                    start.elapsed().as_secs_f32()
-                );
-            }
-            repository
-        }),
+        fresh: args
+            .map_server
+            .as_ref()
+            .map(|server| HttpMapRepository::new(server, &preset_data.skill_presets).unwrap()),
     });
+    if args.test_map_server {
+        for settings in &preset_data.full_presets {
+            let name = settings.name.as_deref().unwrap();
+            info!(
+                "Testing map source {:?} for {name}",
+                settings.map_settings.source
+            );
+            let start = Instant::now();
+            let maps = map_repository
+                .get_map_batch(0, settings, &game_data)
+                .unwrap_or_else(|e| panic!("Map source test failed for {name}: {e:#}"));
+            map_repository
+                .request_refill(settings)
+                .unwrap_or_else(|e| panic!("Map server refill failed for {name}: {e:#}"));
+            info!(
+                "Map source test succeeded for {name}: {} maps in {:.3}s",
+                maps.len(),
+                start.elapsed().as_secs_f32()
+            );
+        }
+    }
 
     let logic_data = LogicData::new(
         &game_data,
@@ -543,7 +550,6 @@ struct AttemptOutput {
 
 #[derive(Debug)]
 enum AttemptError {
-    TooManyAttempts,
     TimedOut,
     MapGeneration(anyhow::Error),
 }
@@ -585,7 +591,6 @@ fn handle_randomize_request(
         app_data.game_data.vertex_isv.keys.len(),
         0,
     );
-    let max_map_batch_attempts = 8;
     let attempts_timeout = Duration::from_secs(60);
     let max_attempts_per_map = if settings.start_location_settings.mode == StartLocationMode::Random
     {
@@ -594,7 +599,7 @@ fn handle_randomize_request(
         10
     };
     info!(
-        "Random seed={random_seed}, max_attempts_per_map={max_attempts_per_map}, max_map_batch_attempts={max_map_batch_attempts}, difficulty={:?}",
+        "Random seed={random_seed}, max_attempts_per_map={max_attempts_per_map}, difficulty={:?}",
         difficulty_tiers[0]
     );
 
@@ -608,9 +613,6 @@ fn handle_randomize_request(
         if map_batch.is_empty() {
             if time_start_attempts.elapsed() > attempts_timeout {
                 return Err(AttemptError::TimedOut);
-            }
-            if map_batch_attempt == max_map_batch_attempts {
-                return Err(AttemptError::TooManyAttempts);
             }
             map_batch_attempt += 1;
             map_batch = app_data
@@ -648,7 +650,7 @@ fn handle_randomize_request(
             attempt_num += 1;
 
             info!(
-                "Attempt {attempt_num}, map batch {map_batch_attempt}/{max_map_batch_attempts}: Map seed={map_seed}, door randomization seed={door_randomization_seed}, item placement seed={item_placement_seed}"
+                "Attempt {attempt_num}, map batch {map_batch_attempt}: Map seed={map_seed}, door randomization seed={door_randomization_seed}, item placement seed={item_placement_seed}"
             );
             let randomization_result =
                 randomizer.randomize(attempt_num, item_placement_seed, display_seed, true);
@@ -656,13 +658,13 @@ fn handle_randomize_request(
                 Ok(x) => x,
                 Err(e) => {
                     info!(
-                        "Attempt {attempt_num}, map batch {map_batch_attempt}/{max_map_batch_attempts}: Randomization failed: {e}"
+                        "Attempt {attempt_num}, map batch {map_batch_attempt}: Randomization failed: {e}"
                     );
                     continue;
                 }
             };
             info!(
-                "Successful attempt {attempt_num}, map batch {map_batch_attempt}/{max_map_batch_attempts}: display_seed={}, random_seed={random_seed}, map_seed={map_seed}, door_randomization_seed={door_randomization_seed}, item_placement_seed={item_placement_seed}",
+                "Successful attempt {attempt_num}, map batch {map_batch_attempt}: display_seed={}, random_seed={random_seed}, map_seed={map_seed}, door_randomization_seed={door_randomization_seed}, item_placement_seed={item_placement_seed}",
                 randomization.display_seed,
             );
 
@@ -750,10 +752,6 @@ async fn randomize(
         Err(AttemptError::TimedOut) => {
             return HttpResponse::InternalServerError()
                 .body("Failed too many randomization attempts (timeout reached)");
-        }
-        Err(AttemptError::TooManyAttempts) => {
-            return HttpResponse::InternalServerError()
-                .body("Failed too many randomization attempts (maximum map batch count reached)");
         }
     };
 
@@ -860,6 +858,18 @@ async fn randomize(
     )
     .await
     .unwrap();
+
+    let refill_app = app_data.clone();
+    let refill_settings = settings.clone();
+    match actix_web::rt::task::spawn_blocking(move || {
+        refill_app.map_repository.request_refill(&refill_settings)
+    })
+    .await
+    {
+        Ok(Ok(())) => {}
+        Ok(Err(e)) => warn!("Map server refill notification failed: {e:#}"),
+        Err(e) => warn!("Map server refill notification task failed: {e}"),
+    }
 
     HttpResponse::Ok().json(RandomizeResponse {
         seed_url: format!("/seed/{seed_name}/"),
@@ -968,7 +978,11 @@ async fn main() {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
         .format_timestamp_millis()
         .init();
-    let app_data = actix_web::web::Data::new(build_app_data());
+    let app_data = actix_web::web::Data::new(
+        actix_web::rt::task::spawn_blocking(build_app_data)
+            .await
+            .unwrap(),
+    );
 
     let port = app_data.port;
 
