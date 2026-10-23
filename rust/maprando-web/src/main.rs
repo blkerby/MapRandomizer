@@ -585,28 +585,34 @@ fn handle_randomize_request(
         app_data.game_data.vertex_isv.keys.len(),
         0,
     );
-    let max_attempts = 2000;
-    let attempts_timeout = Duration::from_secs(25);
+    let max_map_batch_attempts = 8;
+    let attempts_timeout = Duration::from_secs(60);
     let max_attempts_per_map = if settings.start_location_settings.mode == StartLocationMode::Random
     {
-        10
+        100
     } else {
-        1
+        10
     };
-    let max_map_attempts = max_attempts / max_attempts_per_map;
     info!(
-        "Random seed={random_seed}, max_attempts_per_map={max_attempts_per_map}, max_map_attempts={max_map_attempts}, difficulty={:?}",
+        "Random seed={random_seed}, max_attempts_per_map={max_attempts_per_map}, max_map_batch_attempts={max_map_batch_attempts}, difficulty={:?}",
         difficulty_tiers[0]
     );
 
     let time_start_attempts = Instant::now();
     let mut attempt_num = 0;
+    let mut map_batch_attempt = 0;
     let mut map_batch: Vec<Map> = vec![];
-    for _ in 0..max_map_attempts {
+    loop {
         let map_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
-        let door_randomization_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
 
         if map_batch.is_empty() {
+            if time_start_attempts.elapsed() > attempts_timeout {
+                return Err(AttemptError::TimedOut);
+            }
+            if map_batch_attempt == max_map_batch_attempts {
+                return Err(AttemptError::TooManyAttempts);
+            }
+            map_batch_attempt += 1;
             map_batch = app_data
                 .map_repository
                 .get_map_batch(map_seed, &settings, &app_data.game_data)
@@ -619,44 +625,44 @@ fn handle_randomize_request(
             continue;
         }
         let objectives = get_objectives(&settings, Some(&map), &app_data.game_data, &mut rng);
-        let locked_door_data = randomize_doors(
-            &app_data.game_data,
-            &map,
-            &settings,
-            &objectives,
-            door_randomization_seed,
-        );
-        let randomizer = Randomizer::new(
-            &map,
-            &locked_door_data,
-            objectives.clone(),
-            &settings,
-            &difficulty_tiers,
-            &app_data.game_data,
-            &filtered_base_links_data,
-            &mut rng,
-        );
         for _ in 0..max_attempts_per_map {
+            let door_randomization_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
+            let locked_door_data = randomize_doors(
+                &app_data.game_data,
+                &map,
+                &settings,
+                &objectives,
+                door_randomization_seed,
+            );
+            let randomizer = Randomizer::new(
+                &map,
+                &locked_door_data,
+                objectives.clone(),
+                &settings,
+                &difficulty_tiers,
+                &app_data.game_data,
+                &filtered_base_links_data,
+                &mut rng,
+            );
             let item_placement_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
             attempt_num += 1;
 
             info!(
-                "Attempt {attempt_num}/{max_attempts}: Map seed={map_seed}, door randomization seed={door_randomization_seed}, item placement seed={item_placement_seed}"
+                "Attempt {attempt_num}, map batch {map_batch_attempt}/{max_map_batch_attempts}: Map seed={map_seed}, door randomization seed={door_randomization_seed}, item placement seed={item_placement_seed}"
             );
             let randomization_result =
                 randomizer.randomize(attempt_num, item_placement_seed, display_seed, true);
             let (randomization, spoiler_log) = match randomization_result {
                 Ok(x) => x,
                 Err(e) => {
-                    info!("Attempt {attempt_num}/{max_attempts}: Randomization failed: {e}");
-                    if time_start_attempts.elapsed() > attempts_timeout {
-                        return Err(AttemptError::TimedOut);
-                    }
+                    info!(
+                        "Attempt {attempt_num}, map batch {map_batch_attempt}/{max_map_batch_attempts}: Randomization failed: {e}"
+                    );
                     continue;
                 }
             };
             info!(
-                "Successful attempt {attempt_num}/{attempt_num}/{max_attempts}: display_seed={}, random_seed={random_seed}, map_seed={map_seed}, door_randomization_seed={door_randomization_seed}, item_placement_seed={item_placement_seed}",
+                "Successful attempt {attempt_num}, map batch {map_batch_attempt}/{max_map_batch_attempts}: display_seed={}, random_seed={random_seed}, map_seed={map_seed}, door_randomization_seed={door_randomization_seed}, item_placement_seed={item_placement_seed}",
                 randomization.display_seed,
             );
 
@@ -676,7 +682,6 @@ fn handle_randomize_request(
             return output_result;
         }
     }
-    Err(AttemptError::TooManyAttempts)
 }
 
 #[post("/randomize")]
@@ -748,7 +753,7 @@ async fn randomize(
         }
         Err(AttemptError::TooManyAttempts) => {
             return HttpResponse::InternalServerError()
-                .body("Failed too many randomization attempts (maximum attempt count reached)");
+                .body("Failed too many randomization attempts (maximum map batch count reached)");
         }
     };
 
