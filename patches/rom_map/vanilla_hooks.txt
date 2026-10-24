@@ -238,7 +238,6 @@ B51E - B520: ; split_speed.asm
 B545 - B547: ; split_speed.asm
 B56B - B56F: ; disableable_etanks.asm
 B585 - B587: ; disable_major_glitches.asm
-B5E8 - B62B: ; vanilla_bugfixes.asm
 B672 - B676: ; map_area.asm
 B924 - B92F: ; fast_pause_menu.asm
 B9A0 - B9C7: ; fast_pause_menu.asm
