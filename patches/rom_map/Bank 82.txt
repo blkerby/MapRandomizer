@@ -1,11 +1,11 @@
 [unused vanilla code]
-8B18 - 8B20: [free] [unused vanilla code] - 9 bytes
-A3D9 - A425: [free] [unused vanilla code] - 77 bytes
-B5E8 - B62B: [free] [unused vanilla code] - 68 bytes
-B650 - B672: [free] [unused vanilla code] - 35 bytes
-BE5A - BF04: [free] [unused vanilla code] - 171 bytes
-E675 - E6A2: [mosaic] Area Palettes.asm [uses 16 bytes / 30 bytes free]
-F404 - F419: ; vanilla_bugfixes.asm
+8B18 - 8B1F: [free] [unused vanilla code] - 8 bytes
+A3D9 - A424: [free] [unused vanilla code] - 76 bytes
+B5E8 - B62A: [free] [unused vanilla code] - 67 bytes
+B650 - B671: [free] [unused vanilla code] - 34 bytes
+BE5A - BF03: [free] [unused vanilla code] - 170 bytes
+E675 - E6A1: [mosaic] Area Palettes.asm [uses 16 bytes / 29 bytes free]
+F404 - F417: ; vanilla_bugfixes.asm
 
 [bank free space]
 F70F - F808: ; map_area.asm

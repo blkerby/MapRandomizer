@@ -11,7 +11,7 @@ lorom
 incsrc "constants.asm"
 
 !bank_82_free_space_start = $82f404 ; reserve icon ui fix. ;;; $F404: Unused. Pre-instruction ;;;
-!bank_82_free_space_end = $82f419
+!bank_82_free_space_end = $82f418
 
 !bank_86_free_space_start = $86F4B0 ; powamp projectile fix
 !bank_86_free_space_end = $86F4D0
