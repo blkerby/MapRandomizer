@@ -37,7 +37,7 @@ def main():
         parser.error("Specify pools to download, or use --manifests-only")
 
     with args.config.open() as source:
-        pools = json.load(source)["pools"]
+        pools = {pool["name"]: pool for pool in json.load(source)["pools"]}
     for name in args.pools:
         if name not in pools:
             parser.error(f"Unknown pool {name!r}; available pools: {', '.join(pools)}")

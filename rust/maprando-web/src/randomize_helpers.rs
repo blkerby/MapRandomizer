@@ -180,7 +180,8 @@ impl SeedHeaderTemplate<'_> {
         let source = &self.settings.map_settings.source;
         self.map_pools_config
             .pools
-            .get(source)
+            .iter()
+            .find(|pool| &pool.name == source)
             .map_or(source.as_str(), |pool| pool.display_name.as_str())
     }
 

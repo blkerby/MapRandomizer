@@ -82,11 +82,12 @@ enum PregeneratedMapPoolSource {
 #[derive(Deserialize)]
 pub struct MapPoolsConfig {
     pub preset_fallbacks: BTreeMap<MapPreset, String>,
-    pub pools: BTreeMap<String, MapPoolConfig>,
+    pub pools: Vec<MapPoolConfig>,
 }
 
 #[derive(Deserialize)]
 pub struct MapPoolConfig {
+    pub name: String,
     pub display_name: String,
     pub base_url: Option<String>,
     #[serde(default)]
@@ -99,11 +100,17 @@ impl MapPoolsConfig {
             &std::fs::read(path).with_context(|| format!("Reading {}", path.display()))?,
         )
         .with_context(|| format!("Parsing {}", path.display()))?;
-        if config.pools.contains_key("Fresh") {
-            bail!("Fresh is reserved for fresh map generation and cannot identify a pool");
+        let mut pool_names = HashSet::new();
+        for pool in &config.pools {
+            if pool.name == "Fresh" {
+                bail!("Fresh is reserved for fresh map generation and cannot identify a pool");
+            }
+            if !pool_names.insert(pool.name.as_str()) {
+                bail!("Duplicate map pool name {}", pool.name);
+            }
         }
         for (preset, pool) in &config.preset_fallbacks {
-            if !config.pools.contains_key(pool) {
+            if !pool_names.contains(pool.as_str()) {
                 bail!("Map preset {preset:?} refers to unconfigured pool {pool}");
             }
         }
@@ -149,7 +156,8 @@ impl PregeneratedMapRepository {
             pools: config
                 .pools
                 .iter()
-                .map(|(name, pool_config)| {
+                .map(|pool_config| {
+                    let name = &pool_config.name;
                     let pool = PregeneratedMapPool::new(name, pool_config, &client)
                         .with_context(|| format!("Loading map pool {name}"))?;
                     Ok((name.clone(), pool))

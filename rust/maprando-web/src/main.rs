@@ -274,7 +274,7 @@ struct GenerateTemplate<'a> {
     preset_data: &'a PresetData,
     full_presets_json: String,
     map_presets_json: String,
-    map_pools: &'a std::collections::BTreeMap<String, MapPoolConfig>,
+    map_pools: &'a [MapPoolConfig],
     fresh_map_generation: bool,
     skill_presets_json: String,
     item_presets_json: String,

@@ -4,42 +4,51 @@
         "Standard": "v119-standard",
         "Wild": "v119-wild"
     },
-    "pools": {
-        "vanilla": {
+    "pools": [
+        {
+            "name": "vanilla",
             "display_name": "Vanilla"
         },
-        "v38": {
+        {
+            "name": "v38",
             "display_name": "v38",
             "base_url": "https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/v38-avro/"
         },
-        "v90-wild": {
+        {
+            "name": "v90-wild",
             "display_name": "v90 Wild",
             "base_url": "https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/v90-wild-avro/"
         },
-        "v93-tame": {
+        {
+            "name": "v93-tame",
             "display_name": "v93 Tame",
             "base_url": "https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/v93-tame-avro/"
         },
-        "v110c-wild": {
+        {
+            "name": "v110c-wild",
             "display_name": "v110 Wild",
             "base_url": "https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/v110c-wild-avro/"
         },
-        "v113-tame": {
+        {
+            "name": "v113-tame",
             "display_name": "v113 Tame",
             "base_url": "https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/v113-tame-avro/"
         },
-        "v119-small": {
+        {
+            "name": "v119-small",
             "display_name": "v119 Small",
             "small_map": true,
             "base_url": "https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/v119-small-avro/"
         },
-        "v119-standard": {
+        {
+            "name": "v119-standard",
             "display_name": "v119 Standard",
             "base_url": "https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/v119-standard-avro/"
         },
-        "v119-wild": {
+        {
+            "name": "v119-wild",
             "display_name": "v119 Wild",
             "base_url": "https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/v119-wild-avro/"
         }
-    }
+    ]
 }
