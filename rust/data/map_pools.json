@@ -38,17 +38,17 @@
             "name": "v119-small",
             "display_name": "v119 Small",
             "small_map": true,
-            "base_url": "https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/v119-small-avro/"
+            "base_url": "https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/v119-small-avro-100/"
         },
         {
             "name": "v119-standard",
             "display_name": "v119 Standard",
-            "base_url": "https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/v119-standard-avro/"
+            "base_url": "https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/v119-standard-avro-100/"
         },
         {
             "name": "v119-wild",
             "display_name": "v119 Wild",
-            "base_url": "https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/v119-wild-avro/"
+            "base_url": "https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/v119-wild-avro-100/"
         }
     ]
 }
