@@ -1,0 +1,12 @@
+{
+  "args": [
+    "--dev",
+    "--map-server",
+    "map-gen-2:5000",
+    "--seed-repository-url",
+    "s3:map-rando-seeds",
+    "--video-storage-url",
+    "https://map-rando-videos.b-cdn.net",
+    "--test-map-server"
+  ]
+}

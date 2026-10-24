@@ -51,6 +51,7 @@ pub struct MapGenerationSettings {
     pub maridia_water: AreaPreference,
     pub norfair_heat: AreaPreference,
     pub reward_missing_connect_utility: f64,
+    pub max_return_distance: Option<f64>,
     pub reward_area_x: f64,
     pub reward_area_y: f64,
     pub target_area_rooms: [f64; 6],
@@ -98,6 +99,11 @@ impl MapGenerationSettings {
         }
         if !self.reward_area_distinct_crossing.is_finite() {
             bail!("Distinct area crossings reward must be finite");
+        }
+        if let Some(distance) = self.max_return_distance
+            && (!distance.is_finite() || distance < 0.0)
+        {
+            bail!("Max return distance must be finite and nonnegative");
         }
         for (name, preference, area) in [
             ("Water in Maridia", self.maridia_water, 4),
@@ -170,7 +176,15 @@ impl MapSettings {
                 },
                 maridia_water: climate,
                 norfair_heat: climate,
-                reward_missing_connect_utility: if preset == MapPreset::Wild { 0.0 } else { 1.0 },
+                reward_missing_connect_utility: if preset == MapPreset::Wild { 0.0 } else { 2.0 },
+                max_return_distance: if matches!(
+                    preset,
+                    MapPreset::Small | MapPreset::Familiar | MapPreset::Standard
+                ) {
+                    Some(13.0)
+                } else {
+                    None
+                },
                 reward_area_x: if preferred { 10.0 } else { 0.0 },
                 reward_area_y: if preferred { 10.0 } else { 0.0 },
                 target_area_rooms: if preset == MapPreset::Wild {
