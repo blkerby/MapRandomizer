@@ -8,6 +8,26 @@
         "vanilla": {
             "display_name": "Vanilla"
         },
+        "v38": {
+            "display_name": "v38",
+            "base_url": "https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/v38-avro/"
+        },
+        "v90-wild": {
+            "display_name": "v90 Wild",
+            "base_url": "https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/v90-wild-avro/"
+        },
+        "v93-tame": {
+            "display_name": "v93 Tame",
+            "base_url": "https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/v93-tame-avro/"
+        },
+        "v110c-wild": {
+            "display_name": "v110 Wild",
+            "base_url": "https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/v110c-wild-avro/"
+        },
+        "v113-tame": {
+            "display_name": "v113 Tame",
+            "base_url": "https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/v113-tame-avro/"
+        },
         "v119-small": {
             "display_name": "v119 Small",
             "small_map": true,
