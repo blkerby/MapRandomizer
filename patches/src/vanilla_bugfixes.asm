@@ -10,8 +10,8 @@ lorom
 
 incsrc "constants.asm"
 
-!bank_82_free_space_start = $82B5E8 ; reserve icon ui fix. [;;; $B5E8: Unused. Convert [A] to three decimal digits ;;;]
-!bank_82_free_space_end = $82B62B
+!bank_82_free_space_start = $82f404 ; reserve icon ui fix. ;;; $F404: Unused. Pre-instruction ;;;
+!bank_82_free_space_end = $82f419
 
 !bank_86_free_space_start = $86F4B0 ; powamp projectile fix
 !bank_86_free_space_end = $86F4D0
@@ -223,53 +223,29 @@ org $84B7EF ; PLM $B8AC (speed booster escape) LDA $09A4  [$7E:09A4]
 
 ; vanilla bugfix, ui shows the reserve tank select icon when only a boots item is available.
 ; this is due to a missing conditional branch instruction in the vanilla code.
-; updated for split_speed compatibility.
+; updated for split_speed compatibility, now fits in vanilla location with external table.
+;
 ; -nn357
 
-org $82ac15 ;;; $AB47: Equipment screen - set up reserve mode and determine initial selection ;;; ; $82:AC15 BRANCH_RETURN
-bootsfinish:
+org $82ac00
+	.loop
+	bit bootstable,x
+	bne .found
+	inx
+	inx
+	cpx #$000a
+	bmi .loop
+	bra .ret               ; skip the padding byte if no items found.
+	nop                    ; padding that never runs.
+	.found
+	lda bootscat,x
+	sta $0755
+	.ret                     ; = $AC15, BRANCH_RETURN
+assert pc() == $82ac15
 
-org $82ac00 ;;; $AB47: Equipment screen - set up reserve mode and determine initial selection ;;; ; $82:AC00 LOOP_BOOTS
-.loop
-  bit bootstable, x
-  bne .foundboots
-  inx 
-  inx
-  cpx #$000a
-  bmi .loop
-  jmp bootsfinish
-.foundboots
-  jmp found_boots
-  nop #3
-  
-assert pc() <= $82ac15
-
-org !bank_82_free_space_start 
-found_boots:
-  cpx #$0006
-  beq .bluebooster
-  cpx #$0008
-  beq .sparkbooster
-  txa
-  lsr a
-  bra .store
-.bluebooster
-  lda #$0002
-  bra .store
-.sparkbooster
-  lda #$0003
-.store
-  xba
-  ora #$0003
-  sta $0755
-  jmp bootsfinish
-  nop #25
-  
+org !bank_82_free_space_start
 bootstable:
-  dw $0100 ; boots - hi-jump boots
-  dw $0200 ; boots - space jump
-  dw $2000 ; boots - speed booster
-  dw $0040 ; boots - blue booster
-  dw $0080 ; boots - spark booster
-
+  dw $0100, $0200, $2000, $0040, $0080
+bootscat:
+  dw $0003, $0103, $0203, $0203, $0303
 assert pc() <= !bank_82_free_space_end
