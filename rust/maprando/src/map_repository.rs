@@ -284,7 +284,7 @@ pub struct HttpMapRepository {
 
 #[derive(Serialize)]
 struct GenerateRequest {
-    num_maps: usize,
+    max_num_maps: usize,
     episode_length: usize,
     recommended_candidates: usize,
     shortlist_candidates: usize,
@@ -454,7 +454,7 @@ impl HttpMapRepository {
         let draygon = g.landmarks.contains(&Landmark::Draygon);
         let mother_brain = g.landmarks.contains(&Landmark::MotherBrain);
         Ok(GenerateRequest {
-            num_maps: 1,
+            max_num_maps: 1,
             episode_length: 253,
             recommended_candidates: 8,
             shortlist_candidates: 1024,
