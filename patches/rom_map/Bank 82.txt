@@ -1,5 +1,6 @@
 [unused vanilla code]
 8B18 - 8B1F: [free] [unused vanilla code] - 8 bytes
+8D51 - 8DBC: [free] [vanilla bg2 code, patched out in vanilla_bugfixes] - 108 bytes
 A3D9 - A424: [free] [unused vanilla code] - 76 bytes
 B5E8 - B62A: [free] [unused vanilla code] - 67 bytes
 B650 - B671: [free] [unused vanilla code] - 34 bytes
