@@ -82,11 +82,13 @@ Building and running locally using Cargo is generally faster than using Docker, 
 
 Install the stable Rust toolchain (e.g. using [rustup](https://rustup.rs/)).
 
-After cloning the GitHub repository, download and extract required external data, which includes the randomized map pools and the Mosaic theming patches. This is about 2 gigabytes.
+After cloning the GitHub repository, download the map pool manifests and the Mosaic theming patches. Python 3, `wget`, and `zstd` are required.
 
 ```sh
-sh scripts/download_data.sh
+bash scripts/download_data.sh
 ```
+
+With this default setup, map batches are fetched on demand while using the randomizer, which requires a network connection. See [below](#download-map-pools-for-local-use) for more options.
 
 Optionally, if you want to build and use the WebAssembly (for the boss calculator):
 
@@ -119,6 +121,16 @@ instance from the `map-gen` submodule and pass its HTTP address:
 ```sh
 cargo run --bin maprando-web -- --seed-repository-url mem --map-server localhost:8000
 ```
+
+### Download map pools for local use
+
+Optionally, download selected map pools before starting the server:
+
+```sh
+python3 scripts/download_map_pools.py v119-small v119-standard v119-wild
+```
+
+Pool identifiers, such as `v119-standard`, are used in settings and download commands. Their display names, such as "v119 Standard", are defined separately in `rust/data/map_pools.json`. Local manifests and batches are stored in `maps/<pool identifier>/`.
 
 ### Use local copy of videos
 

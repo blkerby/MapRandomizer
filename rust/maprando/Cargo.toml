@@ -29,6 +29,7 @@ pathfinding = "4.2.1"
 env_logger = "0.10.0"
 log = "0.4.17"
 object_store = { version = "0.10.2", features=["aws", "gcp"] }
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls-native-roots"] }
 futures = "0.3.25"
 zstd = "0.12.2"
 crypto-hash = "0.3.4"

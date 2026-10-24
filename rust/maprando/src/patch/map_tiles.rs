@@ -2434,7 +2434,7 @@ impl<'a> MapPatcher<'a> {
                 .rom
                 .read_u16(snes2pc(0xB6F000) + 2 * (0x20 + i as usize))?;
             self.rom
-                .write_u16(snes2pc(0xB6F000) + 2 * (0x40 + i as usize), color as isize)?;
+                .write_u16(snes2pc(0xB6F000) + 2 * (0x40 + i as usize), color)?;
         }
 
         // Substitute palette 2 with palette 4 in pause tilemaps:

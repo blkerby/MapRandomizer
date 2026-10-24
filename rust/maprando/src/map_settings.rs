@@ -1,16 +1,7 @@
 use anyhow::{Result, bail};
 use serde::{Deserialize, Serialize};
 
-use crate::settings::{AreaAssignment, AreaAssignmentPreset, MapPreset};
-
-#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
-pub enum MapSource {
-    Vanilla,
-    Small,
-    Standard,
-    Wild,
-    Fresh,
-}
+use crate::settings::{AreaAssignment, MapPreset};
 
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub enum AreaPreferencePreset {
@@ -51,6 +42,7 @@ pub struct MapGenerationSettings {
     pub maridia_water: AreaPreference,
     pub norfair_heat: AreaPreference,
     pub reward_missing_connect_utility: f64,
+    pub max_return_distance: Option<f64>,
     pub reward_area_x: f64,
     pub reward_area_y: f64,
     pub target_area_rooms: [f64; 6],
@@ -99,6 +91,11 @@ impl MapGenerationSettings {
         if !self.reward_area_distinct_crossing.is_finite() {
             bail!("Distinct area crossings reward must be finite");
         }
+        if let Some(distance) = self.max_return_distance
+            && (!distance.is_finite() || distance < 0.0)
+        {
+            bail!("Max return distance must be finite and nonnegative");
+        }
         for (name, preference, area) in [
             ("Water in Maridia", self.maridia_water, 4),
             ("Heat in Norfair", self.norfair_heat, 2),
@@ -120,13 +117,13 @@ impl MapGenerationSettings {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct MapSettings {
     pub preset: Option<MapPreset>,
-    pub source: MapSource,
+    pub source: String,
     pub generation: MapGenerationSettings,
     pub area_assignment: Option<AreaAssignment>,
 }
 
 impl MapSettings {
-    pub fn from_preset(preset: MapPreset, fresh_available: bool) -> Self {
+    pub fn from_preset(preset: MapPreset) -> Self {
         let preferred = matches!(preset, MapPreset::Standard | MapPreset::Familiar);
         let concentrated = preset == MapPreset::Familiar;
         let climate = AreaPreference {
@@ -144,16 +141,12 @@ impl MapSettings {
             },
         };
         let source = match preset {
-            MapPreset::Vanilla => MapSource::Vanilla,
-            _ if fresh_available => MapSource::Fresh,
-            MapPreset::Small => MapSource::Small,
-            MapPreset::Standard => MapSource::Standard,
-            MapPreset::Wild => MapSource::Wild,
-            MapPreset::Familiar => MapSource::Fresh,
+            MapPreset::Vanilla => "vanilla",
+            _ => "Fresh",
         };
         Self {
             preset: Some(preset),
-            source,
+            source: source.to_string(),
             generation: MapGenerationSettings {
                 small_map: preset == MapPreset::Small,
                 landmarks: match preset {
@@ -170,7 +163,15 @@ impl MapSettings {
                 },
                 maridia_water: climate,
                 norfair_heat: climate,
-                reward_missing_connect_utility: if preset == MapPreset::Wild { 0.0 } else { 1.0 },
+                reward_missing_connect_utility: if preset == MapPreset::Wild { 0.0 } else { 2.0 },
+                max_return_distance: if matches!(
+                    preset,
+                    MapPreset::Small | MapPreset::Familiar | MapPreset::Standard
+                ) {
+                    Some(13.0)
+                } else {
+                    None
+                },
                 reward_area_x: if preferred { 10.0 } else { 0.0 },
                 reward_area_y: if preferred { 10.0 } else { 0.0 },
                 target_area_rooms: if preset == MapPreset::Wild {
@@ -193,22 +194,16 @@ impl MapSettings {
                 reward_refill_distance: 0.1,
                 reward_area_distinct_crossing: 1.0,
             },
-            area_assignment: match source {
-                MapSource::Small | MapSource::Standard | MapSource::Wild => {
-                    Some(AreaAssignment::from_preset(AreaAssignmentPreset::Standard))
-                }
-                _ => None,
-            },
+            area_assignment: None,
         }
     }
 
     pub fn is_vanilla(&self) -> bool {
-        self.source == MapSource::Vanilla
+        self.source == "vanilla"
     }
 
     pub fn is_small(&self) -> bool {
-        self.source == MapSource::Small
-            || (self.source == MapSource::Fresh && self.generation.small_map)
+        !self.is_vanilla() && self.generation.small_map
     }
 
     pub fn label(&self) -> String {
@@ -218,7 +213,7 @@ impl MapSettings {
     }
 
     pub fn validate(&self, fresh_available: bool) -> Result<()> {
-        if self.source == MapSource::Fresh {
+        if self.source == "Fresh" {
             if !fresh_available {
                 bail!("Fresh map generation is not configured on this server");
             }

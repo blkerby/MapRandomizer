@@ -2,6 +2,8 @@
 rust/target/
 seeds/
 models/
+maps/*
+!maps/vanilla/
 tmp/
 map-rando-videos/
 map-rando-videos-pgdump/

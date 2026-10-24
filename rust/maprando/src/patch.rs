@@ -1771,6 +1771,7 @@ impl Patcher<'_> {
                 }
                 // Skip MB2 and MB3:
                 self.rom.write_u16(snes2pc(0xA98D80), 0xAEE1)?;
+                self.rom.write_u16(snes2pc(0xA98D3F), 0x0000)?; // disable bg2 tilemap request
                 self.rom.write_n(
                     snes2pc(0xA9AEFD),
                     &[

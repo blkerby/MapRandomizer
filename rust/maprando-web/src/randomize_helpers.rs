@@ -6,6 +6,7 @@ use askama::Template;
 use hashbrown::{HashMap, HashSet};
 use maprando::{
     helpers::get_item_priorities,
+    map_repository::MapPoolsConfig,
     preset::PresetData,
     randomize::{DifficultyConfig, ItemPriorityGroup, Randomization, get_starting_items},
     seed_repository::{Seed, SeedFile},
@@ -29,6 +30,7 @@ pub struct SeedHeaderTemplate<'a> {
     random_seed: usize,
     version_info: VersionInfo,
     settings: &'a RandomizerSettings,
+    map_pools_config: &'a MapPoolsConfig,
     item_priority_groups: Vec<ItemPriorityGroup>,
     objective_names: HashMap<String, String>,
     race_mode: bool,
@@ -174,15 +176,13 @@ impl SeedHeaderTemplate<'_> {
             None => "Custom",
         }
     }
-    fn map_source(&self) -> &'static str {
-        use maprando::map_settings::MapSource;
-        match self.settings.map_settings.source {
-            MapSource::Vanilla => "Vanilla",
-            MapSource::Small => "Legacy small pool",
-            MapSource::Standard => "Legacy standard pool",
-            MapSource::Wild => "Legacy wild pool",
-            MapSource::Fresh => "Fresh",
-        }
+    fn map_source(&self) -> &str {
+        let source = &self.settings.map_settings.source;
+        self.map_pools_config
+            .pools
+            .iter()
+            .find(|pool| &pool.name == source)
+            .map_or(source.as_str(), |pool| pool.display_name.as_str())
     }
 
     fn game_variations(&self) -> Vec<&str> {
@@ -552,6 +552,7 @@ pub fn render_seed(
         early_save: seed_data.early_save,
         ammo_refill_all: seed_data.ammo_refill_all,
         preset_data: &app_data.preset_data,
+        map_pools_config: &app_data.map_pools_config,
         enabled_tech,
         enabled_notables,
         starting_items: get_starting_items(&seed_data.settings),

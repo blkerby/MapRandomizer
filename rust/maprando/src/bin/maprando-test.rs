@@ -6,8 +6,7 @@ use maprando::customize::{
     ControllerConfig, CustomizeSettings, MusicSettings, StatuesHallwayAudio, StatuesHallwayTiling,
 };
 use maprando::difficulty::{get_full_global, get_link_difficulty_length};
-use maprando::map_repository::{MapRepository, OfflineMapRepository};
-use maprando::map_settings::MapSettings;
+use maprando::map_repository::{MapPoolsConfig, MapRepository, PregeneratedMapRepository};
 use maprando::patch::Rom;
 use maprando::patch::make_rom;
 use maprando::preset::PresetData;
@@ -54,6 +53,9 @@ struct Args {
 
     #[arg(long)]
     rebuild_traversals: Option<bool>,
+
+    #[arg(long, default_value = "data/map_pools.json")]
+    map_pools_config: PathBuf,
 }
 
 // Reduced version of web::AppData for test tool
@@ -63,7 +65,7 @@ struct TestAppData {
     output_dir: PathBuf,
     game_data: GameData,
     preset_data: PresetData,
-    map_repo: OfflineMapRepository,
+    map_repo: PregeneratedMapRepository,
     base_preset: RandomizerSettings,
     skill_presets: Vec<SkillAssumptionSettings>,
     item_presets: Vec<ItemProgressionSettings>,
@@ -94,15 +96,14 @@ fn get_randomization(
     settings.skill_assumption_settings = skill_preset.clone();
     settings.item_progression_settings = item_preset.clone();
     settings.quality_of_life_settings = qol_preset.clone();
-    settings.map_settings = MapSettings::from_preset(
-        match rng.next_u64() % 4 {
+    settings.map_settings = app
+        .preset_data
+        .map_settings_from_preset(match rng.next_u64() % 4 {
             0 => MapPreset::Vanilla,
             1 => MapPreset::Small,
             2 => MapPreset::Standard,
             _ => MapPreset::Wild,
-        },
-        false,
-    );
+        });
 
     let skill_label = match &settings.skill_assumption_settings.preset {
         Some(s) => s.clone(),
@@ -164,7 +165,7 @@ fn get_randomization(
         if map_batch.is_empty() {
             map_batch = app
                 .map_repo
-                .get_map_batch(map_seed, &settings.map_settings, game_data)
+                .get_map_batch(map_seed, &settings, game_data)
                 .unwrap();
         }
 
@@ -345,10 +346,7 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
 
 fn build_app_data(args: &Args) -> Result<TestAppData> {
     let etank_colors_path = Path::new("data/etank_colors.json");
-    let vanilla_map_path = Path::new("../maps/vanilla");
-    let small_maps_path = Path::new("../maps/v119-small-avro");
-    let standard_maps_path = Path::new("../maps/v119-standard-avro");
-    let wild_maps_path = Path::new("../maps/v119-wild-avro");
+    let map_pools_config = MapPoolsConfig::load(&args.map_pools_config)?;
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
     let mut game_data = GameData::load(Path::new("."))?;
 
@@ -360,7 +358,8 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
     let tech_path = Path::new("data/tech_data.json");
     let notable_path = Path::new("data/notable_data.json");
     let presets_path = Path::new("data/presets");
-    let preset_data = PresetData::load(tech_path, notable_path, presets_path, &game_data)?;
+    let mut preset_data = PresetData::load(tech_path, notable_path, presets_path, &game_data)?;
+    preset_data.map_pool_presets = map_pools_config.preset_fallbacks.clone();
     let global = get_full_global(&game_data);
     game_data.make_links_data(&|link, game_data| {
         get_link_difficulty_length(link, game_data, &preset_data, &global)
@@ -456,12 +455,7 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
         output_dir: args.output_seeds.clone(),
         game_data,
         preset_data,
-        map_repo: OfflineMapRepository::new(vec![
-            ("Vanilla", vanilla_map_path),
-            ("Small", small_maps_path),
-            ("Standard", standard_maps_path),
-            ("Wild", wild_maps_path),
-        ])?,
+        map_repo: PregeneratedMapRepository::new(&map_pools_config)?,
         base_preset,
         skill_presets,
         item_presets,

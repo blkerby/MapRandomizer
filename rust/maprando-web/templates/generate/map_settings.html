@@ -18,11 +18,10 @@
                     </div>
                     <div class="col-lg-4 d-flex align-items-center">
                         <select class="form-select" id="mapSource" aria-label="Map source" onchange="mapSourceChanged(this.value)">
-                            <option value="Vanilla">Vanilla</option>
-                            <option value="Small">Legacy small pool</option>
-                            <option value="Standard">Legacy standard pool</option>
-                            <option value="Wild">Legacy wild pool</option>
                             <option value="Fresh" {% if !fresh_map_generation %}disabled{% endif %}>Fresh</option>
+                            {% for pool in map_pools %}
+                            <option value="{{ pool.name }}" data-small-map="{{ pool.small_map }}">{{ pool.display_name }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                 </div>
@@ -499,6 +498,14 @@
                 </button>
             </div>
             <div class="modal-body px-4 py-2">
+                <div class="row align-items-center my-2">
+                    <div class="col-sm-8 d-flex align-items-center">
+                        <label for="mapMaxReturnDistance">Max return distance</label>
+                    </div>
+                    <div class="col-sm-4 d-flex align-items-center">
+                        <input type="number" min="0" step="any" id="mapMaxReturnDistance" class="form-control map-generation-control" data-map-number="max_return_distance" onchange="mapNumberChanged(this)">
+                    </div>
+                </div>
                 <div class="row align-items-center my-2">
                     <div class="col-sm-8 d-flex align-items-center">
                         <span>Missing-connection utility reward</span>
