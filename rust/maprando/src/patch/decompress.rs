@@ -43,11 +43,10 @@ pub fn decompress(rom: &Rom, mut addr: usize) -> Result<Vec<u8>> {
             }
             3 => {
                 // Incrementing sequence
-                let mut b = rom.read_u8(addr)? as u8;
+                let b = rom.read_u8(addr)? as u8;
                 addr += 1;
-                for _ in 0..size {
+                for b in (b..).take(size) {
                     out.push(b);
-                    b += 1;
                 }
             }
             4 => {

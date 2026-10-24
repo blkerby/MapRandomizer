@@ -3107,7 +3107,7 @@ impl GameData {
                     .notable_map
                     .unwrap()
                     .get(&notable_name)
-                    .context(format!("Undefined notable: {}", &notable_name))?;
+                    .context(format!("Undefined notable: {}", notable_name))?;
                 return Ok(Requirement::Notable(notable_idx));
             } else if key == "heatFramesWithEnergyDrops" {
                 let frames = self.parse_numeric(&value["frames"]).unwrap_or_else(|e| {

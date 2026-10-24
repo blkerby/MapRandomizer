@@ -100,10 +100,10 @@ impl MapGenerationSettings {
         if !self.reward_area_distinct_crossing.is_finite() {
             bail!("Distinct area crossings reward must be finite");
         }
-        if let Some(distance) = self.max_return_distance {
-            if !distance.is_finite() || distance < 0.0 {
-                bail!("Max return distance must be finite and nonnegative");
-            }
+        if let Some(distance) = self.max_return_distance
+            && (!distance.is_finite() || distance < 0.0)
+        {
+            bail!("Max return distance must be finite and nonnegative");
         }
         for (name, preference, area) in [
             ("Water in Maridia", self.maridia_water, 4),
