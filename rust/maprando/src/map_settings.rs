@@ -84,8 +84,8 @@ impl MapGenerationSettings {
             ("Save distance reward", self.reward_save_distance),
             ("Refill distance reward", self.reward_refill_distance),
         ] {
-            if !value.is_finite() || value < 0.0 {
-                bail!("{name} must be finite and nonnegative");
+            if !value.is_finite() {
+                bail!("{name} must be finite");
             }
         }
         if !self.reward_area_distinct_crossing.is_finite() {
