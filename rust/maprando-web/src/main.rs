@@ -35,7 +35,8 @@ use maprando::{
     customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
     difficulty::{get_full_global, get_link_difficulty_length},
     map_repository::{
-        HttpMapRepository, MapRepository, OfflineMapRepository, SelectableMapRepository,
+        HttpMapRepository, MapPoolConfig, MapPoolsConfig, MapRepository, PregeneratedMapRepository,
+        SelectableMapRepository,
     },
     map_settings::MapSettings,
     preset::PresetData,
@@ -71,6 +72,8 @@ struct Args {
     port: u16,
     #[arg(long)]
     map_server: Option<String>,
+    #[arg(long, default_value = "data/map_pools.json")]
+    map_pools_config: String,
     /// Test each full-settings preset's map source and request fresh-map refills during startup.
     #[arg(long, requires = "map_server")]
     test_map_server: bool,
@@ -91,10 +94,7 @@ fn build_app_data() -> AppData {
     let start_time = Instant::now();
     let args = Args::parse();
     let etank_colors_path = Path::new("data/etank_colors.json");
-    let vanilla_map_path = Path::new("../maps/vanilla");
-    let small_maps_path = Path::new("../maps/v119-small-avro");
-    let standard_maps_path = Path::new("../maps/v119-standard-avro");
-    let wild_maps_path = Path::new("../maps/v119-wild-avro");
+    let map_pools_config = MapPoolsConfig::load(Path::new(&args.map_pools_config)).unwrap();
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
     let tech_path = Path::new("data/tech_data.json");
     let notable_path = Path::new("data/notable_data.json");
@@ -142,27 +142,21 @@ fn build_app_data() -> AppData {
     let mut preset_data =
         PresetData::load(tech_path, notable_path, presets_path, &game_data).unwrap();
     preset_data.fresh_map_generation = args.map_server.is_some();
+    preset_data.map_pool_presets = map_pools_config.preset_fallbacks.clone();
     let global = get_full_global(&game_data);
     game_data.make_links_data(&|link, game_data| {
         get_link_difficulty_length(link, game_data, &preset_data, &global)
     });
 
-    let vanilla_map_repository =
-        OfflineMapRepository::new(vec![("Vanilla", vanilla_map_path)]).unwrap();
+    let pregenerated_map_repository = PregeneratedMapRepository::new(&map_pools_config).unwrap();
     let mut vanilla_settings = preset_data.default_preset.clone();
-    vanilla_settings.map_settings = MapSettings::from_preset(MapPreset::Vanilla, false);
-    let vanilla_map = vanilla_map_repository
+    vanilla_settings.map_settings = MapSettings::from_preset(MapPreset::Vanilla);
+    let vanilla_map = pregenerated_map_repository
         .get_map_batch(0, &vanilla_settings, &game_data)
         .unwrap()[0]
         .clone();
     let map_repository: Box<dyn MapRepository> = Box::new(SelectableMapRepository {
-        offline: OfflineMapRepository::new(vec![
-            ("Vanilla", vanilla_map_path),
-            ("Small", small_maps_path),
-            ("Standard", standard_maps_path),
-            ("Wild", wild_maps_path),
-        ])
-        .unwrap(),
+        pregenerated: pregenerated_map_repository,
         fresh: args
             .map_server
             .as_ref()
@@ -205,6 +199,7 @@ fn build_app_data() -> AppData {
         game_data,
         preset_data,
         map_repository,
+        map_pools_config,
         seed_repository: SeedRepository::new(&args.seed_repository_url).unwrap(),
         visualizer_files: load_visualizer_files(),
         video_storage_url,
@@ -279,6 +274,7 @@ struct GenerateTemplate<'a> {
     preset_data: &'a PresetData,
     full_presets_json: String,
     map_presets_json: String,
+    map_pools: &'a std::collections::BTreeMap<String, MapPoolConfig>,
     fresh_map_generation: bool,
     skill_presets_json: String,
     item_presets_json: String,
@@ -440,12 +436,11 @@ async fn generate(app_data: actix_web::web::Data<AppData>) -> impl Responder {
                 MapPreset::Standard,
                 MapPreset::Wild,
             ]
-            .map(|preset| {
-                MapSettings::from_preset(preset, app_data.preset_data.fresh_map_generation)
-            }),
+            .map(|preset| app_data.preset_data.map_settings_from_preset(preset)),
         )
         .unwrap(),
         fresh_map_generation: app_data.preset_data.fresh_map_generation,
+        map_pools: &app_data.map_pools_config.pools,
         skill_presets_json,
         item_presets_json,
         qol_presets_json,

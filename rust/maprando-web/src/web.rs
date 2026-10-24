@@ -1,7 +1,7 @@
 use crate::logic_helper::LogicData;
 use maprando::{
     customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
-    map_repository::MapRepository,
+    map_repository::{MapPoolsConfig, MapRepository},
     preset::PresetData,
     seed_repository::SeedRepository,
 };
@@ -20,6 +20,7 @@ pub struct AppData {
     pub game_data: GameData,
     pub preset_data: PresetData,
     pub map_repository: Box<dyn MapRepository>,
+    pub map_pools_config: MapPoolsConfig,
     pub seed_repository: SeedRepository,
     pub visualizer_files: Vec<(String, Vec<u8>)>, // (path, contents)
     pub video_storage_url: String,

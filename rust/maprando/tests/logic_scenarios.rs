@@ -327,7 +327,6 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
         },
         map_settings: maprando::map_settings::MapSettings::from_preset(
             maprando::settings::MapPreset::Standard,
-            false,
         ),
         doors_settings: DoorsSettings {
             preset: Some("Blue".to_string()),

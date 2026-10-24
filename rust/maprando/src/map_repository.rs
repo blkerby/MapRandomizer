@@ -4,15 +4,18 @@ use log::info;
 use rand::{SeedableRng, rngs::StdRng, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
 use std::{
+    collections::{BTreeMap, HashSet},
     fs::File,
-    io::BufReader,
+    io::{BufReader, Read},
     path::{Path, PathBuf},
     time::Duration,
 };
 
-use crate::map_settings::{Landmark, MapSettings, MapSource};
+use crate::map_settings::Landmark;
 use crate::randomize::Randomizer;
-use crate::settings::{RandomizerSettings, SkillAssumptionSettings, StartLocationMode, WallJump};
+use crate::settings::{
+    MapPreset, RandomizerSettings, SkillAssumptionSettings, StartLocationMode, WallJump,
+};
 use maprando_game::{GameData, Map, NodeId, RoomId};
 
 pub trait MapRepository: Send + Sync {
@@ -27,7 +30,7 @@ pub trait MapRepository: Send + Sync {
 }
 
 pub struct SelectableMapRepository {
-    pub offline: OfflineMapRepository,
+    pub pregenerated: PregeneratedMapRepository,
     pub fresh: Option<HttpMapRepository>,
 }
 
@@ -38,18 +41,18 @@ impl MapRepository for SelectableMapRepository {
         settings: &RandomizerSettings,
         game_data: &GameData,
     ) -> Result<Vec<Map>> {
-        if settings.map_settings.source == MapSource::Fresh {
+        if settings.map_settings.source == "Fresh" {
             self.fresh
                 .as_ref()
                 .context("Fresh map generation is not configured")?
                 .get_map_batch(seed, settings, game_data)
         } else {
-            self.offline.get_map_batch(seed, settings, game_data)
+            self.pregenerated.get_map_batch(seed, settings, game_data)
         }
     }
 
     fn request_refill(&self, settings: &RandomizerSettings) -> Result<()> {
-        if settings.map_settings.source == MapSource::Fresh {
+        if settings.map_settings.source == "Fresh" {
             self.fresh
                 .as_ref()
                 .context("Fresh map generation is not configured")?
@@ -59,13 +62,53 @@ impl MapRepository for SelectableMapRepository {
     }
 }
 
-pub struct OfflineMapRepository {
-    pools: HashMap<String, OfflineMapPool>,
+pub struct PregeneratedMapRepository {
+    pools: HashMap<String, PregeneratedMapPool>,
 }
 
-struct OfflineMapPool {
-    base_path: PathBuf,
+struct PregeneratedMapPool {
+    source: PregeneratedMapPoolSource,
     filenames: Vec<String>,
+}
+
+enum PregeneratedMapPoolSource {
+    Local(PathBuf),
+    Remote {
+        base_url: reqwest::Url,
+        client: reqwest::blocking::Client,
+    },
+}
+
+#[derive(Deserialize)]
+pub struct MapPoolsConfig {
+    pub preset_fallbacks: BTreeMap<MapPreset, String>,
+    pub pools: BTreeMap<String, MapPoolConfig>,
+}
+
+#[derive(Deserialize)]
+pub struct MapPoolConfig {
+    pub display_name: String,
+    pub base_url: Option<String>,
+    #[serde(default)]
+    pub small_map: bool,
+}
+
+impl MapPoolsConfig {
+    pub fn load(path: &Path) -> Result<Self> {
+        let config: Self = serde_json::from_slice(
+            &std::fs::read(path).with_context(|| format!("Reading {}", path.display()))?,
+        )
+        .with_context(|| format!("Parsing {}", path.display()))?;
+        if config.pools.contains_key("Fresh") {
+            bail!("Fresh is reserved for fresh map generation and cannot identify a pool");
+        }
+        for (preset, pool) in &config.preset_fallbacks {
+            if !config.pools.contains_key(pool) {
+                bail!("Map preset {preset:?} refers to unconfigured pool {pool}");
+            }
+        }
+        Ok(config)
+    }
 }
 
 #[derive(Deserialize)]
@@ -96,31 +139,27 @@ struct MapManifest {
     pub files: Vec<String>,
 }
 
-impl OfflineMapRepository {
-    pub fn new(pools: Vec<(&str, &Path)>) -> Result<Self> {
+impl PregeneratedMapRepository {
+    pub fn new(config: &MapPoolsConfig) -> Result<Self> {
+        let client = reqwest::blocking::Client::builder()
+            .timeout(Duration::from_secs(30))
+            .build()
+            .context("Creating map pool HTTP client")?;
         Ok(Self {
-            pools: pools
-                .into_iter()
-                .map(|(name, base_path)| {
-                    let pool = OfflineMapPool::new(name, base_path)?;
-                    Ok((name.to_string(), pool))
+            pools: config
+                .pools
+                .iter()
+                .map(|(name, pool_config)| {
+                    let pool = PregeneratedMapPool::new(name, pool_config, &client)
+                        .with_context(|| format!("Loading map pool {name}"))?;
+                    Ok((name.clone(), pool))
                 })
                 .collect::<Result<HashMap<_, _>>>()?,
         })
     }
-
-    fn pool_name(settings: &MapSettings) -> Result<&'static str> {
-        match settings.source {
-            MapSource::Vanilla => Ok("Vanilla"),
-            MapSource::Small => Ok("Small"),
-            MapSource::Standard => Ok("Standard"),
-            MapSource::Wild => Ok("Wild"),
-            MapSource::Fresh => bail!("Fresh maps are not available from an offline pool"),
-        }
-    }
 }
 
-impl MapRepository for OfflineMapRepository {
+impl MapRepository for PregeneratedMapRepository {
     fn request_refill(&self, _settings: &RandomizerSettings) -> Result<()> {
         Ok(())
     }
@@ -131,7 +170,7 @@ impl MapRepository for OfflineMapRepository {
         settings: &RandomizerSettings,
         game_data: &GameData,
     ) -> Result<Vec<Map>> {
-        let pool_name = Self::pool_name(&settings.map_settings)?;
+        let pool_name = &settings.map_settings.source;
         let pool = self
             .pools
             .get(pool_name)
@@ -140,34 +179,80 @@ impl MapRepository for OfflineMapRepository {
     }
 }
 
-impl OfflineMapPool {
-    fn new(name: &str, base_path: &Path) -> Result<Self> {
-        let manifest_bytes = std::fs::read(base_path.join("manifest.json"))?;
+impl PregeneratedMapPool {
+    fn new(name: &str, config: &MapPoolConfig, client: &reqwest::blocking::Client) -> Result<Self> {
+        let path = Path::new("../maps").join(name);
+        let manifest_path = path.join("manifest.json");
+        let manifest_bytes = std::fs::read(&manifest_path)
+            .with_context(|| format!("Reading {}", manifest_path.display()))?;
         let manifest: MapManifest = serde_json::from_slice(&manifest_bytes)?;
+        if manifest.files.is_empty() {
+            bail!("Manifest contains no batch files");
+        }
+
+        let local_files = std::fs::read_dir(&path)?
+            .map(|entry| entry.map(|entry| entry.file_name()))
+            .collect::<std::io::Result<HashSet<_>>>()?;
+        let num_local = manifest
+            .files
+            .iter()
+            .filter(|filename| local_files.contains(std::ffi::OsStr::new(filename)))
+            .count();
+        let source = if num_local == manifest.files.len() {
+            info!("{name}: using local batches ({})", path.display());
+            PregeneratedMapPoolSource::Local(path)
+        } else if num_local != 0 {
+            bail!(
+                "Partial local pool in {}: {} of {} batch files missing; finish downloading the pool or remove its batches",
+                path.display(),
+                manifest.files.len() - num_local,
+                manifest.files.len()
+            );
+        } else {
+            let base_url = config
+                .base_url
+                .as_ref()
+                .context("No local batches and no base_url configured")?;
+            let base_url = reqwest::Url::parse(&format!("{}/", base_url.trim_end_matches('/')))?;
+            info!("{name}: using remote batches ({base_url})");
+            PregeneratedMapPoolSource::Remote {
+                base_url,
+                client: client.clone(),
+            }
+        };
 
         let num_maps = match manifest.maps_per_file {
             MapsPerFile::Fixed(n) => manifest.files.len() * n,
             MapsPerFile::Variable(v) => v.iter().sum(),
         };
-        info!(
-            "{}: {} maps available ({})",
-            name,
-            num_maps,
-            base_path.display()
-        );
+        info!("{name}: {num_maps} maps available");
         Ok(Self {
-            base_path: base_path.to_owned(),
+            source,
             filenames: manifest.files,
         })
     }
 
     fn get_map_batch(&self, seed: usize, game_data: &GameData) -> Result<Vec<Map>> {
         let idx = seed % self.filenames.len();
-        let path = self.base_path.join(&self.filenames[idx]);
-        info!("Map batch file: {}", path.display());
-
-        let file = File::open(path)?;
-        let buf_reader = BufReader::new(file);
+        let reader: Box<dyn Read> = match &self.source {
+            PregeneratedMapPoolSource::Local(base_path) => {
+                let path = base_path.join(&self.filenames[idx]);
+                info!("Map batch file: {}", path.display());
+                Box::new(File::open(&path).with_context(|| format!("Opening {}", path.display()))?)
+            }
+            PregeneratedMapPoolSource::Remote { base_url, client } => {
+                let url = base_url.join(&self.filenames[idx])?;
+                info!("Map batch URL: {url}");
+                Box::new(
+                    client
+                        .get(url.clone())
+                        .send()
+                        .and_then(|response| response.error_for_status())
+                        .with_context(|| format!("Fetching map batch {url}"))?,
+                )
+            }
+        };
+        let buf_reader = BufReader::new(reader);
         let avro_reader = apache_avro::Reader::new(buf_reader)?;
         let mut map_vec: Vec<Map> = vec![];
 

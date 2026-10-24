@@ -1,0 +1,25 @@
+{
+    "preset_fallbacks": {
+        "Small": "v119-small",
+        "Standard": "v119-standard",
+        "Wild": "v119-wild"
+    },
+    "pools": {
+        "vanilla": {
+            "display_name": "Vanilla"
+        },
+        "v119-small": {
+            "display_name": "v119 Small",
+            "small_map": true,
+            "base_url": "https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/v119-small-avro/"
+        },
+        "v119-standard": {
+            "display_name": "v119 Standard",
+            "base_url": "https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/v119-standard-avro/"
+        },
+        "v119-wild": {
+            "display_name": "v119 Wild",
+            "base_url": "https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/v119-wild-avro/"
+        }
+    }
+}

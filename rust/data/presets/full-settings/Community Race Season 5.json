@@ -4881,7 +4881,7 @@
     },
     "map_settings": {
         "preset": null,
-        "source": "Standard",
+        "source": "v119-standard",
         "generation": {
             "small_map": false,
             "landmarks": [

@@ -34,7 +34,10 @@ function mapSettingsChanged() {
 
 function mapSourceChanged(source) {
     mapSettings.source = source;
-    mapSettings.area_assignment = ['Small', 'Standard', 'Wild'].includes(source)
+    if (source !== 'Fresh') {
+        mapSettings.generation.small_map = document.getElementById('mapSource').selectedOptions[0].dataset.smallMap === 'true';
+    }
+    mapSettings.area_assignment = source !== 'Fresh' && source !== 'vanilla'
         ? structuredClone(mapRelabelPresets.Standard) : null;
     mapRelabelDraft = structuredClone(mapSettings.area_assignment ?? mapRelabelPresets.Standard);
     mapSettingsChanged();
@@ -135,9 +138,10 @@ function renderMapSettings() {
     };
     for (const radio of document.querySelectorAll('#mapLayout input')) {
         radio.checked = radio.value === mapSettings.preset;
+        radio.disabled = !freshMapGeneration && mapPresets[radio.value].source === 'Fresh';
     }
     document.getElementById('mapSource').value = mapSettings.source;
-    select('size', mapSettings.source === 'Small' || (mapSettings.source === 'Fresh' && g.small_map) ? 'Small' : 'Full');
+    select('size', mapSettings.source !== 'vanilla' && g.small_map ? 'Small' : 'Full');
     const sameLandmarks = expected => expected.length === g.landmarks.length && expected.every(name => g.landmarks.includes(name));
     select('landmarks', g.landmarks.length === 0 ? 'None' : sameLandmarks(mapLandmarks) ? 'All'
         : sameLandmarks(mapPresets.Standard.generation.landmarks) ? 'ShipMB' : null);

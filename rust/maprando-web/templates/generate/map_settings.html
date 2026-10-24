@@ -18,10 +18,9 @@
                     </div>
                     <div class="col-lg-4 d-flex align-items-center">
                         <select class="form-select" id="mapSource" aria-label="Map source" onchange="mapSourceChanged(this.value)">
-                            <option value="Vanilla">Vanilla</option>
-                            <option value="Small">Legacy small pool</option>
-                            <option value="Standard">Legacy standard pool</option>
-                            <option value="Wild">Legacy wild pool</option>
+                            {% for (id, pool) in map_pools %}
+                            <option value="{{ id }}" data-small-map="{{ pool.small_map }}">{{ pool.display_name }}</option>
+                            {% endfor %}
                             <option value="Fresh" {% if !fresh_map_generation %}disabled{% endif %}>Fresh</option>
                         </select>
                     </div>
