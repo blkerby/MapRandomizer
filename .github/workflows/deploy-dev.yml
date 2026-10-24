@@ -35,6 +35,10 @@ jobs:
             const fs = require('node:fs/promises');
             const run = context.payload.workflow_run;
             const metadata = JSON.parse(await fs.readFile('image-metadata/image-metadata.json', 'utf8'));
+            const deployConfig = metadata.deploy_configs['rtx/dev'];
+            if (deployConfig === undefined) {
+              throw new Error('Build metadata is missing .github/deploy/rtx/dev.json');
+            }
             // Rerunning this publisher creates a new request, including to retry a failed rollout.
             const response = await github.rest.repos.createDeployment({
               ...context.repo,
@@ -48,6 +52,7 @@ jobs:
               description: `CI run ${run.id}, attempt ${run.run_attempt}`,
               payload: {
                 digest: metadata.digest,
+                deploy_config: deployConfig,
                 build_run_id: run.id,
                 build_run_attempt: run.run_attempt
               }
