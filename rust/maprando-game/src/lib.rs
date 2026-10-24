@@ -2163,7 +2163,7 @@ impl GameData {
                 Requirement::HeatFrames(110.into()),
             )],
             DoorType::Beam(BeamType::Charge) => vec![(
-                vec!["charge"],
+                vec!["missiles", "ammo"],
                 Requirement::Item(Item::Charge as ItemId),
                 Requirement::HeatFrames(60.into()),
             )],
