@@ -90,6 +90,18 @@
         "bottom": "Norfair Ruins"
     },
     {
+        "name": "Halfie Climb Room",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Ruins"
+    },
+    {
+        "name": "Colosseum",
+        "x": [0, 1, 2, 3, 4, 5, 6],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Ruins"
+    },
+    {
         "name": "Early Supers Room",
         "x": [0, 1, 2],
         "top": "Norfair Ruins",
@@ -356,6 +368,12 @@
     {
         "name": "West Cactus Alley Room",
         "x": [0],
+        "top": "Norfair Ruins",
+        "bottom": "Norfair Ruins"
+    },
+    {
+        "name": "East Cactus Alley Room",
+        "x": [0, 4],
         "top": "Norfair Ruins",
         "bottom": "Norfair Ruins"
     },
