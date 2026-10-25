@@ -3363,6 +3363,18 @@ impl<'a> MapPatcher<'a> {
     }
 
     pub fn compute_area_bounds(&mut self) -> Result<()> {
+        // Room origins must fit in the unsigned room-header map coordinates.
+        for (room_idx, &(x, y)) in self.map.rooms.iter().enumerate() {
+            if !self.map.room_mask[room_idx] {
+                continue;
+            }
+            let area = self.map.area[room_idx];
+            self.area_min_x[area] = self.area_min_x[area].min(x as isize);
+            self.area_max_x[area] = self.area_max_x[area].max(x as isize);
+            self.area_min_y[area] = self.area_min_y[area].min(y as isize);
+            self.area_max_y[area] = self.area_max_y[area].max(y as isize);
+        }
+
         for &(area_idx, x, y) in self.map_tile_map.keys() {
             if x < self.area_min_x[area_idx] {
                 self.area_min_x[area_idx] = x;
