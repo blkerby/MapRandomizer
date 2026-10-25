@@ -189,7 +189,7 @@ impl MapSettings {
                 } else {
                     [36.0; 6]
                 },
-                reward_graph_diameter: 0.1,
+                reward_graph_diameter: 0.2,
                 reward_save_distance: 0.1,
                 reward_refill_distance: 0.1,
                 reward_area_distinct_crossing: 1.0,
