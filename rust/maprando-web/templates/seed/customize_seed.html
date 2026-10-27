@@ -75,11 +75,11 @@ window.spoilerTokenPrefix = "{{+ spoiler_token_prefix }}";
                             <label class="col-form-label" for="room_theming">{% include "help/room_theming.html" %}Room theming</label>
                             </div>
                             <div class="col-md-8 col-lg-6 btn-group p-0" role="group" onchange="roomThemingChanged(this)">
-                                <input type="radio" class="btn-check" name="room_theming" id="roomThemingVanilla" value="vanilla">
+                                <input type="radio" class="btn-check" name="room_theming" id="roomThemingVanilla" value="vanilla" checked>
                                 <label class="btn btn-outline-primary" style="width:120px" for="roomThemingVanilla">Vanilla</label>
                                 <input type="radio" class="btn-check" name="room_theming" id="roomThemingPalettes" value="palettes">
                                 <label class="btn btn-outline-primary" style="width:120px" for="roomThemingPalettes">Area Palettes</label>
-                                <input type="radio" class="btn-check" name="room_theming" id="roomThemingTiling" value="tiling" checked>
+                                <input type="radio" class="btn-check" name="room_theming" id="roomThemingTiling" value="tiling">
                                 <label class="btn btn-outline-primary" style="width:120px" for="roomThemingTiling">Area Tiling</label>
                             </div>
                         </div>
