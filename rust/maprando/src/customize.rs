@@ -213,7 +213,7 @@ impl Default for CustomizeSettings {
             vanilla_screw_attack_animation: true,
             room_names: true,
             palette_theme: PaletteTheme::Vanilla,
-            tile_theme: TileTheme::AreaThemed,
+            tile_theme: TileTheme::Vanilla,
             door_theme: DoorTheme::Vanilla,
             music: MusicSettings::AreaThemed,
             disable_beeping: false,
