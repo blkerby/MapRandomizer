@@ -225,7 +225,7 @@ org $84B7EF ; PLM $B8AC (speed booster escape) LDA $09A4  [$7E:09A4]
 ; this is due to a missing conditional branch instruction in the vanilla code.
 ; updated for split_speed compatibility, now fits in vanilla location with external table.
 ;
-; -nn357
+; nn_357
 
 org $82ac00
 	.loop
@@ -249,3 +249,22 @@ bootstable:
 bootscat:
   dw $0003, $0103, $0203, $0203, $0303
 assert pc() <= !bank_82_free_space_end
+
+; Pause menu tiles routine DMA transfer size bug fix.
+; Vanilla code transfers too many bytes, destroying the BG2 tilemap.
+; Correcting the DMA transfer size means the backup/restore BG2 pause hook isn't needed.
+; Which also frees up the 4k block of ram used for the backup / restore.
+; nn_357
+
+;org $828ed2 ; Correct DMA transfer size $1000, [hud_expansion_opaque already fixes this, included for reference].
+;  db $10
+
+org $828d08 ; Back up BG2 tilemap for pause menu
+  bra +
+  nop
++
+
+org $829377 ; Restore BG2 tilemap from pause menu
+  bra +
+  nop
++
