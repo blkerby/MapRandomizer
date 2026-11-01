@@ -5,23 +5,9 @@ v121 or soon-ish?:
 - fix flash suit carry in return route (add logic scenario test).
 - handle spark booster logic for low-speed shinecharges.
 - handle "grounded" property of leaveWithSpark
-- DONE: new escape timings
-- DONE: Fix door lock skips showing in the wrong difficulty on logic pages.
-  - DONE: Also G-mode regain mobility
 - Fix MSU handling of statues hallway music?
-- Update music in unthemed single-door rooms (in case neighboring room has Statues Hallway music)
 - See if it is possible to play Statues Hallway music even when music is otherwise disabled.
-- Consider patching the Speed Booster Hall lava trap behavior to depend on Speed Booster equipped.
-  - in which case, patch the helper "h_SpeedBoosterHallNoRisingLava".
-- DONE: Fix room names in start locations JSON.
-- DONE: New area assignment modes:
-  - Add "Vertical" area assignment
-  - Add option to put Mother Brain in Tourian.
-- fix issue with G-mode regain mobility strats showing in Basic.
 - validate presets other than top-level
-- DONE: fix issue with toilet in Pants Room: https://discord.com/channels/1053421401354285129/1053434532973510748/1456503543451095061
-- DONE: fix issue with door-specific FX in room to right of Pants Room.
-- DONE: investigate/fix issue with farm logic: https://discord.com/channels/1053421401354285129/1053434532973510748/1456854298087395408
 - blue suit logic
   - handle leaveWithRunway heat frames carefully
     - for runway not at door node, be sure to require canDash or more heat frames, if applicable
@@ -53,7 +39,6 @@ v121 or soon-ish?:
 - fix Metroid Room 1 "Ammo Kill" strats
 - restrict flash suit from satisfying comeInShinecharged if strat also has leaveShinecharged
 - Finish writing test scenarios to cover all logical requirements and entrance/exit conditions.
-- move blue suit save QoL into High.
 - on spoiler map: hide forced mode difficulty placements behind toggle?
 - Logic difficulty changes:
   - ease botwoon proficiency expectation
@@ -63,21 +48,13 @@ v121 or soon-ish?:
 Other future work: --------------------------------------------------------------------
 
 ROM-patching fixes/improvements:
-  - investigate audio-related lag after quick reload
   - draw door frame in front of hazard markers, for doors that don't have a door shell.
   - investigate momentum conservation: 
     - eddie says first-frame jump loses momentum: https://www.twitch.tv/videos/2317357753?t=2h17m11s
   - prevent empty tiles (grid lines only) from showing as explored on mini-map?
     - e.g. in Green Brin Firefleas Room, or when x-ray climbing rooms like Dachora, Crateria Supers
   - fix g4 start location problem: https://discord.com/channels/1053421401354285129/1053434532973510748/1230346387628101643
-  - fix OOB when leaving Kraid Room from right during fight
-  - clear SRAM more fully when saved seed does not match:
-    - save slot position is being retained, so cursor might start on slots 2 or 3 initially
-  - look into possible quicksave/load patch (like save states but not emulator-dependent)
-    - could work better with music: continue playing same song or start from beginning if different
-    - could retain game timer shown in credits
-    - could retain map progress
-    - could expire when using a save station
+  Quickreload + savestate autobackup feature?
        - prevent accidental quickloads from losing lots of progress
   - make kraid camera act normal when entering from left?
     - same thing with spore spawn entering from bottom?
@@ -95,12 +72,6 @@ Logic (sm-json-data):
 - new strats to add:
   - crumble jump of LN escape PB room, leavewithplatform
   - west cac alley CF clip
-- R-mode forced stand-up clips (needs testing):
-    - double chamber: right side (CF grapple clip too), if no walljumps
-    - Acid Statue Room (no need for HiJump)
-    - Mickey Mouse Room (alternative to CF grapple clip?)
-    - West Ocean (alternative to ice clip?)
-    - PCJR: up through crumble? (not sure if this can work, since enemy hit kills momentum and crumble respawns. If it works, where you can jump back up before crumble respawns, then CF clip would probably also work)
 - refine botwoon requirements:
   - A distinction should probably be made between using supers vs. missiles:
     - e.g. 10 supers should be fine in Extreme (maybe Expert?)
@@ -170,13 +141,10 @@ Other:
   - take into account multiplier
 - Remove unneeded items from last step in Desolate.
 - in logic pages From/To node selections, improve contrast for grayed-out nodes.
-- fix vanilla map music when "Random" start puts you in room with no music change (plays title screen music).
 - handle door locks and flags more precisely; account for them when considering which key item to place
   - this can help forced mode take into account difficulty of defeating bosses (and acquiring other flags)
 - spoiler map: show pop-up when hovering over step, to show additional collectible items (with their quantities) and instructions
   to click/double-click for details.
-- rework QoL presets?:
-  - keep same map options between Low and Default?
 - consider making shaktool room one-way in map generation (so Reverse Shaktool strat could be moved up to Medium)
 - main street shinespark frames need some looking into: "frames": 35 doesn't make sense?
 - refine GT logic: not in logic with 7E+4R and 5 Supers, Grapple.
@@ -198,11 +166,6 @@ Other:
   - improved spoiler log route
 - help buttons for rest of settings (e.g. explain boss proficiency calculations)
 - handle sba attacks in "enemyKill" (already done?)
-- more fine-grained "fast cutscenes" QoL options?: 
-  - fast big boy cutscene
-  - fast MB
-  - fast saves, refills, maps?
-- make item music tracks consistent, to eliminate music restarts that can happen between two item rooms
 - see if we can do something about silent snails with Zebes asleep music
 - possible enhancements to momentum conservation patch
   - remove need to be holding dash or to be in spin (probably bad)
@@ -217,17 +180,12 @@ Other:
 - harder item progression mode, where new item may be required to be used for the return path.
 - include a check that the client and server are matching versions and give a more meaningful error when they aren't
 - fix missing Samus tile in Bomb message box (issue with map tile expansion patch)
-- fix problem with disappearing typewriter text when pausing as escape sequence starts
 - add a tip that you can share a seed using the URL.
 - refine cross room shinesparks:
     - take into account how the accumulated speed affects energy required in next room.
     - this can make a big difference in some situations, e.g. sparking from Waterway into Mt. Everest
 - fix bug where suit color does not change when changing suits while taking damage (e.g. lava dive)?
 - clean up the web service, to reduce the amount of boilerplate plumbing settings around.
-- make separate option for patching out major glitches?
-  - include GT code, Spacetime beam (currently patched out)
-  - make OOB cause instant death?
-  - others
 - Better validation/error-handling of web service
 - Add note to strat in Post-Crocomire farming room to get to top-left with HiJump
   (run on platform enemy and jump)
@@ -237,5 +195,4 @@ Other:
     - Clean up error handling: get rid of a bunch of remaining unwrap()'s, etc.
     - Look into using sm-rs-data.
 - fix tiny bug: when loading door of the starting room (e.g. bottom-left of landing site) is an area transition, the area transition marker shows up on the map from the beginning of the game (due to running the door ASM while loading the game)
-- fix internal checksum in output ROM?
 - making the map generation code more reusable, so that others could more easily apply it to other games.
