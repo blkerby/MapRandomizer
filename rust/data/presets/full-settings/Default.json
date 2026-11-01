@@ -4849,7 +4849,7 @@
                 32.0,
                 24.0
             ],
-            "max_graph_diameter": 45.0,
+            "max_graph_diameter": 42.0,
             "reward_graph_diameter": 0.2,
             "reward_save_distance": 0.2,
             "reward_refill_distance": 0.1,

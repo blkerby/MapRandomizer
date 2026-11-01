@@ -289,7 +289,7 @@ impl MapSettings {
                 target_area_rooms: [1.0; 6],
                 target_area_x: [36.0; 6],
                 target_area_y: [36.0; 6],
-                max_graph_diameter: Some(45.0),
+                max_graph_diameter: Some(42.0),
                 reward_graph_diameter: 0.2,
                 reward_save_distance: 0.2,
                 reward_refill_distance: 0.1,
