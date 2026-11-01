@@ -20,6 +20,9 @@ function buildMapSettings() {
 
 function applyMapSettings(settings) {
     mapSettings = structuredClone(mapPresets[settings.preset] ?? settings);
+    if (mapSettings.generation.max_graph_diameter === undefined) {
+        mapSettings.generation.max_graph_diameter = mapPresets.Standard.generation.max_graph_diameter;
+    }
     for (const group of Object.keys(mapGenerationPresetFields)) processMapGenerationPreset(group);
     for (const field of ['maridia_water', 'norfair_heat']) {
         const preset = mapSettings.generation[field].preset;

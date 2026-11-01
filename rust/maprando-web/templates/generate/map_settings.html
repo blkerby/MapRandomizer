@@ -142,6 +142,18 @@
                     <div class="card-body ps-1 pe-3 py-0">
                         <div class="form-group row align-items-center my-3">
                             <div class="col-lg-4 d-flex align-items-center my-1">
+                                <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-target="#mapMaxGraphDiameterHelpModal" data-bs-toggle="modal">
+                                    <i class="bi bi-question-circle">
+                                    </i>
+                                </button>
+                                <label for="mapMaxGraphDiameter">Max graph diameter</label>
+                            </div>
+                            <div class="col-lg-7 d-flex align-items-center">
+                                <input type="number" min="1" max="254" step="any" id="mapMaxGraphDiameter" class="form-control map-generation-control" data-map-number="max_graph_diameter" onchange="mapNumberChanged(this)">
+                            </div>
+                        </div>
+                        <div class="form-group row align-items-center my-3">
+                            <div class="col-lg-4 d-flex align-items-center my-1">
                                 <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-target="#mapGraphDiameterHelpModal" data-bs-toggle="modal">
                                     <i class="bi bi-question-circle">
                                     </i>
@@ -606,6 +618,7 @@
 {% include "help/map/return_paths.html" %}
 {% include "help/map/area_sizes.html" %}
 {% include "help/map/graph_diameter.html" %}
+{% include "help/map/max_graph_diameter.html" %}
 {% include "help/map/save_distance.html" %}
 {% include "help/map/refill_distance.html" %}
 {% include "help/map/area_distinct_crossing.html" %}

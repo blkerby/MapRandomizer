@@ -88,6 +88,7 @@ pub struct MapGenerationSettings {
     pub target_area_rooms: [f64; 6],
     pub target_area_x: [f64; 6],
     pub target_area_y: [f64; 6],
+    pub max_graph_diameter: Option<f64>,
     pub reward_graph_diameter: f64,
     pub reward_save_distance: f64,
     pub reward_refill_distance: f64,
@@ -190,6 +191,11 @@ impl MapGenerationSettings {
         {
             bail!("Max return distance must be finite and nonnegative");
         }
+        if let Some(diameter) = self.max_graph_diameter
+            && (!diameter.is_finite() || diameter <= 0.0 || diameter > 254.0)
+        {
+            bail!("Max graph diameter must be finite and in (0, 254]");
+        }
         for (name, preference, area) in [
             ("Water in Maridia", self.maridia_water, 4),
             ("Heat in Norfair", self.norfair_heat, 2),
@@ -283,6 +289,7 @@ impl MapSettings {
                 target_area_rooms: [1.0; 6],
                 target_area_x: [36.0; 6],
                 target_area_y: [36.0; 6],
+                max_graph_diameter: Some(45.0),
                 reward_graph_diameter: 0.2,
                 reward_save_distance: 0.2,
                 reward_refill_distance: 0.1,

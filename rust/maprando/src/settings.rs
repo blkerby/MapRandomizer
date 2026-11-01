@@ -1431,6 +1431,9 @@ fn upgrade_map_setting(
         generation
             .entry("door_balance_strength")
             .or_insert(1.0.into());
+        generation
+            .entry("max_graph_diameter")
+            .or_insert(45.0.into());
     }
     if apply_presets {
         let mut map_settings: MapSettings =
