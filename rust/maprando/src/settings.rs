@@ -990,6 +990,11 @@ fn assign_presets(settings: &mut serde_json::Value, preset_data: &PresetData) ->
             }
         }
     }
+    if let Some(name) = settings["map_settings"]["preset"].as_str() {
+        let preset = MapPreset::from_preset(name).context("Unrecognized map preset")?;
+        settings["map_settings"] =
+            serde_json::to_value(preset_data.map_settings_from_preset(preset))?;
+    }
     Ok(())
 }
 
@@ -1406,7 +1411,11 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
     Ok(())
 }
 
-fn upgrade_map_setting(settings: &mut serde_json::Value, preset_data: &PresetData) -> Result<()> {
+fn upgrade_map_setting(
+    settings: &mut serde_json::Value,
+    preset_data: &PresetData,
+    apply_presets: bool,
+) -> Result<()> {
     if let Some(layout) = settings.as_object_mut().unwrap().remove("map_layout") {
         let name = layout.as_str().context("invalid map_layout")?;
         let preset = if name == "Tame" {
@@ -1422,6 +1431,12 @@ fn upgrade_map_setting(settings: &mut serde_json::Value, preset_data: &PresetDat
         generation
             .entry("door_balance_strength")
             .or_insert(1.0.into());
+    }
+    if apply_presets {
+        let mut map_settings: MapSettings =
+            serde_json::from_value(settings["map_settings"].take())?;
+        map_settings.apply_subpresets();
+        settings["map_settings"] = serde_json::to_value(map_settings)?;
     }
     Ok(())
 }
@@ -1596,7 +1611,7 @@ pub fn try_upgrade_settings(
     if let Some(layout) = legacy_map_layout {
         settings["map_layout"] = layout;
     }
-    upgrade_map_setting(&mut settings, preset_data)?;
+    upgrade_map_setting(&mut settings, preset_data, apply_presets)?;
     upgrade_other_settings(&mut settings)?;
     upgrade_start_location_setings(&mut settings)?;
     upgrade_animals_setting(&mut settings)?;

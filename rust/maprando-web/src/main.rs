@@ -38,7 +38,7 @@ use maprando::{
         HttpMapRepository, MapPoolConfig, MapPoolsConfig, MapRepository, PregeneratedMapRepository,
         SelectableMapRepository,
     },
-    map_settings::MapSettings,
+    map_settings::{MapSettings, map_subpresets},
     preset::PresetData,
     randomize::{
         DifficultyConfig, Randomization, Randomizer, assign_map_areas, filter_links,
@@ -274,6 +274,7 @@ struct GenerateTemplate<'a> {
     preset_data: &'a PresetData,
     full_presets_json: String,
     map_presets_json: String,
+    map_subpresets_json: String,
     map_pools: &'a [MapPoolConfig],
     fresh_map_generation: bool,
     skill_presets_json: String,
@@ -439,6 +440,7 @@ async fn generate(app_data: actix_web::web::Data<AppData>) -> impl Responder {
             .map(|preset| app_data.preset_data.map_settings_from_preset(preset)),
         )
         .unwrap(),
+        map_subpresets_json: serde_json::to_string(&map_subpresets()).unwrap(),
         fresh_map_generation: app_data.preset_data.fresh_map_generation,
         map_pools: &app_data.map_pools_config.pools,
         skill_presets_json,
