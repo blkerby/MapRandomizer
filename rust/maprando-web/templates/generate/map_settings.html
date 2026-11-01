@@ -190,6 +190,18 @@
                         </div>
                         <div class="form-group row align-items-center my-3">
                             <div class="col-lg-4 d-flex align-items-center my-1">
+                                <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-target="#mapDoorBalanceHelpModal" data-bs-toggle="modal">
+                                    <i class="bi bi-question-circle">
+                                    </i>
+                                </button>
+                                <label for="mapDoorBalanceStrength">Door balance strength</label>
+                            </div>
+                            <div class="col-lg-7 d-flex align-items-center">
+                                <input type="number" step="any" id="mapDoorBalanceStrength" class="form-control map-generation-control" data-map-number="door_balance_strength" onchange="mapNumberChanged(this)">
+                            </div>
+                        </div>
+                        <div class="form-group row align-items-center my-3">
+                            <div class="col-lg-4 d-flex align-items-center my-1">
                                 <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-target="#mapRelabelHelpModal" data-bs-toggle="modal">
                                     <i class="bi bi-question-circle">
                                     </i>
@@ -514,14 +526,6 @@
                         <input type="number" step="any" class="form-control map-generation-control" data-map-number="reward_missing_connect_utility" aria-label="Missing-connection utility reward" onchange="mapNumberChanged(this)">
                     </div>
                 </div>
-                <div class="row align-items-center my-2">
-                    <div class="col-sm-8 d-flex align-items-center">
-                        <label for="mapDoorBalanceStrength">Door balance strength</label>
-                    </div>
-                    <div class="col-sm-4 d-flex align-items-center">
-                        <input type="number" step="any" id="mapDoorBalanceStrength" class="form-control map-generation-control" data-map-number="door_balance_strength" onchange="mapNumberChanged(this)">
-                    </div>
-                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -605,4 +609,5 @@
 {% include "help/map/save_distance.html" %}
 {% include "help/map/refill_distance.html" %}
 {% include "help/map/area_distinct_crossing.html" %}
+{% include "help/map/door_balance.html" %}
 {% include "help/map/relabel_completed_areas.html" %}
