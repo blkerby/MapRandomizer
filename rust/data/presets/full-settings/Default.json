@@ -4821,7 +4821,8 @@
                 ]
             },
             "reward_missing_connect_utility": 2.0,
-            "max_return_distance": 13.0,
+            "door_balance_strength": 0.3,
+            "max_return_distance": 11.0,
             "reward_area_x": 10.0,
             "reward_area_y": 10.0,
             "target_area_rooms": [
@@ -4848,8 +4849,8 @@
                 32.0,
                 24.0
             ],
-            "reward_graph_diameter": 0.1,
-            "reward_save_distance": 0.1,
+            "reward_graph_diameter": 0.2,
+            "reward_save_distance": 0.2,
             "reward_refill_distance": 0.1,
             "reward_area_distinct_crossing": 1.0
         },

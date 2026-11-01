@@ -1418,6 +1418,11 @@ fn upgrade_map_setting(settings: &mut serde_json::Value, preset_data: &PresetDat
         map_settings.area_assignment = None;
         settings["map_settings"] = serde_json::to_value(map_settings)?;
     }
+    if let Some(generation) = settings["map_settings"]["generation"].as_object_mut() {
+        generation
+            .entry("door_balance_strength")
+            .or_insert(1.0.into());
+    }
     Ok(())
 }
 

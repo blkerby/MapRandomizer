@@ -42,6 +42,7 @@ pub struct MapGenerationSettings {
     pub maridia_water: AreaPreference,
     pub norfair_heat: AreaPreference,
     pub reward_missing_connect_utility: f64,
+    pub door_balance_strength: f64,
     pub max_return_distance: Option<f64>,
     pub reward_area_x: f64,
     pub reward_area_y: f64,
@@ -78,6 +79,7 @@ impl MapGenerationSettings {
                 "Return-path preference",
                 self.reward_missing_connect_utility,
             ),
+            ("Door balance strength", self.door_balance_strength),
             ("Horizontal position reward", self.reward_area_x),
             ("Vertical position reward", self.reward_area_y),
             ("Graph diameter reward", self.reward_graph_diameter),
@@ -164,11 +166,19 @@ impl MapSettings {
                 maridia_water: climate,
                 norfair_heat: climate,
                 reward_missing_connect_utility: if preset == MapPreset::Wild { 0.0 } else { 2.0 },
+                door_balance_strength: if matches!(
+                    preset,
+                    MapPreset::Small | MapPreset::Familiar | MapPreset::Standard
+                ) {
+                    0.3
+                } else {
+                    1.0
+                },
                 max_return_distance: if matches!(
                     preset,
                     MapPreset::Small | MapPreset::Familiar | MapPreset::Standard
                 ) {
-                    Some(13.0)
+                    Some(11.0)
                 } else {
                     None
                 },
@@ -190,7 +200,7 @@ impl MapSettings {
                     [36.0; 6]
                 },
                 reward_graph_diameter: 0.2,
-                reward_save_distance: 0.1,
+                reward_save_distance: 0.2,
                 reward_refill_distance: 0.1,
                 reward_area_distinct_crossing: 1.0,
             },

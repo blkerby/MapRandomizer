@@ -4905,6 +4905,7 @@
                 ]
             },
             "reward_missing_connect_utility": 2.0,
+            "door_balance_strength": 1.0,
             "reward_area_x": 10.0,
             "reward_area_y": 10.0,
             "target_area_rooms": [
