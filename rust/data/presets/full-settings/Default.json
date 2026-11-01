@@ -4821,7 +4821,7 @@
                 ]
             },
             "reward_missing_connect_utility": 2.0,
-            "door_balance_strength": 0.3,
+            "door_balance_strength": 0.5,
             "max_return_distance": 11.0,
             "reward_area_x": 10.0,
             "reward_area_y": 10.0,

@@ -259,7 +259,7 @@ impl MapSettings {
                     preset,
                     MapPreset::Small | MapPreset::Familiar | MapPreset::Standard
                 ) {
-                    0.3
+                    0.5
                 } else {
                     1.0
                 },
