@@ -113,14 +113,7 @@ org $82D521
     incbin !this_dir/Data/samus_wireframe.ttb
 
 org $85877F
-;    incbin !this_dir/Data/Opaque/messages.ttb
-    incbin !this_dir/Data/Opaque/messages_ammo.ttb
-
-org $8592FF
-
-; change AMMO back to MISSILE
-    dw $000E, $000E, $000E, $000E, $000E, $000E, $2C0F, $2C0F, $2C0F, $2CCC, $2CC8, $2CD2, $2CD2, $2CC8, $2CCB, $2CC4, $2C0F, $2CD1, $2CC4, $2CCB, $2CCE, $2CC0, $2CC3, $2C0F, $2C0F, $000E, $000E, $000E, $000E, $000E, $000E, $000E
-assert pc() <= $8593BF
+    incbin !this_dir/Data/Opaque/messages.ttb
 
 ; FX tilemap
 org $8A8000
@@ -237,44 +230,6 @@ org $80A0ED
     ; add an injection to run the transition DMA at gameplay load
     JSR TransitionDMA_CalculateLayer2XPos ; A2F9
 
-;; clear layer 3
-;; This is rewritten to make it free up some space for the next function
-;org $80A29C
-;    PHP
-;    LDX #$0002
-;ClearLayer3_Loop:
-;    REP #$20
-;    LDA #$5880
-;    STA $2116 ; DMA VRAM address
-;    LDA.w ClearLayer3_DMA_Params,X
-;    STA $4310 ; DMA Parameter/VRAM Address
-;    LDA.w ClearLayer3_WRAM_Address,X
-;    STA $4312 ; DMA WRAM Address
-;    LDA #$0080
-;    STA $4314 ; DMA WRAM Bank
-;    LDA #$0780
-;    STA $4315 ; DMA Bytes
-;    SEP #$20
-;    LDA.w ClearLayer3_VRAM_Inc_Value,X
-;    STA $2115 ; VRAM Adress Increment Value
-;    LDA #$02
-;    STA $420B ; Start DMA
-;    DEX
-;    DEX
-;    BPL ClearLayer3_Loop
-;    PLP
-;    RTL
-;
-;ClearLayer3_DMA_Params:
-;    DW $1908, $1808
-;ClearLayer3_WRAM_Address:
-;    DW #ClearLayer3_ClearTile+1, #ClearLayer3_ClearTile+0
-;ClearLayer3_VRAM_Inc_Value:
-;    DW $0080, $0000
-;ClearLayer3_ClearTile:
-;    DW $180F    ; palette 6
-
-
 org !bank_80_free_space_start
 ; Added function
 TransitionDMA_CalculateLayer2XPos:
@@ -288,8 +243,7 @@ TransitionDMA_CalculateLayer2XPos:
     PLP
     JSR $A2F9  ; run hi-jacked instruction
     RTS
-
-warnpc !bank_80_free_space_end
+assert pc() <= !bank_80_free_space_end
 ;warnpc $80A2F9 : padbyte $FF : pad $80A2F9
 
 
@@ -305,82 +259,62 @@ org $8580E8
     JSR ClearLayer3ForMessageClose ; 81F3 Clear message box BG3 tilemap
 
 org !bank_85_free_space_start
-; Instead of always clearing the screen, it swaps the bottom rows
-; of the graphics with the textbox letters with the FX graphics
-ClearLayer3ForMessageClose:
-    LDA $196E ; FX type
-    BEQ ClearLayer3_Return ; FX type = 0x00 (none)
-    CMP #$0026
-    BEQ ClearLayer3_WaterAddress ; FX type = 0x26 (golden statues room)
-    CMP #$000C
-    BEQ ClearLayer3_FogAddress ; FX type = 0x0C (fog)
-    BCS ClearLayer3_Return  ; FX type > 0x0C (ceres/haze)
-    CMP #$0006
-    BEQ ClearLayer3_WaterAddress ; FX type = 0x06 (water)
-    LDX $1F17 ; pointer to ram address to dma
-    DEX
-    DEX
-    LDA $870000,X
-    STA $4302 ; set dma ram address
-    LDX $1F3B ; X = dma size
-    CLC
-    BRA ClearLayer3_ContinueDMA
 ClearLayer3ForMessageOpen:
-    LDX #$C000 ; DMA ram address size
-    SEC
-    BRA ClearLayer3_WriteDMAAddress
-ClearLayer3_FogAddress:
-    LDX #$C400 ; DMA ram address size
-    BRA ClearLayer3_WriteDMAAddress
-ClearLayer3_WaterAddress:   
-    LDX #$C200 ; DMA ram address size
-ClearLayer3_WriteDMAAddress:
-    STX $4302 ; set DMA ram address
-    LDX #$0200 ; X = dma size
-ClearLayer3_ContinueDMA:
-    STX $4305 ; set DMA size
-    LDX #$4700
-    STX $2116 ; set dma VRAM address
-    LDX #$1801
-    STX $4300 ; set dma mode/address
-    SEP #$20
-
-    LDA #$9A
-    BCS ClearLayer3_SetBank
-    LDA #$87
-ClearLayer3_SetBank:
-    STA $4304 ; set dma ram bank (9A on open, 87 on close)
-
-    LDA #$80
-    STA $2115 ; VRAM address increment value
-    LDA #$01
-    STA $420B ; start DMA (channel 0)
-ClearLayer3_Return:
-
-    ; transfer message-box letters to VRAM, since these
-    ; could have gotten overwritten by Kraid Room.
-    rep #$20
-    LDA #$4600
-    STA $2116  ; VRAM (destination) address = $4600
-
-    lda #$BE00 ; source address = $BE00
-    sta $4302
-
-    ; Set source bank to $9A:
-    lda #$009A
-    sta $4304
-
-    lda #$0200
-    sta $4305 ; transfer size = $0200 bytes
-
-    sep #$20
-    lda #$01
-    sta $420B  ; perform DMA transfer on channel 1
-
-    JSR $81F3 ; displaced code
+    PHP
+    REP #$30
+    PHY
+    LDA #$4600 : STA $2116
+    LDA #$BE00
+    LDX #$0400
+    LDY #$009A
+    JSR ClearLayer3_Go
+    BRA ClearLayer3_Finish
+ClearLayer3ForMessageClose:
+    PHP
+    REP #$30
+    PHY
+    LDX #$4700 : STX $2116
+    LDA $196E            ; FX type
+    BEQ ClearLayer3_Finish
+    CMP #$0026
+    BEQ ClearLayer3_Water
+    CMP #$000C
+    BEQ ClearLayer3_Fog
+    BCS ClearLayer3_Finish
+    CMP #$0006
+    BEQ ClearLayer3_Water
+    LDX $1F17
+    LDA $86FFFE,X
+    LDX $1F3B
+    LDY #$0087
+    BRA ClearLayer3_CloseGo
+ClearLayer3_Fog:
+    LDA #$C400
+    BRA ClearLayer3_FX
+ClearLayer3_Water:
+    LDA #$C200
+ClearLayer3_FX:
+    LDX #$0200
+    LDY #$009A
+ClearLayer3_CloseGo:
+    JSR ClearLayer3_Go
+ClearLayer3_Finish:
+    PLY
+    PLP
+    JSR $81F3            ; displaced code
     RTS
-
-warnpc !bank_85_free_space_end
+ClearLayer3_Go:
+    STA $4302
+    STX $4305
+    LDX #$1801 : STX $4300
+    SEP #$20
+    TYA
+    STA $4304
+    LDA #$80 : STA $2115
+    LDA #$01 : STA $420B
+    REP #$20
+    RTS
+assert pc() <= !bank_85_free_space_end
 
 ; load FX
 org $89AC31
@@ -389,15 +323,10 @@ org $89AC31
 ; free space in Bank 89
 org $89AF00 ; A = FX type
 Load_FX:
-    CMP #$0026
-    BEQ LoadFX_Water ; type = golden statues
-    CMP #$000C
-    BEQ LoadFX_Fog ; type = fog
-    CMP #$0006
-    BEQ LoadFX_Water ; type = water
-    BRA LoadFX_Return ; else
-LoadFX_Fog:
-    LDA #$9AC4
+    CMP #$0026 : BEQ LoadFX_Water ; type = golden statues
+    CMP #$0006 : BEQ LoadFX_Water ; type = water
+    CMP #$000C : BNE LoadFX_Return ; not fog -> nothing to load
+    LDA #$9AC4 ; fog
     BRA LoadFX_Continue
 LoadFX_Water:
     LDA #$9AC2
@@ -412,8 +341,7 @@ LoadFX_Continue:
 LoadFX_Return:
     LDA $ABF0,y ; Displaced code
     RTS
-
-warnpc $89AF60
+assert pc() <= $89AF60
 
 ;----------------------------
 ; Repoint Data
@@ -468,20 +396,7 @@ org $829580
 ; 'blank' tile for clearing layer 3 (BG Data Instruction)
 org $82E569
     LDA #$180F ; 184E
-
-; Skipping this, since it is overwritten in map_area.asm:
-; ; Message box button text table
-; org $858426
-;     DW $28C0 ;$28E0, ; A
-;     DW $3CC1 ;$3CE1, ; B
-;     DW $2CD7 ;$2CF7, ; X
-;     DW $2CD8 ;$38F8, ; Y
-;     DW $38FA ;$38D0, ; Select
-;     DW $2CCB ;$38EB, ; L
-;     DW $2CD1 ;$38F1, ; R
-;     DW $280F ;$284E  ; Blank
-
-; Digit tilemap on HUD because the numbers are moved
+    
 org $809DBF
 ; Health
     DW $2C00, $2C01, $2C02, $2C03, $2C04, $2C05, $2C06, $2C07, $2C08, $2C09
