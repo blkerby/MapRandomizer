@@ -252,19 +252,40 @@ assert pc() <= !bank_82_free_space_end
 
 ; Pause menu tiles routine DMA transfer size bug fix.
 ; Vanilla code transfers too many bytes, destroying the BG2 tilemap.
-; Correcting the DMA transfer size means the backup/restore BG2 pause hook isn't needed.
-; Which also frees up the 4k block of ram used for the backup / restore.
+; Correcting the DMA transfer size means the full backup/restore isn't needed.
+; The Typewriter text is written directly to VRAM so we backup just those rows instead.
 ; nn_357
 
 ;org $828ed2 ; Correct DMA transfer size $1000, [hud_expansion_opaque already fixes this, included for reference].
 ;  db $10
 
-org $828d08 ; Back up BG2 tilemap for pause menu
-  bra +
-  nop
-+
+org $828D51 ;;; $8D51: Back up BG2 tilemap for pause menu (save typewrite text during pause) ;;;
+BackupBG2Tilemap:
+    PHP
+    SEP #$20
+    LDA #$00 : STA $2116        ; VRAM $4900 (BG2 row 8)
+    LDA #$49 : STA $2117
+    REP #$20
+    LDA #$3981 : STA $4310      ; VRAM -> WRAM, reads $2139/$213A
+    LDA #$DF5C : STA $4312
+    LDA #$00C2 : STA $4315      ; 194 bytes: 2 junk (prefetch glitch) + 192 real (rows 8-Ah)
+    SEP #$20
+    LDA #$7E : STA $4314
+    LDA #$02 : STA $420B
+    PLP
+    RTS
+assert pc() <= $828D96
 
-org $829377 ; Restore BG2 tilemap from pause menu
-  bra +
-  nop
-+
+org $828D96 ;;; $8D96: Restore BG2 tilemap from pause menu ;;;
+RestoreBG2Tilemap:
+    PHP
+    SEP #$20
+    LDA #$00 : STA $2116
+    LDA #$49 : STA $2117
+    LDA #$80 : STA $2115
+    JSL $8091A9
+    db $01,$01,$18 : dl $7EDF5E : dw $00C0   ; skip the 2 junk bytes
+    LDA #$02 : STA $420B
+    PLP
+    RTS
+assert pc() <= $828DBD
