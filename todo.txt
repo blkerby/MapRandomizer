@@ -5,7 +5,6 @@ v121 or soon-ish?:
 - fix flash suit carry in return route (add logic scenario test).
 - handle spark booster logic for low-speed shinecharges.
 - handle "grounded" property of leaveWithSpark
-- Fix MSU handling of statues hallway music?
 - See if it is possible to play Statues Hallway music even when music is otherwise disabled.
 - validate presets other than top-level
 - blue suit logic
@@ -36,13 +35,9 @@ v121 or soon-ish?:
   - restore morph tunnel continuation behind morph tunnel transition?
 - spoiler map: add something in side panel for route to hub?
 - wave gate room: missing 3 -> 1 logic?
-- fix Metroid Room 1 "Ammo Kill" strats
 - restrict flash suit from satisfying comeInShinecharged if strat also has leaveShinecharged
 - Finish writing test scenarios to cover all logical requirements and entrance/exit conditions.
 - on spoiler map: hide forced mode difficulty placements behind toggle?
-- Logic difficulty changes:
-  - ease botwoon proficiency expectation
-- add more strats from Incomplete videos
 
 
 Other future work: --------------------------------------------------------------------
@@ -64,19 +59,12 @@ Logic (sm-json-data):
 - X-Ray climb from "strange positions" using G-mode:
   - example in Big Pink by bobbob: https://vimeo.com/623738489
 - add iframe spike jump remote runways: e.g. East Cac Alley, Bowling Alley, Crateria Supers
-- add `easyHeatFrames` logical requirement, for rooms like Speed Booster Hall
 - add missing Red Tower grapple jump strats:
   - missed entering from the right
   - grapple jumping up only to the ledge (probably needs a new node)
     - shinespark strats could get up that node too, with fewer shinecharge frames
 - new strats to add:
   - crumble jump of LN escape PB room, leavewithplatform
-- refine botwoon requirements:
-  - A distinction should probably be made between using supers vs. missiles:
-    - e.g. 10 supers should be fine in Extreme (maybe Expert?)
-  - 30 Missiles should be fine in Insane
-- use Ship refill in G-mode strats:
-  - for strats that enter G-mode into Landing Site, use it, and then go back out still in G-mode
 - many other things:
   - see Issues on the GitHub: https://github.com/vg-json-data/sm-json-data/issues
   - see Incomplete status videos on https://videos.maprando.com/
@@ -84,7 +72,6 @@ Logic (sm-json-data):
 Major new features (not clear yet which of these will ever happen):
 - Fast travel via map stations
   - Have a "hub" room connected to each map station, with a door behind the map station that opens after activating that map.
-- Hyperlinks and tooltips in the logic page JSON, to make the logic easier to browse and understand
 - Logic simulator: a way to fill out items/flags/resources/obstacles to simulate logic and check if there is a logical path through a room:
   - Useful especially for calculating energy required for hellruns.
   - The boss calculator set up a lot of the infrastructure needed to support this.
@@ -130,11 +117,11 @@ Other:
 - if strat includes doorUnlockedAtNode at destination node, then skip redundant unlock requirement.
 - simplify SeedData. It's not clear if we really even need this anymore.
 - embed some logic data in video site? (e.g. show strat note when uploading/editing)
-- handle steep starting down tile better: only should affect short-charging, not other uses of runways
+- handle steep starting down tile better: only should affect short-charging, not other uses of runways (completed?)
 - model energy usage in the escape.
   - can be necessary to ensure beatability of seeds with reduced items and disabled escape refill.
 - add option to reroll seeds with not enough difficult required tricks?
-- instructions on gmode and artificial morph
+- instructions on gmode and artificial morph (completed?)
 - fix weapon PowerBomb logic (can't remember if this is all already done?):
   - take into account that double hit is not possible with PowerBombPeriphery
   - take into account multiplier
@@ -149,7 +136,6 @@ Other:
 - refine GT logic: not in logic with 7E+4R and 5 Supers, Grapple.
 - make start locations and hub locations only use door nodes
   - that way much less risk of getting broken (or made unsound) by logic changes
-- link to twin room in logic room pages.
 - add physics/heated override to runway geometry
   - more generally, come up with some way to better account for the added difficulty when a strat cannot be retried or where a limited amount of retries are possible.
 - revamp strat page: 
@@ -185,8 +171,6 @@ Other:
 - fix bug where suit color does not change when changing suits while taking damage (e.g. lava dive)?
 - clean up the web service, to reduce the amount of boilerplate plumbing settings around.
 - Better validation/error-handling of web service
-- Add note to strat in Post-Crocomire farming room to get to top-left with HiJump
-  (run on platform enemy and jump)
 - Use separate worker pool to run randomization (to avoid blocking web requests)
 - Rust cleanup:
     - Use `serde_json` instead of `json` crate for loading sm-json-data.
