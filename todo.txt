@@ -71,7 +71,6 @@ Logic (sm-json-data):
     - shinespark strats could get up that node too, with fewer shinecharge frames
 - new strats to add:
   - crumble jump of LN escape PB room, leavewithplatform
-  - west cac alley CF clip
 - refine botwoon requirements:
   - A distinction should probably be made between using supers vs. missiles:
     - e.g. 10 supers should be fine in Extreme (maybe Expert?)
@@ -179,7 +178,6 @@ Other:
   - disabling "canWalljump" should disable dependent "canPreciseWalljump"
 - harder item progression mode, where new item may be required to be used for the return path.
 - include a check that the client and server are matching versions and give a more meaningful error when they aren't
-- fix missing Samus tile in Bomb message box (issue with map tile expansion patch)
 - add a tip that you can share a seed using the URL.
 - refine cross room shinesparks:
     - take into account how the accumulated speed affects energy required in next room.
