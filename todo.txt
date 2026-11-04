@@ -49,8 +49,6 @@ ROM-patching fixes/improvements:
   - prevent empty tiles (grid lines only) from showing as explored on mini-map?
     - e.g. in Green Brin Firefleas Room, or when x-ray climbing rooms like Dachora, Crateria Supers
   - fix g4 start location problem: https://discord.com/channels/1053421401354285129/1053434532973510748/1230346387628101643
-  Quickreload + savestate autobackup feature?
-       - prevent accidental quickloads from losing lots of progress
   - make kraid camera act normal when entering from left?
     - same thing with spore spawn entering from bottom?
   
@@ -117,7 +115,7 @@ Other:
 - if strat includes doorUnlockedAtNode at destination node, then skip redundant unlock requirement.
 - simplify SeedData. It's not clear if we really even need this anymore.
 - embed some logic data in video site? (e.g. show strat note when uploading/editing)
-- handle steep starting down tile better: only should affect short-charging, not other uses of runways (completed?)
+- handle steep starting down tile better: only should affect short-charging, not other uses of runways
 - model energy usage in the escape.
   - can be necessary to ensure beatability of seeds with reduced items and disabled escape refill.
 - add option to reroll seeds with not enough difficult required tricks?
