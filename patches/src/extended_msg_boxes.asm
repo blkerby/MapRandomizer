@@ -2,7 +2,11 @@
 ;;; This extends the available messsagebox definitions table and moves the other tables down, repoints the instructions that referenced the old table.
 ;;; nn357
 
-;;; repoint to new tables:
+;;; *Address are tied to Patch.rs*
+;;; Missile is overwritten to AMMO depending on QOL, this is handled in patch.rs (fn write_ammo_or_missile_refil)
+;;; if this table is ever extended then this address will also need to be changed.
+
+;;; repoint vanilla instructions to new table offsets:
 
 org $858412
   lda SpecialButtonOffset, x
@@ -79,10 +83,13 @@ dw  $0000, ; 1: Energy tank
     $0000, ; 1Eh: Walljump boots
     $0120, ; 1Fh: Blue booster
     $0120, ; 20h: Spark booster
-    $0000, ; 21h: Reserved (small msg box)
-    $0000, ; 22h: Reserved (small msg box)
-    $0000, ; 23h: Reserved (small msg box)
+    $0000, ; 21h: Reserved (small msg box template in place)
+    $0000, ; 22h: Reserved (small msg box template in place)
+    $0000, ; 23h: Reserved (small msg box template in place)
     $0000  ; 24h: Terminator
+
+;;; These tilemaps contain the same palette adjustments / tile adjustments as the hud_expansion/messages.ttb
+;;; Plus the tile patches from max_ammo_display_fast.asm
 
 MsgTilemaps:
 MsgTilemap_Etank:

@@ -1365,6 +1365,8 @@ impl Patcher<'_> {
     }
 
     fn write_ammo_or_missile_refil(&mut self) -> Result<()> {
+        // this overwrites the missile refill tilemap, if adjusting the extended message boxes table this
+        // will also need to be adjusted.
         let extended_msg_boxes = self.settings.other_settings.wall_jump == WallJump::Collectible
             || self.settings.other_settings.speed_booster == SpeedBooster::Split;
         if self.settings.quality_of_life_settings.ammo_refill_all {
