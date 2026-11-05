@@ -187,4 +187,3 @@ MsgTilemap_Reserved2:
 MsgTilemap_Reserved3:
     dw $000E, $000E, $000E, $000E, $000E, $000E, $280F, $280F, $280F, $280F, $280F, $280F, $280F, $280F, $280F, $280F, $280F, $280F, $280F, $280F, $280F, $280F, $280F, $280F, $280F, $000E, $000E, $000E, $000E, $000E, $000E, $000E
 MsgTilemap_End:
-print pc

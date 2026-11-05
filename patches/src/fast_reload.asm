@@ -188,7 +188,6 @@ hook_main:
     pea $f70d    ; $82f70e = rtl
     jml !deathhook82
 
-print pc
 assert pc() <= !bank_85_free_space_end
 
 org !spin_lock_button_combo
