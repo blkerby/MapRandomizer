@@ -1,5 +1,5 @@
-!bank_85_free_space_start = $859800
-!bank_85_free_space_end = $859880
+!bank_85_free_space_start = $85A050
+!bank_85_free_space_end = $85A077
 
 incsrc "constants.asm"
 
