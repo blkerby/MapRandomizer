@@ -627,23 +627,6 @@ impl Patcher<'_> {
             patches.push("extended_msg_boxes");
         }
 
-        if self.settings.quality_of_life_settings.ammo_refill_all {
-            let base = if extended_msg_boxes {
-                0x85933B
-            } else {
-                0x8592FF
-            };
-            let ammo_row: [u16; 32] = [
-                0x000E, 0x000E, 0x000E, 0x000E, 0x000E, 0x000E, 0x2C0F, 0x2C0F, 0x2C0F, 0x2C0F,
-                0x2CC0, 0x2CCC, 0x2CCC, 0x2CCE, 0x2C0F, 0x2CD1, 0x2CC4, 0x2CCB, 0x2CCE, 0x2CC0,
-                0x2CC3, 0x2C0F, 0x2C0F, 0x2C0F, 0x2C0F, 0x2C0E, 0x000E, 0x000E, 0x000E, 0x000E,
-                0x000E, 0x000E,
-            ];
-            for (i, &word) in ammo_row.iter().enumerate() {
-                self.rom.write_u16(snes2pc(base) + i * 2, word as isize)?;
-            }
-        }
-        
         match self.settings.quality_of_life_settings.etank_refill {
             ETankRefill::Disabled => {
                 patches.push("etank_refill_disabled");
@@ -1377,6 +1360,28 @@ impl Patcher<'_> {
             };
             self.rom
                 .write_u16(ptr + 2, (entrance_door_ptr & 0xFFFF) as isize)?;
+        }
+        Ok(())
+    }
+
+    fn write_ammo_or_missile_refil(&mut self) -> Result<()> {
+        let extended_msg_boxes = self.settings.other_settings.wall_jump == WallJump::Collectible
+            || self.settings.other_settings.speed_booster == SpeedBooster::Split;
+        if self.settings.quality_of_life_settings.ammo_refill_all {
+            let base = if extended_msg_boxes {
+                0x85933B
+            } else {
+                0x8592FF
+            };
+            let ammo_row: [u16; 32] = [
+                0x000E, 0x000E, 0x000E, 0x000E, 0x000E, 0x000E, 0x2C0F, 0x2C0F, 0x2C0F, 0x2C0F,
+                0x2CC0, 0x2CCC, 0x2CCC, 0x2CCE, 0x2C0F, 0x2CD1, 0x2CC4, 0x2CCB, 0x2CCE, 0x2CC0,
+                0x2CC3, 0x2C0F, 0x2C0F, 0x2C0F, 0x2C0F, 0x2C0E, 0x000E, 0x000E, 0x000E, 0x000E,
+                0x000E, 0x000E,
+            ];
+            for (i, &word) in ammo_row.iter().enumerate() {
+                self.rom.write_u16(snes2pc(base) + i * 2, word as isize)?;
+            }
         }
         Ok(())
     }
@@ -3912,6 +3917,7 @@ pub fn make_rom(
     {
         patcher.use_area_based_music()?;
     }
+    patcher.write_ammo_or_missile_refil()?;
     patcher.setup_door_specific_fx()?;
     if randomizer_settings.quality_of_life_settings.camera_fixes {
         //nn note - the cre wasn't applied in ultralow qol, is this also camera fixes or some other reason - check this too!
