@@ -1,12 +1,11 @@
-9643 - 96AF: [FREE]
-96B0 - 97C1: ; extended_msg_boxes.asm
-9800 - 9827: ; spin_lock.asm
+9643 - 987B: ; extended_msg_boxes.asm
 9880 - 993A: ; fast_reload.asm
 9980 - 9A23: ; stats.asm
 9B00 - 9B1B: ; fix_hyper_slowlock.asm
 9B20 - 9FEF: ; pause_menu_objectives.asm
 9FF0 - A012: ; vanilla_fanfare_stop_sounds.asm
-A050 - A0FF: [FREE]
+A050 - A07A: ; spin_lock.asm
+A07B - A0FF: [FREE]
 A100 - A16A: ; fix_transition_bad_tiles.asm
 A1D6 - A23C: ; special_door_reveal.asm
 A280 - A283: ; map_area.asm
