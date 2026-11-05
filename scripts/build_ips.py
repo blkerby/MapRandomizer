@@ -139,7 +139,11 @@ whitelist_dict = {
         ['max_ammo_display_fast', 0x858851, 0x858A93],
         ['max_ammo_display_fast', 0x9AB542, 0x9AB6C0],
         ['missile_refill_all', 0x8592FF, 0x85933F],
-        ['Area Palettes', 0x82E569, 0x82E56C]
+        ['Area Palettes', 0x82E569, 0x82E56C],
+        ['extended_msg_boxes', 0x85877F, 0x859643]
+    ],
+    'extended_msg_boxes': [
+        ['hud_expansion_opaque', 0x85877F, 0x859643]
     ],
     'fast_saves': [
         ['itemsounds', 0x858089, 0x85808B],

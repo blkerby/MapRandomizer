@@ -34,4 +34,4 @@ hook_spin_lock:
     lda $0A1C
     asl A
     rtl
-warnpc !bank_85_free_space_end
+assert pc() <= !bank_85_free_space_end
