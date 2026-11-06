@@ -1,5 +1,5 @@
-!bank_85_free_space_start = $859800
-!bank_85_free_space_end = $859880
+!bank_85_free_space_start = $85A050
+!bank_85_free_space_end = $85A07A
 
 incsrc "constants.asm"
 
@@ -34,4 +34,4 @@ hook_spin_lock:
     lda $0A1C
     asl A
     rtl
-warnpc !bank_85_free_space_end
+assert pc() <= !bank_85_free_space_end

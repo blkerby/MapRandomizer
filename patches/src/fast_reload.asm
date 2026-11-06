@@ -10,8 +10,8 @@ arch 65816
 !bank_80_free_space_end = $80d330
 !bank_82_free_space_start = $82FE70
 !bank_82_free_space_end = $82FE80
-!bank_85_free_space_start = $859880
-!bank_85_free_space_end = $859980
+!bank_85_free_space_start = $85c900
+!bank_85_free_space_end = $85cC9DF
 
 !savestate_button_combo = $82FE78  ; This should be inside free space, and also consistent with reference in customize.rs
 !loadstate_button_combo = $82FE7A   ; This should be inside free space, and also consistent with reference in customize.rs

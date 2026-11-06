@@ -404,26 +404,7 @@ HUD_digits_tilemap_row1:
 	dw $0000, $0001, $0002, $0003, $0004, $0005, $0006, $0007, $0008, $0009
 
 
-warnpc !bank_80_free_space_end
-
-;;; 85/ MISSILE/SUPER/POWER BOMB message tilemaps
-org $858851
-	dw $280F, $280F, $280F
-
-org $858891
-	dw $3049, $304A, $304B
-
-org $858951
-	dw $280F, $280F, $280F
-
-org $858993
-	dw $3034, $3035
-
-org $858A4F
-        dw $280F, $280F
-
-org $858A8F
-        dw $3036, $7036
+assert pc() <= !bank_80_free_space_end
 
 ;;; 9A/$B200: Standard BG3 tiles ;;;
 org $9AB542
