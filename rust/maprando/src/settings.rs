@@ -1427,6 +1427,9 @@ fn upgrade_map_setting(
         map_settings.area_assignment = None;
         settings["map_settings"] = serde_json::to_value(map_settings)?;
     }
+    let reject_nearby = settings["map_settings"]["preset"]
+        .as_str()
+        .is_some_and(|preset| preset != "Wild");
     if let Some(generation) = settings["map_settings"]["generation"].as_object_mut() {
         generation
             .entry("door_balance_strength")
@@ -1434,6 +1437,12 @@ fn upgrade_map_setting(
         generation
             .entry("max_graph_diameter")
             .or_insert(42.0.into());
+        generation
+            .entry("reject_nearby_save_rooms")
+            .or_insert(reject_nearby.into());
+        generation
+            .entry("reject_nearby_refill_stations")
+            .or_insert(reject_nearby.into());
     }
     if apply_presets {
         let mut map_settings: MapSettings =

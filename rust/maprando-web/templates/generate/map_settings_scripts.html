@@ -23,6 +23,8 @@ function applyMapSettings(settings) {
     if (mapSettings.generation.max_graph_diameter === undefined) {
         mapSettings.generation.max_graph_diameter = mapPresets.Standard.generation.max_graph_diameter;
     }
+    mapSettings.generation.reject_nearby_save_rooms ??= false;
+    mapSettings.generation.reject_nearby_refill_stations ??= false;
     for (const group of Object.keys(mapGenerationPresetFields)) processMapGenerationPreset(group);
     for (const field of ['maridia_water', 'norfair_heat']) {
         const preset = mapSettings.generation[field].preset;
@@ -107,6 +109,11 @@ function mapLandmarkChanged(landmark, checked) {
     mapSettingsChanged();
 }
 
+function mapBooleanChanged(field, value) {
+    mapSettings.generation[field] = value === 'true';
+    mapSettingsChanged();
+}
+
 function mapNumberChanged(input) {
     const path = input.dataset.mapNumber.split('.');
     let target = mapSettings.generation;
@@ -146,6 +153,9 @@ function renderMapSettings() {
     }
     document.getElementById('mapSource').value = mapSettings.source;
     select('size', mapSettings.source !== 'vanilla' && g.small_map ? 'Small' : 'Full');
+    for (const field of ['reject_nearby_save_rooms', 'reject_nearby_refill_stations']) {
+        select(field, String(g[field]));
+    }
     for (const [group, [presetField]] of Object.entries(mapGenerationPresetFields)) {
         select(group, g[presetField]);
     }

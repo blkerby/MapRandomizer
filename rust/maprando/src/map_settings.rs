@@ -91,7 +91,9 @@ pub struct MapGenerationSettings {
     pub max_graph_diameter: Option<f64>,
     pub reward_graph_diameter: f64,
     pub reward_save_distance: f64,
+    pub reject_nearby_save_rooms: bool,
     pub reward_refill_distance: f64,
+    pub reject_nearby_refill_stations: bool,
     pub reward_area_distinct_crossing: f64,
 }
 
@@ -292,7 +294,9 @@ impl MapSettings {
                 max_graph_diameter: Some(42.0),
                 reward_graph_diameter: 0.2,
                 reward_save_distance: 0.2,
+                reject_nearby_save_rooms: preset != MapPreset::Wild,
                 reward_refill_distance: 0.1,
+                reject_nearby_refill_stations: preset != MapPreset::Wild,
                 reward_area_distinct_crossing: 1.0,
             },
             area_assignment: None,

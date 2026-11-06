@@ -4846,7 +4846,9 @@
             ],
             "max_graph_diameter": 45.0,
             "reward_graph_diameter": 0.1,
+            "reject_nearby_save_rooms": true,
             "reward_save_distance": 0.1,
+            "reject_nearby_refill_stations": true,
             "reward_refill_distance": 0.1,
             "reward_area_distinct_crossing": 1.0
         },

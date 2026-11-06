@@ -178,6 +178,21 @@
                         </div>
                         <div class="form-group row align-items-center my-3">
                             <div class="col-lg-4 d-flex align-items-center my-1">
+                                <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-target="#mapRejectNearbySavesHelpModal" data-bs-toggle="modal">
+                                    <i class="bi bi-question-circle">
+                                    </i>
+                                </button>
+                                <span>Reject nearby saves</span>
+                            </div>
+                            <div class="col-2 btn-group" role="group" aria-label="Reject nearby saves" id="mapGroupreject_nearby_save_rooms">
+                                <input type="radio" class="btn-check map-generation-control" name="map_reject_nearby_save_rooms" id="mapRejectNearbySavesOff" value="false" onchange="mapBooleanChanged('reject_nearby_save_rooms', this.value)">
+                                <label class="btn btn-outline-primary" for="mapRejectNearbySavesOff">Off</label>
+                                <input type="radio" class="btn-check map-generation-control" name="map_reject_nearby_save_rooms" id="mapRejectNearbySavesOn" value="true" onchange="mapBooleanChanged('reject_nearby_save_rooms', this.value)">
+                                <label class="btn btn-outline-primary" for="mapRejectNearbySavesOn">On</label>
+                            </div>
+                        </div>
+                        <div class="form-group row align-items-center my-3">
+                            <div class="col-lg-4 d-flex align-items-center my-1">
                                 <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-target="#mapRefillDistanceHelpModal" data-bs-toggle="modal">
                                     <i class="bi bi-question-circle">
                                     </i>
@@ -186,6 +201,21 @@
                             </div>
                             <div class="col-lg-7 d-flex align-items-center">
                                 <input type="number" step="any" class="form-control map-generation-control" data-map-number="reward_refill_distance" aria-label="Refill distance reward" onchange="mapNumberChanged(this)">
+                            </div>
+                        </div>
+                        <div class="form-group row align-items-center my-3">
+                            <div class="col-lg-4 d-flex align-items-center my-1">
+                                <button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-target="#mapRejectNearbyRefillsHelpModal" data-bs-toggle="modal">
+                                    <i class="bi bi-question-circle">
+                                    </i>
+                                </button>
+                                <span>Reject nearby refill stations</span>
+                            </div>
+                            <div class="col-2 btn-group" role="group" aria-label="Reject nearby refill stations" id="mapGroupreject_nearby_refill_stations">
+                                <input type="radio" class="btn-check map-generation-control" name="map_reject_nearby_refill_stations" id="mapRejectNearbyRefillsOff" value="false" onchange="mapBooleanChanged('reject_nearby_refill_stations', this.value)">
+                                <label class="btn btn-outline-primary" for="mapRejectNearbyRefillsOff">Off</label>
+                                <input type="radio" class="btn-check map-generation-control" name="map_reject_nearby_refill_stations" id="mapRejectNearbyRefillsOn" value="true" onchange="mapBooleanChanged('reject_nearby_refill_stations', this.value)">
+                                <label class="btn btn-outline-primary" for="mapRejectNearbyRefillsOn">On</label>
                             </div>
                         </div>
                         <div class="form-group row align-items-center my-3">
@@ -620,7 +650,9 @@
 {% include "help/map/graph_diameter.html" %}
 {% include "help/map/max_graph_diameter.html" %}
 {% include "help/map/save_distance.html" %}
+{% include "help/map/reject_nearby_saves.html" %}
 {% include "help/map/refill_distance.html" %}
+{% include "help/map/reject_nearby_refill_stations.html" %}
 {% include "help/map/area_distinct_crossing.html" %}
 {% include "help/map/door_balance.html" %}
 {% include "help/map/relabel_completed_areas.html" %}
