@@ -1782,7 +1782,7 @@ assert pc() <= !bank_b6_freespace_end
 
 org !bank_85_freespace3_start    
 assert pc() == !map_icon_settings
-dw $0000  ; modified by customize.rs for toggling map tiles on / off. set bits high to disable tiles (bosses), (minibosses), (saves) 
+dw $0000  ; modified by customize.rs for toggling map tiles on / off. set bits high to disable tiles (bosses), (minibosses), (saves), (helmet) 
 
 
 ; write map icons and save markers to VRAM
@@ -1813,7 +1813,6 @@ write_sprites:
     LDA #$0060
     STA $36 ; initialize dachora state/frame count
 
-.no_animals
     PLY
     PLX
     PLB
@@ -1828,16 +1827,11 @@ sprite_table: ; [$b6xxxx, vram addr] .. null-terminated
 hook_map_icons:
     PHP
     PHB
-    
-; draw save slot markers
-    LDA !map_icon_settings ; test if draw saves disabled on generation?
-    BIT #$0004
-    BNE .finished_drawing_saves
     LDX #$0000
 .load_lp
     LDA $702602,X               ; area
     AND #$00FF
-    CMP #$0006                  ; valid area set?
+    CMP #$0006                  ; valid area?
     BCS .next
     CMP $1F5B                   ; current area?
     BNE .next
@@ -1845,134 +1839,112 @@ hook_map_icons:
     LDA $702603,X               ; sprite
     PHX                         ; save slot index
     PHA                         ; save sprite ID
-; adjust coords for scroll
     LDA $702604,X               ; coords
     JSR convert_coord_to_map
     PLA                         ; sprite
-; A=sprite, X/Y=adjusted coords
-    JSR draw_sprite
+    JSR draw_sprite             ; handles save/helmet toggles itself
     PLX                         ; index
-    
 .next
     INX #4
     CPX #$000C
     BNE .load_lp
+    
 .finished_drawing_saves
 ; draw ship/bosses/mini-bosses/animals if appropriate
-    LDX #$0000
     PHK
     PLB
-
+    LDY #$0000                  ; Y = marker table index
 .marker_lp
-    LDA marker_table,X          ; boss byte|bit or FFFF to skip check
-    BNE .valid_entry
-    JMP .exit
-    
-; check boss bit
-.valid_entry
-    PHX                         ; index
+    LDA marker_table,Y          ; boss byte|bit, $FFFF = always shown, 0 = end
+    BEQ .exit
     CMP #$FFFF
-    BEQ .boss_alive
+    BEQ .marker_draw
     PHA
-    AND #$FF00
     XBA
-    TAX
-    PLA
-
     AND #$00FF
-    AND $7ED828,X               ; boss bit set?
-    BEQ .boss_alive
-    PLA                         ; index
-    CMP #((marker_table_2-marker_table)*2) ; mother brain?
-    BEQ .check_animals
-    JMP .next_marker_2
+    TAX                         ; X = byte offset into $7ED828
+    PLA
+    AND #$00FF                  ; A = bit mask
+    AND $7ED828,X               ; boss defeated?
+    BEQ .marker_draw            ; no, show the marker
+    CPY #((marker_table_2-marker_table)*2) ; mother brain?
+    BNE .marker_next            ; other dead bosses just lose their marker
 
-.check_animals ; MB dead, skip to dachora table if animals enabled
+; mother brain dead: skip the remaining markers, show the animals instead
     LDA $7ED821
     AND #$0080                  ; already saved?
-    BNE .no_dachora
+    BNE .exit
+    JSR animate_dachora
+    LDY #(marker_table_dachora-marker_table)
+    BRA .marker_lp
 
-; determine which dachora state to show (blink animation)
-; $36: frame count, $37 = state (00-02)
+.marker_draw
+    JSR draw_marker
+.marker_next
+    TYA
+    CLC
+    ADC #(marker_table_2-marker_table) ; index++
+    TAY
+    BRA .marker_lp
+
+.exit
+    PLB
+    PLP
+    RTL
+    
+animate_dachora:
+; $36 = (blink state << 8) | frames left until the next change
     DEC $36
     LDA $36
-    AND #$00FF                  ; frames
-    BNE .no_change
-    LDA $36
-    XBA
-    AND #$00FF                  ; state
-    INC
-    CMP #$0003
-    BNE .no_wrap
-    LDA #$0060                  ; ~1.5s
-    BRA .save_state
-.no_wrap
-    XBA
-    EOR #$0004                  ; 4-frame delay between states
-.save_state
-    STA $36
-    XBA
     AND #$00FF
-    ASL #5                      ; state*20h
+    BNE .done                   ; still counting down
+    LDA $36                     ; low byte is 0 here, so A = state<<8
     CLC
-    ADC #dachora_icon_open      ; A = dachora_icon + state*20h
-; update VRAM based on state
+    ADC #$0100                  ; next state
+    CMP #$0300
+    BCC .short_delay
+    LDA #$0060                  ; wrapped to state 0, ~1.5s
+    BRA .set
+.short_delay
+    ORA #$0004                  ; 4-frame delay between states
+.set
+    STA $36
+    AND #$FF00                  ; state<<8
+    LSR #3                      ; state*20h
+    CLC
+    ADC #dachora_icon_open
     TAX
     LDA #$2980
-    JSR write_to_vram
+    JMP write_to_vram           ; tail call
+.done
+    RTS
 
-.no_change
-    LDX #(marker_table_dachora-marker_table) ; set index to dachora table
-    BRA .marker_lp              ; restart loop with new index
-.no_dachora
-    JMP .exit
-    
-.boss_alive
-    PLX                         ; index
-    PHX
-    LDA marker_table+2,X        ; state header
-    TAX
+draw_marker:
+; Y = marker table index (preserved)
+    PHY
+    LDX marker_table+2,Y        ; state header
     LDA $8F0010,X
     TAX
     LDA $B80000,X               ; area
     AND #$00FF
     CMP $1F5B                   ; current area?
-    BNE .next_marker
-    PLX                         ; index
-    PHX
-    LDA marker_table+4,X        ; room header
-    PHX
-    TAX
-    LDA $8F0000,X               ; x/y coords
-    PLX                         ; index
+    BNE .done
+
+    LDX marker_table+4,Y        ; room x/y coords
+    LDA $8F0000,X               ; A = y:x tile coords
     PHA
-    AND #$FF00
-    XBA
-    CPX #((marker_table_2-marker_table)*2)
-    BCS .not_ship_1
-    CLC
-    ADC #$0004                  ; landing site map y adjustment
-.not_ship_1
-    TAY
-    PLA
-    AND #$00FF
-    CPX #((marker_table_2-marker_table)*2)
-    BCS .not_ship_2
-    CLC
-    ADC #$0004                  ; landing site map x adjustment
-.not_ship_2
-    TAX
+    CPY #((marker_table_2-marker_table)*2)
+    BCS .not_ship
+    ADC #$0404                  ; ships: +4 tiles x and y (carry is clear here)
+.not_ship
     JSR check_partial_reveal
-    BCC .next_marker
-    PLX                         ; index
-    PHX
-    PHX
-    LDA marker_table+4,X        ; room coords
-    TAX
-    LDA $8F0000,X
-    JSR convert_coord_to_map
+    PLA                         ; room coords (PLA doesn't touch carry)
+    BCC .done
+
+    JSR convert_coord_to_map    ; X,Y = pixel position
     TXA
-    PLX                         ; index
+    PLX                         ; peek the index
+    PHX
     CLC
     ADC marker_table+8,X        ; sprite x adjustment
     PHA
@@ -1981,20 +1953,11 @@ hook_map_icons:
     ADC marker_table+10,X       ; sprite y adjustment
     TAY
     LDA marker_table+6,X        ; sprite id
-    PLX
+    PLX                         ; adjusted x
     JSR draw_sprite
-.next_marker
-    PLA                         ; index
-.next_marker_2
-    CLC
-    ADC #(marker_table_2-marker_table) ; index++
-    TAX
-    JMP .marker_lp
-
-.exit
-    PLB
-    PLP
-    RTL
+.done
+    PLY
+    RTS
 
 ; marker table format
 ; boss bit ($7ED828 byte | bit), state header address, room header coords, sprite id, x adjustment, y adjustment
@@ -2021,171 +1984,123 @@ marker_table_dachora:
     dw $0000
     
 convert_coord_to_map:
-; A = coords (x,y)
-; returns X,Y
-    TAX
-    AND #$00FF
-    ASL
-    ASL
-    ASL
-    SEC
-    SBC $B1
-    PHA
-    TXA
-    PLX
-    AND #$FF00
+; A = coords (x low byte, y high byte)
+; returns X,Y = pixel position relative to map scroll
+    TAX                         ; keep copy
     XBA
-    ASL
-    ASL
-    ASL
+    AND #$00FF                  ; y
+    ASL #3
     SEC
     SBC $B3
     TAY
+    TXA
+    AND #$00FF                  ; x
+    ASL #3
+    SEC
+    SBC $B1
+    TAX
     RTS
 
 write_to_vram:
 ; constant: size = 0x20, src bank = $b6
 ; A = vram addr
 ; X = src addr
-    PHA
-    PHX
+; queues a 7-byte entry at $D0+$0330: size, src addr, bank, vram addr
+    PHA                         ; vram addr
+    PHX                         ; src addr
     LDX $0330
     LDA #$0020
-    STA $D0,x
-    INX
-    INX
+    STA $D0,x                   ; size
     PLA
-    STA $D0,x
-    INX
-    INX
+    STA $D2,x                   ; src addr
     LDA #$00B6
-    STA $D0,x
-    INX
+    STA $D4,x                   ; bank (spills $00 into +5)
     PLA
-    STA $D0,x
-    INX
-    INX
-    STX $0330
+    STA $D5,x                   ; vram addr, overwrites the spill
+    TXA
+    CLC
+    ADC #$0007
+    STA $0330
     RTS
 
 check_partial_reveal:
-; X = x map coord
-; Y = y map coord
-; result in carry flag
-    PHP
-    TXA
-    AND #$00FF
-    PHA
-    AND #$0020
-    STA $22
-    PLA
-    AND #$001F
-    STA $12
-    AND #$0007
-    PHA                 ; save bit subindex of tile
-    LDA $12
-    LSR
-    LSR
-    LSR
-    STA $14
-    TYA
-    AND #$00FF
+; A = packed tile coords (x low byte, y high byte)
+; returns carry set if the tile is partially revealed
+    TAX                         ; keep y:x copy
+    XBA
+    AND #$00FF                  ; y
     INC
-    STA $16
-    CLC
-    ADC $22
-    ASL
-    ASL
-    CLC
-    ADC $14
-    TAX
-    SEP #$20
+    ASL #2                      ; (y+1)*4
+    STA $12
     TXA
-    XBA
-    LDA $1F5B
-    XBA
+    AND #$0020
+    ASL #2                      ; x >= 32 ? $80 : 0 (right half of map)
+    CLC
+    ADC $12
+    STA $12
+    TXA
+    AND #$0018
+    LSR #3                      ; byte column 0-3
+    CLC
+    ADC $12                     ; byte offset within area
+    STA $12
+
+    TXA
+    AND #$0007
     TAX
-    LDA $702700,X       ; partial revealed byte
-    PLX                 ; bit subindex of ship tile
-    AND $90AC04,X       ; check bit
-    BEQ .not_revealed
-    PLP
-    SEC
+    LDA $90AC04,X               ; bit mask for x&7
+    AND #$00FF
+    STA $14
+
+    LDA $1F5B
+    AND #$00FF
+    XBA                         ; area*$100
+    ORA $12
+    TAX
+    LDA $702700,X               ; partial revealed byte
+    AND $14
+    CMP #$0001                  ; carry = (A != 0)
     RTS
     
-.not_revealed
-    PLP
-    CLC
-    RTS
-
 draw_sprite:
 ; A=sprite, X/Y=coords
-    CPY #$0020          ; check if above top map border
-    BCC .sprite_is_disabled
+    CPY #$0020                  ; above top map border?
+    BCC .return
     AND #$007F
-    BRA .check_sprites
-.sprite_enabled
-    PHA                 ; sprite
-    CMP #$0008
-    BEQ .save_icon
-    CMP #$000E
-    BEQ .save_icon
-    CMP #$000F
-    BEQ .save_icon
-    CMP #$0018
-    BEQ .dachora
-    CMP #$008D
-    BEQ .helmet
-    CMP #$004F
-    BCS .dachora
-
-.helmet
-    LDA #$0E00          ; helmet/ship/boss palette
-    BRA .write
-.dachora
-    LDA #$0800          ; dachora palette
-    BRA .write
-.save_icon
-    LDA #$0400          ; save icon palette
-
-.write
+    PHA                         ; sprite id for the draw call
+    CMP #$004F                  ; fold $4F-$52 onto table slots $19-$1C
+    BCC .lookup
+    SBC #$0036                  ; carry is already set
+.lookup
+    PHX                         ; keep x coord
+    TAX
+    LDA.l sprite_props,X        ; long, so it doesn't depend on DB
+    PLX
+    AND #$00FF
+    STA $03                     ; scratch
+    AND #$000F                  ; this sprite's disable bit(s)
+    AND.l !map_icon_settings
+    BNE .skip
+    LDA $03
+    AND #$00F0
+    ASL #5                      ; palette number -> OAM attr bits 9-11
     STA $03
-    PLA                 ; sprite
+    PLA                         ; sprite id
     JSL $81891F
-.sprite_is_disabled
+.return
+    RTS
+.skip
+    PLA
     RTS
 
-.check_sprites
-    PHA
-    CMP #$0013
-    BEQ .test_miniboss
-    CMP #$000A
-    BEQ .test_boss
-    CMP #$000B
-    BEQ .test_ship
-    CMP #$000C
-    BEQ .test_ship
-    BRA .sprite_not_disabled
-.test_boss   
-    LDA !map_icon_settings
-    AND #$0001                  
-    BRA .finished_spritecheck
-.test_miniboss
-    LDA !map_icon_settings
-    AND #$0002
-    BRA .finished_spritecheck
-.test_ship
-    LDA !map_icon_settings
-    AND #$0004              
-.finished_spritecheck
-    BNE .sprite_disabled
-.sprite_not_disabled
-    PLA
-    BRA .sprite_enabled
-.sprite_disabled
-    PLA
-    BRA .sprite_is_disabled
-    
+; (palette << 4) | disable mask in !map_icon_settings
+; palettes: 2 = save icon, 4 = dachora, 7 = helmet/ship/boss (default)
+sprite_props:
+    db $70,$70,$70,$70,$70,$70,$70,$70  ; 00-07
+    db $24,$70,$71,$74,$74,$78,$24,$24  ; 08 save, 0A boss, 0B/0C ship, 0D helmet, 0E/0F save
+    db $70,$70,$70,$72,$70,$70,$70,$70  ; 10-17 (13 = miniboss)
+    db $40,$40,$40,$40,$40              ; 18 dachora, 19-1C = 4F-52 dachora arms
+print pc    
 assert pc() <= !bank_85_freespace3_end
 
 ; Fixes FX for rare bug when entering right-sided door through East Pants Room
