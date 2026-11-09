@@ -18,7 +18,7 @@ use maprando::{
     spoiler_log::SpoilerLog,
     spoiler_map,
 };
-use maprando_game::{GameData, NotableId, RoomId, TechId};
+use maprando_game::{GameData, Item, NotableId, RoomId, TechId};
 use rand::{RngCore, SeedableRng};
 use serde::Serialize;
 
@@ -121,11 +121,19 @@ impl SeedHeaderTemplate<'_> {
     }
 
     fn item_pool_strs(&self) -> String {
+        let other = &self.settings.other_settings;
         self.settings
             .item_progression_settings
             .item_pool
             .iter()
             .filter(|x| x.count > 0)
+            .filter(|x| !(x.item == Item::WallJump && other.wall_jump == WallJump::Vanilla))
+            .filter(|x| match other.speed_booster {
+                SpeedBooster::Vanilla => {
+                    x.item != Item::SparkBooster && x.item != Item::BlueBooster
+                }
+                SpeedBooster::Split => x.item != Item::SpeedBooster,
+            })
             .map(|x| {
                 if x.count > 1 {
                     format!("{:?} ({})", x.item, x.count)
