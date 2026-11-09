@@ -1782,7 +1782,8 @@ assert pc() <= !bank_b6_freespace_end
 
 org !bank_85_freespace3_start    
 assert pc() == !map_icon_settings
-dw $0000  ; modified by customize.rs for toggling map tiles on / off. set bits high to disable tiles (bosses), (minibosses), (saves), (helmet) 
+dw $0000  ; modified by customize.rs for toggling map tiles on / off. 
+          ; set low nibble bits of low byte high to disable tiles (1 - bosses), (2 - minibosses), (4 - saves), (8 - helmet) 
 
 
 ; write map icons and save markers to VRAM
