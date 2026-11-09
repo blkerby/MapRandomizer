@@ -229,7 +229,7 @@ fn make_random_customization(app: &TestAppData) -> CustomizeSettings {
         boss_icons: true,
         save_icons: true,
         miniboss_icons: true,
-        helmet_spawn_icon: true,
+        start_location_icon: true,
         map_theme: maprando::customize::MapTheme::Light,
         palette_theme: maprando::customize::PaletteTheme::AreaThemed,
         tile_theme: maprando::customize::TileTheme::Vanilla,

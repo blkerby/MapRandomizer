@@ -250,7 +250,7 @@ fn main() -> Result<()> {
         save_icons: true,
         boss_icons: true,
         miniboss_icons: true,
-        helmet_spawn_icon: true,
+        start_location_icon: true,
         room_names: true,
         palette_theme: maprando::customize::PaletteTheme::AreaThemed,
         tile_theme: maprando::customize::TileTheme::Vanilla,

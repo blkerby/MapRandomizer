@@ -183,7 +183,7 @@ pub struct CustomizeSettings {
     pub save_icons: bool,
     pub boss_icons: bool,
     pub miniboss_icons: bool,
-    pub helmet_spawn_icon: bool,
+    pub start_location_icon: bool,
     pub reserve_hud_style: bool,
     pub vanilla_screw_attack_animation: bool,
     pub palette_theme: PaletteTheme,
@@ -210,7 +210,7 @@ impl Default for CustomizeSettings {
             save_icons: true,
             boss_icons: true,
             miniboss_icons: true,
-            helmet_spawn_icon: true,
+            start_location_icon: true,
             reserve_hud_style: true,
             vanilla_screw_attack_animation: true,
             room_names: true,
@@ -589,7 +589,7 @@ pub fn customize_rom(
     if !settings.save_icons {
         map_icon_settings |= 4;
     }
-    if !settings.helmet_spawn_icon {
+    if !settings.start_location_icon {
         map_icon_settings |= 8;
     }
 
