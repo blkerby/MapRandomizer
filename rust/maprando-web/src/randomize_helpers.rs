@@ -256,6 +256,7 @@ pub struct SeedFooterTemplate {
     ammo_refill_all: bool,
     supers_double: bool,
     settings: RandomizerSettings,
+    start_location_mode: String,
 }
 
 pub fn get_random_seed() -> usize {
@@ -573,6 +574,7 @@ pub fn render_seed(
         ammo_refill_all: seed_data.ammo_refill_all,
         supers_double: seed_data.supers_double,
         settings: seed_data.settings.clone(),
+        start_location_mode: seed_data.start_location_mode.clone(),
     };
     let seed_footer_html = seed_footer_template.render()?;
     Ok((seed_header_html, seed_footer_html))
