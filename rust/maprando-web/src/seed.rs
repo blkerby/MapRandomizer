@@ -182,6 +182,7 @@ struct CustomizeRequest {
     save_icons: Text<bool>,
     boss_icons: Text<bool>,
     miniboss_icons: Text<bool>,
+    start_location_icon: Text<bool>,
     room_names: Text<bool>,
     statues_hallway_tiling: Text<String>,
     statues_hallway_audio: Text<String>,
@@ -373,6 +374,7 @@ async fn customize_seed(
         boss_icons: req.boss_icons.0,
         miniboss_icons: req.miniboss_icons.0,
         save_icons: req.save_icons.0,
+        start_location_icon: req.start_location_icon.0,
         statues_hallway_tiling: match req.statues_hallway_tiling.0.as_str() {
             "Disabled" => StatuesHallwayTiling::Disabled,
             "Default" => StatuesHallwayTiling::Default,
