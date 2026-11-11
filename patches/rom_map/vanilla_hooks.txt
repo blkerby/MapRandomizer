@@ -553,10 +553,8 @@ EE41 - EE42: ; stats.asm
 811E - 8121: ; fast_reload.asm
 8122 - 8124: ; fast_saves.asm
 8150 - 8168: ; map_area.asm
-8243 - 8245: ; extended_msg_boxes.asm
 82E5 - 82E7: ; crash_handle_base.asm
 82EE - 82F0: ; crash_handle_base.asm
-82F1 - 82F3: ; extended_msg_boxes.asm
 840C - 840E: ; crash_handle_base.asm
 8426 - 8435: ; map_area.asm
 846D - 8471: ; item_dots_disappear.asm

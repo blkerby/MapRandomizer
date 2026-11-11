@@ -54,8 +54,3 @@ fill_ammo:
     rts
 
 assert pc() <= !bank_84_free_space_end
-
-; change MISSILE to AMMO
-org $8592FF
-    dw $000E, $000E, $000E, $000E, $000E, $000E, $2C0F, $2C0F, $2C0F, $2C0F, $2CC0, $2CCC, $2CCC, $2CCE, $2C0F, $2CD1, $2CC4, $2CCB, $2CCE, $2CC0, $2CC3, $2C0F, $2C0F, $2C0F, $2C0F, $2C0E, $000E, $000E, $000E, $000E, $000E, $000E
-assert pc() <= $8593BF
