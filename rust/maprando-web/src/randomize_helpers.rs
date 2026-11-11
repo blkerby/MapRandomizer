@@ -18,7 +18,7 @@ use maprando::{
     spoiler_log::SpoilerLog,
     spoiler_map,
 };
-use maprando_game::{GameData, NotableId, RoomId, TechId};
+use maprando_game::{GameData, Item, NotableId, RoomId, TechId};
 use rand::{RngCore, SeedableRng};
 use serde::Serialize;
 
@@ -121,11 +121,19 @@ impl SeedHeaderTemplate<'_> {
     }
 
     fn item_pool_strs(&self) -> String {
+        let other = &self.settings.other_settings;
         self.settings
             .item_progression_settings
             .item_pool
             .iter()
             .filter(|x| x.count > 0)
+            .filter(|x| !(x.item == Item::WallJump && other.wall_jump == WallJump::Vanilla))
+            .filter(|x| match other.speed_booster {
+                SpeedBooster::Vanilla => {
+                    x.item != Item::SparkBooster && x.item != Item::BlueBooster
+                }
+                SpeedBooster::Split => x.item != Item::SpeedBooster,
+            })
             .map(|x| {
                 if x.count > 1 {
                     format!("{:?} ({})", x.item, x.count)
@@ -138,11 +146,19 @@ impl SeedHeaderTemplate<'_> {
     }
 
     fn starting_items_strs(&self) -> String {
+        let other = &self.settings.other_settings;
         self.settings
             .item_progression_settings
             .starting_items
             .iter()
             .filter(|x| x.count > 0)
+            .filter(|x| !(x.item == Item::WallJump && other.wall_jump == WallJump::Vanilla))
+            .filter(|x| match other.speed_booster {
+                SpeedBooster::Vanilla => {
+                    x.item != Item::SparkBooster && x.item != Item::BlueBooster
+                }
+                SpeedBooster::Split => x.item != Item::SpeedBooster,
+            })
             .map(|x| {
                 if x.count > 1 {
                     format!("{:?} ({})", x.item, x.count)
@@ -248,6 +264,7 @@ pub struct SeedFooterTemplate {
     ammo_refill_all: bool,
     supers_double: bool,
     settings: RandomizerSettings,
+    start_location_mode: String,
 }
 
 pub fn get_random_seed() -> usize {
@@ -565,6 +582,7 @@ pub fn render_seed(
         ammo_refill_all: seed_data.ammo_refill_all,
         supers_double: seed_data.supers_double,
         settings: seed_data.settings.clone(),
+        start_location_mode: seed_data.start_location_mode.clone(),
     };
     let seed_footer_html = seed_footer_template.render()?;
     Ok((seed_header_html, seed_footer_html))
