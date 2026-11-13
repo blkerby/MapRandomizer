@@ -2082,10 +2082,11 @@ impl<'a> MapPatcher<'a> {
 
         // Per animated location, store the two rendered tile words for each room map
         // whose padded tilemap contains that location.
-        let mut animated_room_entries: HashMap<
-            (AreaIdx, isize, isize),
-            Vec<(RoomPtr, TilemapWord, TilemapWord)>,
-        > = HashMap::new();
+        type AnimatedRoomKey = (AreaIdx, isize, isize);
+        type AnimatedRoomEntry = (RoomPtr, TilemapWord, TilemapWord);
+        type AnimatedRoomEntries = HashMap<AnimatedRoomKey, Vec<AnimatedRoomEntry>>;
+
+        let mut animated_room_entries: AnimatedRoomEntries = HashMap::new();
 
         for &room_ptr in &self.game_data.room_ptrs {
             let room_id = self.game_data.raw_room_id_by_ptr[&room_ptr];
@@ -2226,13 +2227,11 @@ impl<'a> MapPatcher<'a> {
             let table_entry_addr = ANIMATED_TABLE_ADDR + i * ANIMATED_ENTRY_SIZE;
             self.rom
                 .write_u8(snes2pc(table_entry_addr), area as isize)?;
-            self.rom.write_u16(
-                snes2pc(table_entry_addr + 1),
-                (x - self.area_offset_x[area]) as isize,
-            )?;
+            self.rom
+                .write_u16(snes2pc(table_entry_addr + 1), x - self.area_offset_x[area])?;
             self.rom.write_u16(
                 snes2pc(table_entry_addr + 3),
-                (y - self.area_offset_y[area] + 1) as isize,
+                y - self.area_offset_y[area] + 1,
             )?;
             self.rom
                 .write_u8(snes2pc(table_entry_addr + 5), (items[0] / 8) as isize)?;
@@ -2250,7 +2249,7 @@ impl<'a> MapPatcher<'a> {
             let local_y = y - self.area_offset_y[area];
             let (reveal_offset, reveal_bitmask) = xy_to_explored_bit_ptr(local_x, local_y);
             self.rom
-                .write_u16(snes2pc(table_entry_addr + 11), reveal_offset as isize)?;
+                .write_u16(snes2pc(table_entry_addr + 11), reveal_offset)?;
             self.rom
                 .write_u16(snes2pc(table_entry_addr + 13), reveal_bitmask as isize)?;
             self.rom.write_u16(
