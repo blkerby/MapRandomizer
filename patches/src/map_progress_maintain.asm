@@ -2,9 +2,13 @@ arch snes.cpu
 lorom
 
 !map_reveal_tile_table = $90FA00  ; must match reference in patch.rs (fn write_map_reveal_tiles)
+
 !bank_90_freespace_start = $90F700
 !bank_90_freespace_end = $90F800
-
+!bank_90_freespace_2_start = $90FB00
+!bank_90_freespace_2_end = $90FC00
+!bank_90_freespace_3_start = $90FD00
+!bank_90_freespace_3_end = $90FD40
 
 incsrc "constants.asm"
 
@@ -40,9 +44,9 @@ mark_progress:
 
     ; Samus hasn't moved to a new map tile, so skip updating the mini-map.
     ; Only update the flashing to mark Samus' location (unless minimap is disabled)
-    rep #$30 : dex  ; run hi-jacked instructions
-    lda $05F7
-    bne .minimap_disabled  
+    rep #$30 : dex    ; run hi-jacked instructions
+    lda $05F7         ; minimap disabled?
+    bne .exit  
 
     lda $05B5         ;\
     and #$0008        ;} If [8-bit frame counter] & 8 = 0:
@@ -50,14 +54,18 @@ mark_progress:
     lda $7EC680       ;\
     and #$E3FF        ;} give Samus position in mini-map palette 0 (orange color)
     sta $7EC680       ;/
-    bra .done
+    bra .check_minimap
 .flash_off:
     lda $7EC680       ;\
     ora #$0800        ;} give Samus position in mini-map palette 2 (explored map color)
     sta $7EC680       ;/
-.done:
-    plp
-    rtl
+
+.check_minimap
+    lda $05B5         ;\
+    and #$003f        ;} If [8-bit frame counter] & 0x3F = 0:
+    bne .exit  
+    jsr do_minimap_animation
+    bra .exit
 
 .moved:
     ; Samus has moved to a different map tile, so update the mini-map:
@@ -88,9 +96,9 @@ mark_progress:
     rep #$30 : dex  ; run hi-jacked instructions
 
     lda $05F7
-    bne .minimap_disabled
+    bne .exit
     jmp $A98E
-.minimap_disabled:
+.exit:
     plp
     rtl
 
@@ -387,13 +395,10 @@ fix_mb:
 
 assert pc() <= !bank_a4_free_space_end
 
-!bank_90_free_space_start = $90FD00
-!bank_90_free_space_end = $90FD40
-
 org $90aa29 ;;; jsr $ab75 (seam fix)
   jsr minimapfix
   
-org !bank_90_free_space_start
+org !bank_90_freespace_3_start
 
 minimapfix:
     lda $22
@@ -420,5 +425,72 @@ minimapfix:
     stz $27 : stz $29 : stz $2b
     rep #$20
     rts
+
+org !bank_90_freespace_3_end
+
+org !bank_90_freespace_2_start
+do_minimap_animation:
+    phy
     
-assert pc() <= !bank_90_free_space_end
+    ldx #$0000
+; minimap animation table format:
+;  dw x, dw y, dw hud_offset (x*2 + y*40), dw partial_reveal_offset, dw partial_reveal_bit, dw tile_a, dw tile_b ...
+;    0xffff terminated
+.anim_lp
+    lda !minimap_animate_table,x
+    cmp #$ffff          ; end of table?
+    beq .done_write
+    phx                 ; table ptr
+    lda !minimap_animate_table+4,x
+    cmp #$ffff          ; outside HUD?
+    beq .next
+    tay                 ; HUD tile ptr
+    lda !minimap_animate_table+6,x ; bit offset for tile
+    sta $0e
+    phx
+    tax
+    lda $702700,x       ; partial reveal bits
+    plx
+    and !minimap_animate_table+8,x ; revealed?
+    beq .next
+; now determine which palette
+    lda $0e
+    and #$00ff
+    phx
+    tax
+    lda $7f7,x          ; visited bits
+    plx
+    and !minimap_animate_table+8,x ; visited?
+    beq .palette_7
+    lda #$0800          ; palette 2
+    bra .save_palette
+.palette_7
+    lda #$1c00          ; palette 7
+.save_palette
+    sta $0e
+    phx
+    tyx                 ; HUD tile ptr
+    lda $7ec63c,x
+    and #$e3ff
+    plx                 ; table ptr
+    cmp !minimap_animate_table+10,x
+    bne .b_to_a
+    inx : inx           ; tile b
+.b_to_a
+    lda !minimap_animate_table+10,x
+.write
+    ora $0e             ; palette
+    tyx                 ; HUD tile ptr
+    sta $7ec63c,x       ; destination tile
+.next
+    pla                 ; table index
+    clc
+    adc #$000e
+    tax
+    bra .anim_lp
+    
+.done_write
+    ply
+    rts
+    
+assert pc() <= !bank_90_freespace_2_end

@@ -15,7 +15,7 @@ use maprando_game::{
     RoomGeometryDoor, RoomGeometryItem, RoomId, RoomPtr, util::sorted_hashmap_iter,
 };
 
-use super::{Rom, snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset};
+use super::{Rom, pc2snes, snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset};
 use anyhow::{Context, Result, bail};
 
 pub type TilemapOffset = u16;
@@ -2016,6 +2016,21 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn create_room_map_tilemaps(&mut self) -> Result<()> {
+        const ANIMATED_TABLE_ADDR: usize = 0xDFFB00;
+        const ANIMATED_LOCATION_COUNT: usize = 6;
+        const ANIMATED_ENTRY_SIZE: usize = 17;
+        const ANIMATED_LIST_ADDR: usize =
+            ANIMATED_TABLE_ADDR + ANIMATED_LOCATION_COUNT * ANIMATED_ENTRY_SIZE;
+        // (room header address, room-local x, room-local y)
+        const ANIMATED_LOCATIONS: [(usize, isize, isize); ANIMATED_LOCATION_COUNT] = [
+            (0xA1D8, 0, 0), // Billy Mays Room
+            (0x9C07, 1, 0), // Brinstar Reserve Tank Room
+            (0x99BD, 0, 1), // Green Pirates Shaft
+            (0xAC5A, 0, 0), // Norfair Reserve Tank Room
+            (0xD13B, 0, 2), // Watering Hole
+            (0xD4EF, 0, 0), // West Sand Pit
+        ];
+
         let mut dynamic_tiles_by_coords: HashMap<(AreaIdx, isize, isize), Vec<(ItemIdx, MapTile)>> =
             HashMap::new();
         for data in &self.dynamic_tile_data {
@@ -2024,15 +2039,53 @@ impl<'a> MapPatcher<'a> {
                 let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
                 let area = self.map.area[room_idx];
                 let coords = (area, map_tile.coords.0 as isize, map_tile.coords.1 as isize);
-                if !dynamic_tiles_by_coords.contains_key(&coords) {
-                    dynamic_tiles_by_coords.insert(coords, vec![]);
-                }
                 dynamic_tiles_by_coords
-                    .get_mut(&coords)
-                    .unwrap()
+                    .entry(coords)
+                    .or_default()
                     .push((item_idx, map_tile));
             }
         }
+
+        // Resolve the room header addresses to room IDs, then use the explicit
+        // room-local coordinates to identify the six animated map locations.
+        let mut animated_coords: Vec<(AreaIdx, isize, isize)> =
+            Vec::with_capacity(ANIMATED_LOCATION_COUNT);
+        for &(room_header, local_x, local_y) in &ANIMATED_LOCATIONS {
+            let room_id = self
+                .game_data
+                .room_ptr_by_id
+                .iter()
+                .find_map(|(&room_id, &room_ptr)| {
+                    (pc2snes(room_ptr) & 0xFFFF == room_header).then_some(room_id)
+                })
+                .with_context(|| {
+                    format!("Animated map room header ${room_header:04X} not found")
+                })?;
+            let coords = self
+                .get_room_coords(room_id, local_x, local_y)
+                .with_context(|| {
+                    format!("Could not resolve map coordinates for room header ${room_header:04X}")
+                })?;
+            let item_count = dynamic_tiles_by_coords
+                .get(&coords)
+                .map(|tiles| tiles.iter().filter(|(item_idx, _)| *item_idx < 512).count())
+                .unwrap_or(0);
+            if item_count != 2 {
+                bail!(
+                    "Expected two item-state tiles at animated room header ${room_header:04X} coordinate ({local_x}, {local_y}), found {item_count}"
+                );
+            }
+            animated_coords.push(coords);
+        }
+        let animated_coord_set: HashSet<(AreaIdx, isize, isize)> =
+            animated_coords.iter().copied().collect();
+
+        // Per animated location, store the two rendered tile words for each room map
+        // whose padded tilemap contains that location.
+        let mut animated_room_entries: HashMap<
+            (AreaIdx, isize, isize),
+            Vec<(RoomPtr, TilemapWord, TilemapWord)>,
+        > = HashMap::new();
 
         for &room_ptr in &self.game_data.room_ptrs {
             let room_id = self.game_data.raw_room_id_by_ptr[&room_ptr];
@@ -2081,6 +2134,8 @@ impl<'a> MapPatcher<'a> {
             };
             let mut dynamic_tile_data: Vec<(ItemIdx, TilemapOffset, TilemapWord)> = vec![];
 
+            // The padded tilemap is the map region that can be visible from this room,
+            // including tiles belonging to neighboring rooms.
             for y in -1..room_height + 1 {
                 for x in -2..room_width + 2 {
                     let (area, x1, y1) = self.get_room_coords(room_id, x, y).unwrap();
@@ -2093,17 +2148,38 @@ impl<'a> MapPatcher<'a> {
                     let word = add_tile(data);
                     tilemap.push(word);
 
-                    let empty_vec = vec![];
-                    for (item_idx, tile) in dynamic_tiles_by_coords
-                        .get(&(area, x1, y1))
-                        .unwrap_or(&empty_vec)
-                    {
-                        let data = self.render_tile(tile.clone())?;
-                        let word = add_tile(data);
-                        let local_x = x1 - self.area_offset_x[area];
-                        let local_y = y1 - self.area_offset_y[area];
-                        let offset = xy_to_map_offset(local_x, local_y) as TilemapOffset;
-                        dynamic_tile_data.push((*item_idx, offset, word));
+                    let coords = (area, x1, y1);
+                    let mut animated_words: Vec<TilemapWord> = Vec::with_capacity(2);
+                    if let Some(dynamic_tiles) = dynamic_tiles_by_coords.get(&coords) {
+                        for (item_idx, tile) in dynamic_tiles {
+                            let data = self.render_tile(tile.clone())?;
+                            let word = add_tile(data);
+                            let local_x = x1 - self.area_offset_x[area];
+                            let local_y = y1 - self.area_offset_y[area];
+                            let offset = xy_to_map_offset(local_x, local_y) as TilemapOffset;
+                            dynamic_tile_data.push((*item_idx, offset, word));
+
+                            // Keep the existing dynamic-tile order: the lower-priority item
+                            // is recorded first, followed by the higher-priority item.
+                            if animated_coord_set.contains(&coords) && *item_idx < 512 {
+                                animated_words.push(word);
+                            }
+                        }
+                    }
+
+                    if animated_coord_set.contains(&coords) {
+                        if animated_words.len() != 2 {
+                            bail!(
+                                "Expected two animated tile words for room {room_id} at map coordinate {:?}, found {}",
+                                coords,
+                                animated_words.len()
+                            );
+                        }
+                        animated_room_entries.entry(coords).or_default().push((
+                            room_ptr,
+                            animated_words[0],
+                            animated_words[1],
+                        ));
                     }
                 }
             }
@@ -2112,6 +2188,95 @@ impl<'a> MapPatcher<'a> {
             self.room_map_tilemap.insert(room_ptr, tilemap);
             self.room_map_dynamic_tiles
                 .insert(room_ptr, dynamic_tile_data);
+        }
+
+        // Table 1: db area, dw x, dw y, db item_1_byte, dw item_1_bit,
+        //         db item_2_byte, dw item_2_bit, dw reveal_offset, dw reveal_bitmask,
+        //         dw offset_room_ptrs (17 bytes per location).
+        // Table 2: repeated dw room_header, tile_a, tile_b entries, then dw $0000.
+        let mut list_addr = ANIMATED_LIST_ADDR;
+        for (i, coords) in animated_coords.iter().enumerate() {
+            let (area, x, y) = *coords;
+            let animated_tiles: Vec<(ItemIdx, MapTile)> = dynamic_tiles_by_coords
+                .get(coords)
+                .into_iter()
+                .flatten()
+                .filter_map(|(item_idx, tile)| {
+                    (*item_idx < 512).then_some((*item_idx, tile.clone()))
+                })
+                .collect();
+            if animated_tiles.len() != 2 {
+                bail!(
+                    "Expected two item tiles at animated map coordinate {:?}, found {}",
+                    coords,
+                    animated_tiles.len()
+                );
+            }
+            let items = [animated_tiles[0].0, animated_tiles[1].0];
+            let mut entries = animated_room_entries.remove(coords).unwrap_or_default();
+            entries.sort_unstable_by_key(|(room_ptr, _, _)| pc2snes(*room_ptr));
+
+            if entries.is_empty() {
+                bail!(
+                    "No room tilemaps contain animated map coordinate {:?}",
+                    coords
+                );
+            }
+
+            let table_entry_addr = ANIMATED_TABLE_ADDR + i * ANIMATED_ENTRY_SIZE;
+            self.rom
+                .write_u8(snes2pc(table_entry_addr), area as isize)?;
+            self.rom.write_u16(
+                snes2pc(table_entry_addr + 1),
+                (x - self.area_offset_x[area]) as isize,
+            )?;
+            self.rom.write_u16(
+                snes2pc(table_entry_addr + 3),
+                (y - self.area_offset_y[area] + 1) as isize,
+            )?;
+            self.rom
+                .write_u8(snes2pc(table_entry_addr + 5), (items[0] / 8) as isize)?;
+            self.rom.write_u16(
+                snes2pc(table_entry_addr + 6),
+                (1u16 << (items[0] % 8)) as isize,
+            )?;
+            self.rom
+                .write_u8(snes2pc(table_entry_addr + 8), (items[1] / 8) as isize)?;
+            self.rom.write_u16(
+                snes2pc(table_entry_addr + 9),
+                (1u16 << (items[1] % 8)) as isize,
+            )?;
+            let local_x = x - self.area_offset_x[area];
+            let local_y = y - self.area_offset_y[area];
+            let (reveal_offset, reveal_bitmask) = xy_to_explored_bit_ptr(local_x, local_y);
+            self.rom
+                .write_u16(snes2pc(table_entry_addr + 11), reveal_offset as isize)?;
+            self.rom
+                .write_u16(snes2pc(table_entry_addr + 13), reveal_bitmask as isize)?;
+            self.rom.write_u16(
+                snes2pc(table_entry_addr + 15),
+                (list_addr & 0xFFFF) as isize,
+            )?;
+
+            // No animation needed if both items produce identical tiles.
+            if entries.iter().all(|(_, tile_a, tile_b)| tile_a == tile_b) {
+                self.rom.write_u16(snes2pc(list_addr), 0)?;
+                list_addr += 2;
+                continue;
+            }
+
+            for (room_ptr, tile_a, tile_b) in entries {
+                self.rom
+                    .write_u16(snes2pc(list_addr), (pc2snes(room_ptr) & 0xFFFF) as isize)?;
+                self.rom
+                    .write_u16(snes2pc(list_addr + 2), (tile_a & 0xe3ff) as isize)?;
+                self.rom
+                    .write_u16(snes2pc(list_addr + 4), (tile_b & 0xe3ff) as isize)?;
+                list_addr += 6;
+            }
+
+            self.rom.write_u16(snes2pc(list_addr), 0)?;
+            list_addr += 2;
         }
 
         Ok(())

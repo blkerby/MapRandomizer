@@ -195,6 +195,9 @@ startup:
     lda #$0006  ; Start in game state 6 (Loading game data) instead of 0 (Intro) or 5 (File select map)
     sta !GameStartState
 .end
+    lda #$ffff                 ; minimap animation flag
+    sta !minimap_settings      ; "new room"
+    sta !minimap_animate_table ; animation table
     lda !GameStartState
     rtl
 

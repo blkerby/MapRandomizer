@@ -7,6 +7,8 @@ lorom
 
 !bank_82_freespace_start = $82FD00
 !bank_82_freespace_end = $82FD80
+!bank_83_freespace_start = $83b5f0
+!bank_83_freespace_end = $83b700
 
 incsrc "constants.asm"
 
@@ -67,7 +69,7 @@ door_transition_hook:
 warnpc !bank_82_freespace_end
 
 ; Free space in any bank:
-org $83B600
+org !bank_83_freespace_start
 
 start_game_hook:
     sta $7EC380,x  ; run hi-jacked instruction
@@ -143,6 +145,7 @@ update_hud_tilemap:
     rep #$20
     lda #$0000
     sta !last_samus_map_y  ; reset Samus map Y coordinate, to trigger minimap to update
+    jsl $82be5a            ; trampoline in animated_map_tiles.asm
     ply
     plx
     plp
@@ -220,4 +223,4 @@ update_pause_tilemap:
     plp
     rtl
 
-warnpc $83B700
+warnpc !bank_83_freespace_end
