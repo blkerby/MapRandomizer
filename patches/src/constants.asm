@@ -70,3 +70,6 @@
 !savestate_state = $707F08
 !savestate_exists_mask = $0001
 !savestate_save_used_mask = $0002
+
+!minimap_settings = $7EF5B0
+!minimap_animate_table = $7EF5C0

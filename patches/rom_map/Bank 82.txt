@@ -3,7 +3,7 @@
 A3D9 - A424: [free] [unused vanilla code] - 76 bytes
 B5E8 - B62A: [free] [unused vanilla code] - 67 bytes
 B650 - B671: [free] [unused vanilla code] - 34 bytes
-BE5A - BF03: [free] [unused vanilla code] - 170 bytes
+BE5A - BF03: animated_map_tiles.asm
 E675 - E6A1: [mosaic] Area Palettes.asm [uses 16 bytes / 29 bytes free]
 F404 - F417: ; vanilla_bugfixes.asm
 
