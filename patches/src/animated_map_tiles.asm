@@ -257,7 +257,7 @@ org !bank_90_free_space_start
 ; $7ef5b0 = animated tile flag: ffff = new room, 0 = no match, 1 = match, 2 = only update HUD offsets)
 ; $7ef5b2 = curr map x
 ; $7ef5b4 = curr map y
-; $7ef5b6 = room relevance bitfield (either room has double-item or is adjacent to one)
+; $7ef5b6 = room relevance bitfield (either: room has double-item or is adjacent to one)
 ; $7ef5c0 = current animation table
 ;   format: db hud_tile_offset, dw reveal_offset, dw reveal_bit, dw tile_a, dw tile_b .... 0xffff terminated
 !animated_tiles = $dffb00
@@ -287,10 +287,10 @@ check_coords:
     lda $8085b6,x           ; dw 0001, 0002, 0004, 0008, 0010, 0020, 0040, 0080
     and !minimap_settings+6 ; check relevance bitmask
     bne .match
-    plx
+    plx                     ; table ptr
     bra .next
 .match
-    plx
+    plx                     ; table ptr
     lda #$0001              ; set match flag
     bra .done
     
@@ -347,14 +347,14 @@ hook_post_minimap:
     sbc $16                 ; y-coord
     inc
     asl
-    phx
+    phx                     ; table ptr
     tax
     lda $cd08,x             ; dw 0000, 0040, 0080
-    plx
+    plx                     ; table ptr
     clc
     adc !minimap_animate_table+4,x
 ; sanity check location
-    pha
+    pha                     ; hud offset
     cmp #$0089              ; max is 0x88
     bcs .invalid
     and #$003f
@@ -362,16 +362,16 @@ hook_post_minimap:
     bcs .invalid
     and #$0001              ; and even
     bne .invalid
-    pla
+    pla                     ; hud offset
     bra .write
 .invalid
-    pla
+    pla                     ; hud offset
     lda #$ffff
 .write
     sta !minimap_animate_table+4,x
     txa
     clc
-    adc #$000e
+    adc #$000e              ; table entry++
     tax
     bra .hud_lp
    
@@ -389,18 +389,18 @@ hook_post_minimap:
     sta $0a
     
 .build_lp
-    phx
+    phx                     ; table ptr
     tya
     asl
     tax
     lda !minimap_settings+6
     and $8085b6,x           ; dw 0001, 0002, 0004, 0008, 0010, 0020, 0040, 0080
     bne .revealed
-    plx
+    plx                     ; table ptr
     jmp .next
     
 .revealed
-    plx
+    plx                     ; table ptr
     lda !animated_tiles,x
     and #$00ff
     cmp $1f5b               ; area match?
@@ -411,18 +411,18 @@ hook_post_minimap:
 .check_item_bit
     lda !animated_tiles+5,x
     and #$00ff
-    phx
+    phx                     ; table ptr
     tax
     lda $7ED870,x
-    plx
+    plx                     ; table ptr
     and !animated_tiles+6,x
     bne .item_acquired
     lda !animated_tiles+8,x
     and #$00ff
-    phx
+    phx                     ; table ptr
     tax
     lda $7ED870,x
-    plx
+    plx                     ; table ptr
     and !animated_tiles+9,x
     beq .match
 .item_acquired
@@ -430,8 +430,8 @@ hook_post_minimap:
 
 .match
 ; now get offset and check which room for appropriate tiles
-    phx                     ; save animation lookup ptr
-    phy
+    phx                     ; table ptr
+    phy                     ; i
     lda !animated_tiles+15,x ; rooms ptr
     txy
     tax
@@ -442,19 +442,19 @@ hook_post_minimap:
     beq .found_room
     txa
     clc
-    adc #$0006
+    adc #$0006              ; room++
     tax
     bra .rooms_lp
 .not_found_jmp
     jmp .not_found
     
 .found_room
-    phx
+    phx                     ; table ptr
     tyx
     lda !animated_tiles+1,x
     sta [$08]               ; save x
     inc $08 : inc $08
-    pha
+    pha                     ; x
     lda !animated_tiles+3,x
     sta [$08]               ; save y
     inc $08 : inc $08
@@ -462,32 +462,32 @@ hook_post_minimap:
     sbc $16                 ; y-coord
     inc
     asl
-    pha
+    pha                     ; y*2
     cmp #$0005
     bcs .out_of_range       ; reject > 4
     and #$0001
     bne .out_of_range       ; reject odd values
-    plx
+    plx                     ; y*2
     lda $cd08,x             ; existing table with: 0000, 0040, 0080
     sta [$08]
-    pla
+    pla                     ; x
     sec
     sbc $12                 ; x-coord
     inc : inc
     asl
-    pha
+    pha                     ; x*2
     cmp #$0009              ; reject > 8
     bcs .out_of_range2
     and #$0001
     bne .out_of_range2      ; reject odd values
-    pla
+    pla                     ; x*2
     clc
     adc [$08]
     bra .write2
 .out_of_range
-    pla
+    pla                     ; fix stack
 .out_of_range2
-    pla
+    pla                     ; fix stack
     lda #$ffff
 .write2    
     sta [$08]               ; validated HUD offset (x*2 + y*40)
@@ -502,7 +502,7 @@ hook_post_minimap:
     lda !animated_tiles+13,x
     sta [$08]               ; bit
     inc $08 : inc $08 
-    plx
+    plx                     ; table ptr
     lda $df0000+2,x
     sta [$08]               ; tile a
     inc $08 : inc $08
@@ -511,16 +511,16 @@ hook_post_minimap:
     inc $08 : inc $08
     
 .not_found
-    ply
-    plx
+    ply                     ; i
+    plx                     ; table ptr
     
 .next
-    iny
+    iny                     ; i++
     cpy #$0006
     beq .leave
     txa
     clc
-    adc #$0011
+    adc #$0011              ; table entry++
     tax
     jmp .build_lp
 
@@ -544,7 +544,7 @@ org $90ab50
     jmp hook_post_minimap : nop : nop : nop
 
 ; Use door transition to reset coords check and also update room_relevance bitfield.
-; This offloads a lot of computation during door transitions to minimize minimap update cycles.
+; This offloads a lot of computation to minimize minimap update cycles.
 ; $79b is already set to new room at this point
 org $82de49
     jsr hook_door_local : nop
