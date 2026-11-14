@@ -3,6 +3,12 @@
 ;;; Replace old routines and wrap a 32 table into the padding bytes at the top to avoid breaking / hacking everything else.
 ;;; This also incorporates the seamfix where samus being in the last tile or first tile would inadvertantly wrap and draw wrong tiles.
 
+!bank_90_free_space_start = $90FD40
+!bank_90_free_space_end = $90FFFF
+
+org $82B86C
+    AND #$00F8          ; change pause map to wrap to row 0
+    
 org $90A8D4
     JSR WrapRow         ; was: INC A : STA $16
     
@@ -15,8 +21,8 @@ org $90A970             ; wrap the Samus row so real row 31 -> tilemap row 0
 org $90A9A2             ; skip the old explored-bit reads, keep the area-pointer setup at $A9BD
     db $80,$19
 
-org $82B86C
-    AND #$00F8          ; change pause map to wrap to row 0
+org $90AA98
+    JSR FixBottom
     
 org $90A9D6             ; replace the old ROM-map reads and spill call
     JSR FetchWindow
@@ -106,5 +112,20 @@ FetchWindow:
 .off:
     LDA #$0000
     RTS
-    
+
 assert pc() <= $90AC04
+
+org !bank_90_free_space_start
+FixBottom:
+    LDA $16 : BEQ .bottom        ; real row 31: window rows 31,0,1
+    CMP #$001F : BNE .done       ; real row 30: window rows 30,31,0
+    LDA $06 : SEC : SBC #$0800 : STA $06
+    BRA .done
+.bottom:
+    TYA : CLC : ADC #$0800 : TAY
+    LDA $03 : SEC : SBC #$0800 : STA $03
+    LDA $06 : SEC : SBC #$0800 : STA $06
+.done:
+    LDA #$0005
+    RTS
+assert pc() <= !bank_90_free_space_end
