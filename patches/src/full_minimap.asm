@@ -1,4 +1,4 @@
-;;; Super Metroid 64 x 32 Minimap support.
+;;; Super Metroid 62 x 31 Minimap support.
 ;;;
 ;;; Replace old routines and wrap a 32 table into the padding bytes at the top to avoid breaking / hacking everything else.
 ;;; This also incorporates the seamfix where samus being in the last tile or first tile would inadvertantly wrap and draw wrong tiles.
@@ -32,6 +32,8 @@ org $829E74                   ; was: LDA $05B2 : SEC
     JSL ClampB1
 org $82B97D                   ; for 62x31 maps (allow to wrap one tile downwards to create the illusion of margin)
     db $A9                    ; $B97C is SBC #$00B1; allow one more tile of scroll down
+org $82B955 
+    db $20                    ; $B954: ADC #$0018 -> ADC #$0020 (we are using 0-61 so allow it to wrap to create 2 tiles of margin illusion)
     
 ;;; Bank 90
     
@@ -228,8 +230,8 @@ ClampB1:
     CMP #$FFF8 : BPL .done
     LDA #$FFF8 : STA $B1 : BRA .done
 .pos:
-    CMP #$0101 : BCC .done
-    LDA #$0100 : STA $B1
+    CMP #$0109 : BCC .done    ; (changed from 101 / 100 to allow wrapping in 0-61 table to create margin illusion)
+    LDA #$0108 : STA $B1
 .done:
     LDA $05B2 : SEC           ; replaced instructions
     RTL
