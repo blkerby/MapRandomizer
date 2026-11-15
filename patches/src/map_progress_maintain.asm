@@ -434,7 +434,7 @@ do_minimap_animation:
     
     ldx #$0000
 ; minimap animation table format:
-;  dw x, dw y, dw hud_offset (x*2 + y*40), dw partial_reveal_offset, dw partial_reveal_bit, dw tile_a, dw tile_b ...
+;  dw x, dw y, dw hud_offset (x*2 + y*40), dw reveal_offset, dw reveal_bit, dw tile_a, dw tile_b ...
 ;    0xffff terminated
 .anim_lp
     lda !minimap_animate_table,x
