@@ -449,7 +449,7 @@ do_minimap_animation:
     sta $0e
     phx
     tax
-    lda $702700,x       ; partial reveal bits
+    lda $702000,x       ; reveal bits
     plx
     and !minimap_animate_table+8,x ; revealed?
     beq .next
