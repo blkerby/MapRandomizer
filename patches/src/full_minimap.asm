@@ -30,7 +30,9 @@ org $829F3F                   ; was: STA $05B2 : PLB : PLP : RTS
     NOP : NOP
 org $829E74                   ; was: LDA $05B2 : SEC
     JSL ClampB1
-
+org $82B97D                   ; for 62x31 maps (allow to wrap one tile downwards to create the illusion of margin)
+    db $A9                    ; $B97C is SBC #$00B1; allow one more tile of scroll down
+    
 ;;; Bank 90
     
 org $90A8D4
@@ -242,7 +244,7 @@ DownOnly:
     CMP #$00B8 : BMI .done                ; visible enough, leave it alone
     SEC : SBC #$00B8
     CLC : ADC $B3 : STA $B3               ; scroll down by the excess
-    LDA $05B2 : SEC : SBC #$00B1          ; don't go past what the down arrow allows
+    LDA $05B2 : SEC : SBC #$00A9          ; don't go past what the down arrow allows ($00B1 for vanilla, changed to 00A9 for 62x31 to allow wrap)
     AND #$FFF8 : CLC : ADC #$0008
     CMP $B3 : BPL .done
     STA $B3
