@@ -1,3 +1,5 @@
+D525 - D5A2: ; [unused vanilla code] - map_area.asm
+EF5E - F083: ; [unused vanilla code] - map_area.asm
 F63A - F65D: ; unexplore.asm
 F680 - F6B2: ; complementary_suits.asm
 F700 - F7FC: ; map_progress_maintain.asm

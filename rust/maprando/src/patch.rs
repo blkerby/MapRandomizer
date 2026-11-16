@@ -493,7 +493,6 @@ impl Patcher<'_> {
             "fix_choot",
             "resource_collection_hudcap",
             "item_count",
-            "full_minimap",
         ];
 
         patches.push("new_game");
