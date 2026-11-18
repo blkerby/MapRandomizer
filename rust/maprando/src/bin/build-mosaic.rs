@@ -781,45 +781,14 @@ impl MosaicPatchBuilder {
         }
     }
 
-    fn write_toilet_intersection_room(
-        &mut self,
-        new_rom: &mut Rom,
-        state_xml: &RoomState,
-        room_ptr: usize,
-        level_data_addr: usize,
-        compressed_level_data: &[u8],
-    ) -> Result<()> {
-        new_rom.write_n(level_data_addr, compressed_level_data)?;
-        for (_event_ptr, state_ptr) in get_room_state_ptrs(&self.rom, room_ptr)? {
-            new_rom.write_u24(state_ptr, pc2snes(level_data_addr) as isize)?;
-
-            // Set BG X scroll rate to 100%
-            new_rom.write_u8(state_ptr + 12, 0x00)?;
-
-            if state_xml.layer1_2 == 0x91C9 {
-                // Disable scrolling sky, in order to be able to draw the tube in Layer2.
-                new_rom.write_u16(state_ptr + 18, 0x0000)?;
-                new_rom.write_u16(state_ptr + 24, 0x0000)?;
-            }
-        }
-        Ok(())
-    }
-
     fn make_toilet_patches(
         &mut self,
         dry_run: bool,
         max_transit_level_data: &mut usize,
-        max_intersection_level_data: &mut usize,
         theme_names: &[String],
     ) -> Result<()> {
         let transit_level_data_addr = if !dry_run {
             self.main_allocator.allocate(*max_transit_level_data)?
-        } else {
-            0
-        };
-
-        let intersection_level_data_addr = if !dry_run {
-            self.main_allocator.allocate(*max_intersection_level_data)?
         } else {
             0
         };
@@ -898,19 +867,6 @@ impl MosaicPatchBuilder {
                 let top_state_xml = self.load_room_state(transit_project, &tube_theme_top)?;
                 let bottom_state_xml = self.load_room_state(transit_project, &tube_theme_bottom)?;
                 let middle_state_xml = self.load_room_state(theme_name, smart_room_name)?;
-                let twin_state_xml = if room_geometry.name == "Pants Room" {
-                    let east_pants_room_name = room_name_by_pair[&(4, 37)].as_str();
-                    Some(self.load_room_state(theme_name, east_pants_room_name)?)
-                } else if room_geometry.name == "West Ocean" {
-                    let homing_geemer_room_name = room_name_by_pair[&(0, 17)].as_str();
-                    Some(self.load_room_state(theme_name, homing_geemer_room_name)?)
-                } else if room_geometry.name == "Aqueduct" {
-                    let botwoon_hallway_name = room_name_by_pair[&(4, 35)].as_str();
-                    Some(self.load_room_state(theme_name, botwoon_hallway_name)?)
-                } else {
-                    None
-                };
-
                 let tileset_idx = middle_state_xml.gfx_set;
                 assert!(Self::is_compatible_tileset(
                     top_state_xml.gfx_set,
@@ -924,52 +880,6 @@ impl MosaicPatchBuilder {
                 let top_level_data = extract_uncompressed_level_data(&top_state_xml);
                 let bottom_level_data = extract_uncompressed_level_data(&bottom_state_xml);
                 let middle_level_data = extract_uncompressed_level_data(&middle_state_xml);
-                let compressed_twin_level_data = twin_state_xml.as_ref().map(|tx| {
-                    let orig_level_data = extract_uncompressed_level_data(tx);
-                    let mut level_data = orig_level_data.clone();
-                    let (width, height, x) = if room_geometry.name == "Pants Room" {
-                        (1, 3, 0)
-                    } else if room_geometry.name == "West Ocean" {
-                        (1, 1, 0)
-                    } else if room_geometry.name == "Aqueduct" {
-                        (4, 1, 2)
-                    } else {
-                        panic!("Unrecognized room with twin data: {}", room_geometry.name)
-                    };
-                    let mut layer_2 = Self::get_layer_2_data(
-                        twin_state_xml.as_ref().unwrap(),
-                        &level_data,
-                        width,
-                        height,
-                    );
-                    let twin_tileset_idx = twin_state_xml.as_ref().unwrap().gfx_set;
-                    Self::draw_tube(
-                        &mut layer_2,
-                        width,
-                        height,
-                        x,
-                        false,
-                        twin_tileset_idx,
-                        theme_name,
-                    );
-
-                    for sy in 0..height {
-                        Self::copy_screen(
-                            &mut level_data,
-                            x,
-                            sy,
-                            width,
-                            &orig_level_data,
-                            x,
-                            sy,
-                            width,
-                            &layer_2,
-                        );
-                    }
-
-                    self.get_compressed_data(&level_data).unwrap()
-                });
-
                 let top_layer_2 = Self::get_layer_2_data(&top_state_xml, &top_level_data, 1, 10);
                 let bottom_layer_2 =
                     Self::get_layer_2_data(&bottom_state_xml, &bottom_level_data, 1, 10);
@@ -1004,47 +914,6 @@ impl MosaicPatchBuilder {
                                 y_max = y;
                             }
                         }
-                    }
-
-                    // Now construct level data for the intersecting room, modified to show the tube passing through.
-                    // This is independent of the vertical alignment of the tube (i.e. how many screens above it starts).
-                    let mut new_middle_level_data = middle_level_data.clone();
-                    let mut middle_layer_2_behind = orig_middle_layer_2.clone();
-                    Self::draw_tube(
-                        &mut middle_layer_2_behind,
-                        room_width,
-                        room_height,
-                        x,
-                        false,
-                        tileset_idx,
-                        theme_name,
-                    );
-                    for sy in 0..room_height {
-                        for sx in 0..room_width {
-                            Self::copy_screen(
-                                &mut new_middle_level_data,
-                                sx,
-                                sy,
-                                room_width,
-                                &middle_level_data,
-                                sx,
-                                sy,
-                                room_width,
-                                &middle_layer_2_behind,
-                            );
-                        }
-                    }
-
-                    let compressed_middle_level_data =
-                        self.get_compressed_data(&new_middle_level_data)?;
-                    let twin_level_data_len =
-                        compressed_twin_level_data.as_ref().map_or(0, |x| x.len());
-                    if dry_run
-                        && compressed_middle_level_data.len() + twin_level_data_len
-                            > *max_intersection_level_data
-                    {
-                        *max_intersection_level_data =
-                            compressed_middle_level_data.len() + twin_level_data_len;
                     }
 
                     // Construct level data for the Toilet room, one version for each possible vertical position:
@@ -1199,30 +1068,6 @@ impl MosaicPatchBuilder {
                             }
                             new_rom.write_n(fx_data_addr, &fx_data)?;
 
-                            // Write level data and other modifications for the intersecting room:
-                            self.write_toilet_intersection_room(
-                                &mut new_rom,
-                                &middle_state_xml,
-                                room_ptr,
-                                intersection_level_data_addr,
-                                &compressed_middle_level_data,
-                            )?;
-
-                            if let Some(twin_state_xml) = twin_state_xml.as_ref()
-                                && room_geometry.name != "Aqueduct"
-                                && (room_idx != 138 || x == 1)
-                            {
-                                let twin_room_ptr = if room_idx == 138 { 0x7D69A } else { 0x7968F };
-                                self.write_toilet_intersection_room(
-                                    &mut new_rom,
-                                    twin_state_xml,
-                                    twin_room_ptr,
-                                    intersection_level_data_addr
-                                        + compressed_middle_level_data.len(),
-                                    compressed_twin_level_data.as_ref().unwrap(),
-                                )?;
-                            }
-
                             // Encode the BPS patch:
                             let modified_ranges = new_rom.get_modified_ranges();
                             let mut encoder = BPSEncoder::new(
@@ -1237,48 +1082,6 @@ impl MosaicPatchBuilder {
                                 format!("{}-{:X}-Transit-{}-{}.bps", theme_name, room_ptr, x, -y);
                             let output_path = self.output_patches_dir.join(output_filename);
                             std::fs::write(&output_path, &encoder.patch_bytes)?;
-
-                            if room_geometry.name == "Aqueduct" && x == 2 && y == 4 {
-                                // Make a special patch for vanilla map tube position, where it passes through
-                                // both Botwoon Hallway and Aqueduct, but where we leave the Toilet room itself untouched.
-
-                                let mut new_rom = self.rom.clone();
-                                new_rom.enable_tracking();
-
-                                // Write tube in background (Layer2) of Aqueduct
-                                self.write_toilet_intersection_room(
-                                    &mut new_rom,
-                                    &middle_state_xml,
-                                    room_ptr,
-                                    intersection_level_data_addr,
-                                    &compressed_middle_level_data,
-                                )?;
-
-                                // Write tube in background (Layer2) of Botwoon Hallway
-                                self.write_toilet_intersection_room(
-                                    &mut new_rom,
-                                    twin_state_xml.as_ref().unwrap(),
-                                    0x7D617,
-                                    intersection_level_data_addr
-                                        + compressed_middle_level_data.len(),
-                                    compressed_twin_level_data.as_ref().unwrap(),
-                                )?;
-
-                                // Encode the BPS patch:
-                                let modified_ranges = new_rom.get_modified_ranges();
-                                let mut encoder = BPSEncoder::new(
-                                    &self.source_suffix_tree,
-                                    &new_rom.data,
-                                    &modified_ranges,
-                                );
-                                encoder.encode();
-
-                                // Save the BPS patch to a file:
-                                let output_filename = format!("{theme_name}-VanillaMapTransit.bps");
-                                info!("Writing {output_filename}");
-                                let output_path = self.output_patches_dir.join(output_filename);
-                                std::fs::write(&output_path, &encoder.patch_bytes)?;
-                            }
                         }
                     }
                 }
@@ -1422,18 +1225,7 @@ fn main() -> Result<()> {
     // For Toilet, do a dry run first to determine size to allocate for level data
     // (based on max possible size across all possible themes and intersecting rooms):
     let mut max_transit_level_data = 0;
-    let mut max_intersection_level_data = 0;
-    mosaic_builder.make_toilet_patches(
-        true,
-        &mut max_transit_level_data,
-        &mut max_intersection_level_data,
-        &project_names,
-    )?;
-    mosaic_builder.make_toilet_patches(
-        false,
-        &mut max_transit_level_data,
-        &mut max_intersection_level_data,
-        &project_names,
-    )?;
+    mosaic_builder.make_toilet_patches(true, &mut max_transit_level_data, &project_names)?;
+    mosaic_builder.make_toilet_patches(false, &mut max_transit_level_data, &project_names)?;
     Ok(())
 }

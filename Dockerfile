@@ -43,6 +43,7 @@ RUN rm /rust/src/*.rs
 # Now copy over the source code and build the real binary
 RUN cargo install wasm-pack
 COPY rust /rust
+
 WORKDIR /rust/maprando-wasm
 RUN wasm-pack build --target="web" --release
 WORKDIR /rust

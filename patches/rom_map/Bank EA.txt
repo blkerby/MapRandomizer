@@ -1,2 +1,5 @@
 8000 - ADEF: beam door tilemaps and graphics
-ADF0 - FFFF: [FREE]
+ADF0 - AFFF: [FREE]
+B000 - B0FF: ; sprite_tube.asm, customize/sprite_tube.rs (active room table)
+B100 - B2FF: ; customize/sprite_tube.rs (remapped tube graphics DMA payloads)
+B300 - FFFF: [FREE]
