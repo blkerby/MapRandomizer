@@ -423,11 +423,6 @@
                 "enabled": true
             },
             {
-                "id": 247,
-                "name": "canRespin",
-                "enabled": true
-            },
-            {
                 "id": 99,
                 "name": "canSpringBallBombJump",
                 "enabled": true
