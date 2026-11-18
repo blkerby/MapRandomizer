@@ -45561,6 +45561,22 @@
   },
   {
     "room_id": 155,
+    "strat_id": 146,
+    "video_id": 10914,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 155,
+    "strat_id": 147,
+    "video_id": 10916,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 155,
     "strat_id": 100,
     "video_id": 8098,
     "created_user": "Sam",
@@ -46410,14 +46426,6 @@
   {
     "room_id": 201,
     "strat_id": 25,
-    "video_id": 2304,
-    "created_user": "Sam",
-    "note": "Flatley, Walljump",
-    "dev_note": "Caveat: A flatley is enough, no wall jump is needed"
-  },
-  {
-    "room_id": 201,
-    "strat_id": 25,
     "video_id": 5848,
     "created_user": "Sam",
     "note": "Flatley jump",
@@ -46430,6 +46438,14 @@
     "created_user": "Sam",
     "note": "Second Frozen Crab, Down-grab",
     "dev_note": ""
+  },
+  {
+    "room_id": 201,
+    "strat_id": 25,
+    "video_id": 2304,
+    "created_user": "Sam",
+    "note": "Flatley, Walljump",
+    "dev_note": "Caveat: A flatley is enough, no wall jump is needed"
   },
   {
     "room_id": 201,
@@ -51562,10 +51578,10 @@
   {
     "room_id": 174,
     "strat_id": 303,
-    "video_id": 10954,
+    "video_id": 11075,
     "created_user": "nn",
-    "note": "With 1 reserve energy",
-    "dev_note": "Caveat: not very clear since the InfoHUD doesn't show energy or reserves.\nshows using a reserve trigger (with 1hp) is possible too. Doesn't include the full traversal as its the same as the main video)"
+    "note": "",
+    "dev_note": "With reserve trigger and reserves display"
   },
   {
     "room_id": 174,

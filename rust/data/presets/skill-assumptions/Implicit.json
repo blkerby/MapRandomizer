@@ -420,6 +420,11 @@
             "enabled": false
         },
         {
+            "id": 247,
+            "name": "canRespin",
+            "enabled": false
+        },
+        {
             "id": 99,
             "name": "canSpringBallBombJump",
             "enabled": false
