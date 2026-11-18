@@ -434,7 +434,7 @@ do_minimap_animation:
     
     ldx #$0000
 ; minimap animation table format:
-;  dw x, dw y, dw hud_offset (x*2 + y*40), dw reveal_offset, dw reveal_bit, dw tile_a, dw tile_b ...
+;  dw x, dw y, dw hud_offset (x*2 + y*40), dw reveal_offset, dw reveal_bit, dw tile_a, dw tile_b, dw state ...
 ;    0xffff terminated
 .anim_lp
     lda !minimap_animate_table,x
@@ -468,24 +468,27 @@ do_minimap_animation:
     lda #$1c00          ; palette 7
 .save_palette
     sta $0e
-    phx
-    tyx                 ; HUD tile ptr
-    lda $7ec63c,x
-    and #$e3ff
-    plx                 ; table ptr
-    cmp !minimap_animate_table+10,x
-    bne .b_to_a
-    inx : inx           ; tile b
-.b_to_a
-    lda !minimap_animate_table+10,x
+    lda !minimap_animate_table+14,x
+    and #$2000          ; check bit 13 for state
+    bne .load_tile_a
+    lda !minimap_animate_table+12,x ; tile b
+    ora #$2000          ; state
+    bra .write
+.load_tile_a
+    lda !minimap_animate_table+10,x ; tile a
 .write
     ora $0e             ; palette
     tyx                 ; HUD tile ptr
     sta $7ec63c,x       ; destination tile
+    plx
+    sta !minimap_animate_table+14,x
+    txa
+    bra .next2
 .next
     pla                 ; table index
+.next2
     clc
-    adc #$000e
+    adc #$0010
     tax
     bra .anim_lp
     

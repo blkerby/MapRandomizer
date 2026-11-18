@@ -247,7 +247,8 @@ assert pc() <= !bank_df_free_space_end
 ;;; Stag Shot  
 
 org $90aa43
-    jsr check_coords
+    jmp check_coords
+check_coords_ret:
 
 org !bank_90_free_space_start
 ; pre_minimap_hook
@@ -263,6 +264,9 @@ org !bank_90_free_space_start
 !animated_tiles = $dffb00
 
 check_coords:
+    lda !minimap_settings
+    beq .exit               ; no match
+    pha
 ; save x/y for post_minimap_hook
     lda $af6
     and #$ff00
@@ -272,8 +276,7 @@ check_coords:
     sta !minimap_settings+2 ; true x coord
     lda $16
     sta !minimap_settings+4 ; y coord
-    
-    lda !minimap_settings
+    pla
     cmp #$ffff              ; new room?
     bne .exit
     ldx #$0000              ; table ptr
@@ -313,7 +316,7 @@ check_coords:
 .exit
     lda $16                 ; replaced code
     clc                     ;
-    rts
+    jmp check_coords_ret
 
 ;;; post-minimap hook
 
@@ -360,8 +363,6 @@ hook_post_minimap:
     and #$003f
     cmp #$000a              ; ensure < 10
     bcs .invalid
-    and #$0001              ; and even
-    bne .invalid
     pla                     ; hud offset
     bra .write
 .invalid
@@ -369,9 +370,17 @@ hook_post_minimap:
     lda #$ffff
 .write
     sta !minimap_animate_table+4,x
-    txa
+; rewrite tile to maintain state
+    phx
+    pha
+    lda !minimap_animate_table+14,x
+    and #$dfff
+    plx
+    sta $7ec63c,x           ; destination tile
+    pla
+    
     clc
-    adc #$000e              ; table entry++
+    adc #$0010              ; table entry++
     tax
     bra .hud_lp
    
@@ -407,7 +416,7 @@ hook_post_minimap:
     beq .check_item_bit
     jmp .next
 
-; see if item(s) are already acquired
+; see if items are already acquired
 .check_item_bit
     lda !animated_tiles+5,x
     and #$00ff
@@ -462,12 +471,9 @@ hook_post_minimap:
     sbc $16                 ; y-coord
     inc
     asl
-    pha                     ; y*2
     cmp #$0005
     bcs .out_of_range       ; reject > 4
-    and #$0001
-    bne .out_of_range       ; reject odd values
-    plx                     ; y*2
+    tax
     lda $cd08,x             ; existing table with: 0000, 0040, 0080
     sta [$08]
     pla                     ; x
@@ -475,19 +481,14 @@ hook_post_minimap:
     sbc $12                 ; x-coord
     inc : inc
     asl
-    pha                     ; x*2
     cmp #$0009              ; reject > 8
     bcs .out_of_range2
-    and #$0001
-    bne .out_of_range2      ; reject odd values
-    pla                     ; x*2
     clc
     adc [$08]
     bra .write2
 .out_of_range
     pla                     ; fix stack
 .out_of_range2
-    pla                     ; fix stack
     lda #$ffff
 .write2    
     sta [$08]               ; validated HUD offset (x*2 + y*40)
@@ -508,6 +509,9 @@ hook_post_minimap:
     inc $08 : inc $08
     lda $df0000+4,x
     sta [$08]               ; tile b
+    inc $08 : inc $08
+    lda #$2000
+    sta [$08]               ; state
     inc $08 : inc $08
     
 .not_found
