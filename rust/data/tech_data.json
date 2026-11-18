@@ -590,7 +590,7 @@
     {
         "tech_id": 247,
         "name": "canRespin",
-        "difficulty": "Very Hard",
+        "difficulty": "Ignored",
         "video_id": null
     },
     {
