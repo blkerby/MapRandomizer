@@ -17,6 +17,7 @@ export MOSAIC_BUILD_ID=$(uuidgen)
 echo Mosaic commit: $MOSAIC_COMMIT_ID
 echo Mosaic build ID: $MOSAIC_BUILD_ID
 
+rm -f patches/mosaic/*.bps
 cd rust
 # cargo run --release --bin build-mosaic --  --compressor ~/bin/AmoebaCompress --input-rom ../roms/vanilla.sfc
 # using compressor by NobodyNada, with tweaks to help give faster decompression
