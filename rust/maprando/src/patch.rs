@@ -237,12 +237,8 @@ pub struct Patcher<'a> {
     pub extra_room_data: HashMap<RoomPtr, ExtraRoomData>,
 }
 
-fn wrapped_row(y: isize) -> isize {
-    (y + 1) & 31 // real row 31 -> tilemap row 0 (vanilla padding row)
-}
-
 pub fn xy_to_map_offset(x: isize, y: isize) -> isize {
-    let y1 = wrapped_row(y);
+    let y1 = y + 1;
     if x < 32 {
         (y1 * 32 + x) * 2
     } else {
@@ -251,7 +247,7 @@ pub fn xy_to_map_offset(x: isize, y: isize) -> isize {
 }
 
 pub fn xy_to_explored_bit_ptr(x: isize, y: isize) -> (isize, u8) {
-    let y1 = wrapped_row(y);
+    let y1 = y + 1;
     let offset_in_bits = if x < 32 {
         y1 * 32 + x
     } else {
