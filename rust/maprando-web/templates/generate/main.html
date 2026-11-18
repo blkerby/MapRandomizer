@@ -199,7 +199,10 @@
             </div>
 
             <div class="form-group row my-3">
-                <div class="col-lg-3 ml-0 mt-1 mb-1 d-flex align-items-center"><button type="button" class="btn px-2 py-1" aria-label="Help" data-bs-target="#mapLayoutHelpModal" data-bs-toggle="modal"><i class="bi bi-question-circle"></i></button><label>Map layout</label></div>
+                <div class="col-lg-3 ml-0 mt-1 mb-1 align-items-center">
+                    {% include "help/map/layout.html" %}
+                    <label>Map layout</label>
+                </div>
                 <div id="mapLayout" class="col-lg-6 btn-group overflow-auto" role="group" aria-label="Map layout">
                     <input type="radio" class="btn-check" name="map_layout_preset" id="mapLayoutVanilla" value="Vanilla" onchange="mapPresetChanged(this.value)">
                     <label class="btn btn-outline-primary" for="mapLayoutVanilla">Vanilla</label>
