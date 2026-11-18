@@ -1,4 +1,13 @@
-B5E8 - B62B: ; vanilla_bugfixes.asm [boots ui fix, overwrites unused vanilla instruction.]
+[unused vanilla code]
+8B18 - 8B1F: [free] [unused vanilla code] - 8 bytes
+A3D9 - A424: [free] [unused vanilla code] - 76 bytes
+B5E8 - B62A: [free] [unused vanilla code] - 67 bytes
+B650 - B671: [free] [unused vanilla code] - 34 bytes
+BE5A - BF03: [free] [unused vanilla code] - 170 bytes
+E675 - E6A1: [mosaic] Area Palettes.asm [uses 16 bytes / 29 bytes free]
+F404 - F417: ; vanilla_bugfixes.asm
+
+[bank free space]
 F70F - F808: ; map_area.asm
 F810 - F827: ; crash_handle_springball.asm
 F830 - F9DE: ; disableable_etanks.asm

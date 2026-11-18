@@ -1,5 +1,5 @@
 {
-    "version": 123,
+    "version": 124,
     "name": "Summer Series Expert Challenge",
     "skill_assumption_settings": {
         "preset": "Expert",
@@ -530,6 +530,11 @@
             {
                 "id": 11,
                 "name": "canSpaceJumpWaterEscape",
+                "enabled": true
+            },
+            {
+                "id": 246,
+                "name": "canSpaceJumpSpringBallWaterEscape",
                 "enabled": true
             },
             {
@@ -1220,6 +1225,13 @@
                 "notable_id": 1,
                 "room_name": "Double Chamber",
                 "notable_name": "Walljump Climb Using the Kamer",
+                "enabled": true
+            },
+            {
+                "room_id": 183,
+                "notable_id": 10,
+                "room_name": "Aqueduct",
+                "notable_name": "Top Door Snail Step",
                 "enabled": true
             },
             {
@@ -2308,13 +2320,6 @@
                 "enabled": true
             },
             {
-                "room_id": 177,
-                "notable_id": 1,
-                "room_name": "Red Fish Room",
-                "notable_name": "Space Jump Spring Ball Jump",
-                "enabled": true
-            },
-            {
                 "room_id": 183,
                 "notable_id": 6,
                 "room_name": "Aqueduct",
@@ -2399,13 +2404,6 @@
                 "enabled": true
             },
             {
-                "room_id": 223,
-                "notable_id": 1,
-                "room_name": "Spring Ball Room",
-                "notable_name": "Escape - Suitless, Bootless, Space Jump",
-                "enabled": true
-            },
-            {
                 "room_id": 199,
                 "notable_id": 1,
                 "room_name": "West Sand Hall",
@@ -2479,7 +2477,7 @@
                 "room_id": 34,
                 "notable_id": 2,
                 "room_name": "East Ocean",
-                "notable_name": "Spring Ball Bounce to the Door with SpaceJump",
+                "notable_name": "Spring Ball Bounce to the Ledge",
                 "enabled": false
             },
             {
@@ -4667,6 +4665,7 @@
         "room_outline_revealed": true,
         "opposite_area_revealed": true,
         "hazard_markers": true,
+        "animated_tiles": false,
         "mother_brain_fight": "Short",
         "supers_double": true,
         "escape_autosave": true,
@@ -4789,9 +4788,77 @@
         ],
         "min_objectives": 4,
         "max_objectives": 4,
-        "objective_screen": "Enabled"
+        "objective_screen": "Enabled",
+        "objective_areas": "Enabled"
     },
-    "map_layout": "Standard",
+    "map_settings": {
+        "preset": null,
+        "source": "v119-standard",
+        "generation": {
+            "small_map": false,
+            "landmarks": [
+                "Ship",
+                "MotherBrain"
+            ],
+            "maridia_water": {
+                "preset": "Unrestricted",
+                "probabilities": [
+                    0.21052631578947367,
+                    0.21052631578947367,
+                    0.21052631578947367
+                ]
+            },
+            "norfair_heat": {
+                "preset": "Unrestricted",
+                "probabilities": [
+                    0.21052631578947367,
+                    0.21052631578947367,
+                    0.21052631578947367
+                ]
+            },
+            "reward_missing_connect_utility": 2.0,
+            "door_balance_strength": 1.0,
+            "reward_area_x": 10.0,
+            "reward_area_y": 10.0,
+            "target_area_rooms": [
+                150.0,
+                200.0,
+                200.0,
+                100.0,
+                200.0,
+                100.0
+            ],
+            "target_area_x": [
+                16.0,
+                10.0,
+                40.0,
+                48.0,
+                40.0,
+                16.0
+            ],
+            "target_area_y": [
+                12.0,
+                32.0,
+                64.0,
+                12.0,
+                32.0,
+                24.0
+            ],
+            "max_graph_diameter": 45.0,
+            "reward_graph_diameter": 0.1,
+            "reject_nearby_save_rooms": true,
+            "reward_save_distance": 0.1,
+            "reject_nearby_refill_stations": true,
+            "reward_refill_distance": 0.1,
+            "reward_area_distinct_crossing": 1.0
+        },
+        "area_assignment": {
+            "preset": "Standard",
+            "base_order": "Size",
+            "ship_in_crateria": true,
+            "mother_brain_in_tourian": true
+        }
+    },
     "doors_settings": {
         "preset": "Ammo",
         "red_doors_count": 30,
@@ -4812,19 +4879,12 @@
     "other_settings": {
         "wall_jump": "Vanilla",
         "speed_booster": "Vanilla",
-        "area_assignment": {
-            "preset": "Depth",
-            "base_order": "Depth",
-            "ship_in_crateria": false,
-            "mother_brain_in_tourian": false
-        },
         "door_locks_size": "Large",
         "maps_revealed": null,
         "energy_free_shinesparks": false,
         "all_enemies_respawn": false,
         "race_mode": true,
         "savestate": "No",
-        "random_seed": null,
         "disable_spikesuit": false,
         "disable_bluesuit": false,
         "enable_major_glitches": false

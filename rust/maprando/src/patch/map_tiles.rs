@@ -44,6 +44,7 @@ pub struct MapPatcher<'a> {
     pub free_tiles: Vec<TilemapWord>, // set of free tile indexes
     pub locked_door_state_indices: &'a [usize],
     pub dynamic_tile_data: Vec<Vec<(ItemIdx, RoomId, MapTile)>>,
+    pub bt_objective_item: Option<(usize, usize, MapTile)>,
     pub transition_tile_coords: Vec<(AreaIdx, isize, isize)>,
     pub area_min_x: [isize; NUM_AREAS],
     pub area_max_x: [isize; NUM_AREAS],
@@ -1792,6 +1793,7 @@ impl<'a> MapPatcher<'a> {
             free_tiles,
             locked_door_state_indices,
             dynamic_tile_data: vec![vec![]; 6],
+            bt_objective_item: None,
             transition_tile_coords: vec![],
             area_min_x: [isize::MAX; NUM_AREAS],
             area_min_y: [isize::MAX; NUM_AREAS],
@@ -2432,7 +2434,7 @@ impl<'a> MapPatcher<'a> {
                 .rom
                 .read_u16(snes2pc(0xB6F000) + 2 * (0x20 + i as usize))?;
             self.rom
-                .write_u16(snes2pc(0xB6F000) + 2 * (0x40 + i as usize), color as isize)?;
+                .write_u16(snes2pc(0xB6F000) + 2 * (0x40 + i as usize), color)?;
         }
 
         // Substitute palette 2 with palette 4 in pause tilemaps:
@@ -2689,6 +2691,74 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    fn write_double_item_table(
+        &mut self,
+        area_data: &[Vec<(ItemIdx, RoomId, MapTile)>],
+    ) -> Result<()> {
+        let mut doubles: Vec<[u16; 8]> = vec![];
+        for (area_idx, data) in area_data.iter().enumerate() {
+            for (i, (item_a, _, a)) in data.iter().enumerate() {
+                for (_, _, b) in &data[i + 1..] {
+                    if a.coords != b.coords {
+                        continue;
+                    }
+                    let wa = self.index_tile(a.clone(), None)? | 0x1C00;
+                    let wb = self.index_tile(b.clone(), None)? | 0x1C00;
+                    let wa2 = (wa & !0x1C00) | 0x0800;
+                    let wb2 = (wb & !0x1C00) | 0x0800;
+                    let x = a.coords.0 as isize - self.area_offset_x[area_idx];
+                    let y = a.coords.1 as isize - self.area_offset_y[area_idx];
+                    let dest = 0x3000 + xy_to_map_offset(x, y) / 2;
+                    let same = wa == wb;
+                    doubles.push([
+                        area_idx as u16,
+                        dest as u16,
+                        if same { 0xFFFF } else { wb },
+                        wa,
+                        (item_a / 8) as u16,
+                        1u16 << (item_a % 8),
+                        if same { 0xFFFF } else { wb2 },
+                        wa2,
+                    ]);
+                }
+            }
+        }
+        assert!(doubles.len() <= 6);
+        doubles.resize(6, [0xFFFF, 0, 0xFFFF, 0, 0, 0, 0xFFFF, 0]);
+
+        let mut bt_entry = [0xFFFF, 0, 0xFFFF, 0, 0, 0, 0xFFFF, 0];
+        if let Some((area_idx, item_idx, item_tile)) = self.bt_objective_item.clone() {
+            let mut x_tile = item_tile.clone();
+            x_tile.interior = MapTileInterior::Objective;
+            let wx = self.index_tile(x_tile.clone(), None)? | 0x1C00;
+            let wi = self.index_tile(item_tile.clone(), None)? | 0x1C00;
+            let wx2 = (wx & !0x1C00) | 0x0800;
+            let wi2 = (wi & !0x1C00) | 0x0800;
+            let x = x_tile.coords.0 as isize - self.area_offset_x[area_idx];
+            let y = x_tile.coords.1 as isize - self.area_offset_y[area_idx];
+            let dest = 0x3000 + xy_to_map_offset(x, y) / 2;
+            bt_entry = [
+                area_idx as u16,
+                dest as u16,
+                wx,
+                wi,
+                (item_idx / 8) as u16,
+                1u16 << (item_idx % 8),
+                wx2,
+                wi2,
+            ];
+        }
+        doubles.push(bt_entry);
+
+        for (i, e) in doubles.iter().enumerate() {
+            for (j, &w) in e.iter().enumerate() {
+                self.rom
+                    .write_u16(snes2pc(0xDFE212 + i * 16 + j * 2), w as isize)?;
+            }
+        }
+        Ok(())
+    }
+
     fn indicate_items(&mut self) -> Result<()> {
         for (i, &item) in self.randomization.item_placement.iter().enumerate() {
             let (room_id, node_id) = self.game_data.item_locations[i];
@@ -2697,48 +2767,37 @@ impl<'a> MapPatcher<'a> {
             if !self.map.room_mask[room_idx] {
                 continue;
             }
-            if room_id == 19
-                && self
-                    .randomization
-                    .objectives
-                    .contains(&Objective::BombTorizo)
-            {
-                // If BT is an objective, we don't draw item dot there since an objective X tile will be drawn instead.
-                continue;
-            }
             let item_ptr = self.game_data.node_ptr_map[&(room_id, node_id)];
             let item_idx = self.rom.read_u8(item_ptr + 4)? as usize;
-            let room_ptr = self.game_data.room_ptr_by_id[&room_id];
-            let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
             let room = &self.game_data.room_geometry[room_idx];
             let area = self.map.area[room_idx];
             let (x, y) = find_item_xy(item_ptr, &room.items)?;
             let orig_tile = self.get_room_tile(room_id, x, y).unwrap().clone();
             let mut tile = orig_tile.clone();
             tile.faded = MapTileFade::None;
-            if [MapTileInterior::HiddenItem, MapTileInterior::DoubleItem].contains(&tile.interior) {
-                tile.interior = MapTileInterior::Item;
+            tile.interior = get_item_interior(item, self.settings);
+            // If BT is an objective, we don't draw item dot there since an objective X tile will be drawn instead.
+            // We will clone the tile though for animating it if it's an objective
+            if room_id == 19
+                && self
+                    .randomization
+                    .objectives
+                    .contains(&Objective::BombTorizo)
+            {
+                self.index_tile(tile.clone(), None)?;
+                self.bt_objective_item = Some((area, item_idx, tile.clone()));
+                continue;
             }
 
-            tile.interior = get_item_interior(item, self.settings);
             self.dynamic_tile_data[area].push((item_idx, room_id, tile.clone()));
-            match self.customize_settings.item_dot_change {
-                ItemDotChange::Fade => {
-                    tile.interior = apply_item_interior(orig_tile.clone(), item, self.settings);
-                    tile.faded = MapTileFade::Faded;
-                    self.set_room_tile(room_id, x, y, tile.clone());
-                }
-                ItemDotChange::Disappear => {
-                    tile.interior = apply_item_interior(orig_tile.clone(), item, self.settings);
-                    tile.faded = MapTileFade::Disappeared;
-                    self.set_room_tile(room_id, x, y, tile.clone());
-                }
-                ItemDotChange::Stay => {
-                    tile.interior = apply_item_interior(orig_tile.clone(), item, self.settings);
-                    tile.faded = MapTileFade::None;
-                    self.set_room_tile(room_id, x, y, tile.clone());
-                }
-            }
+
+            tile.interior = apply_item_interior(orig_tile, item, self.settings);
+            tile.faded = match self.customize_settings.item_dot_change {
+                ItemDotChange::Fade => MapTileFade::Faded,
+                ItemDotChange::Disappear => MapTileFade::Disappeared,
+                ItemDotChange::Stay => MapTileFade::None,
+            };
+            self.set_room_tile(room_id, x, y, tile);
         }
 
         Ok(())
@@ -3304,6 +3363,18 @@ impl<'a> MapPatcher<'a> {
     }
 
     pub fn compute_area_bounds(&mut self) -> Result<()> {
+        // Room origins must fit in the unsigned room-header map coordinates.
+        for (room_idx, &(x, y)) in self.map.rooms.iter().enumerate() {
+            if !self.map.room_mask[room_idx] {
+                continue;
+            }
+            let area = self.map.area[room_idx];
+            self.area_min_x[area] = self.area_min_x[area].min(x as isize);
+            self.area_max_x[area] = self.area_max_x[area].max(x as isize);
+            self.area_min_y[area] = self.area_min_y[area].min(y as isize);
+            self.area_max_y[area] = self.area_max_y[area].max(y as isize);
+        }
+
         for &(area_idx, x, y) in self.map_tile_map.keys() {
             if x < self.area_min_x[area_idx] {
                 self.area_min_x[area_idx] = x;
@@ -3379,6 +3450,9 @@ impl<'a> MapPatcher<'a> {
         }
         self.sort_dynamic_tile_data()?;
         self.write_dynamic_tile_data(&self.dynamic_tile_data.clone())?;
+        if self.settings.quality_of_life_settings.animated_tiles {
+            self.write_double_item_table(&self.dynamic_tile_data.clone())?;
+        }
         self.create_room_map_tilemaps()?;
         if self.settings.quality_of_life_settings.hazard_markers {
             self.write_hazard_tiles()?;

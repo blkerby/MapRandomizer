@@ -530,6 +530,11 @@
             "enabled": false
         },
         {
+            "id": 246,
+            "name": "canSpaceJumpSpringBallWaterEscape",
+            "enabled": false
+        },
+        {
             "id": 19,
             "name": "canPauseAbuse",
             "enabled": false
@@ -1217,6 +1222,13 @@
             "notable_id": 1,
             "room_name": "Double Chamber",
             "notable_name": "Walljump Climb Using the Kamer",
+            "enabled": true
+        },
+        {
+            "room_id": 183,
+            "notable_id": 10,
+            "room_name": "Aqueduct",
+            "notable_name": "Top Door Snail Step",
             "enabled": true
         },
         {
@@ -2305,13 +2317,6 @@
             "enabled": false
         },
         {
-            "room_id": 177,
-            "notable_id": 1,
-            "room_name": "Red Fish Room",
-            "notable_name": "Space Jump Spring Ball Jump",
-            "enabled": false
-        },
-        {
             "room_id": 183,
             "notable_id": 6,
             "room_name": "Aqueduct",
@@ -2396,13 +2401,6 @@
             "enabled": false
         },
         {
-            "room_id": 223,
-            "notable_id": 1,
-            "room_name": "Spring Ball Room",
-            "notable_name": "Escape - Suitless, Bootless, Space Jump",
-            "enabled": false
-        },
-        {
             "room_id": 199,
             "notable_id": 1,
             "room_name": "West Sand Hall",
@@ -2476,7 +2474,7 @@
             "room_id": 34,
             "notable_id": 2,
             "room_name": "East Ocean",
-            "notable_name": "Spring Ball Bounce to the Door with SpaceJump",
+            "notable_name": "Spring Ball Bounce to the Ledge",
             "enabled": false
         },
         {

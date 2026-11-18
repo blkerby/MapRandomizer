@@ -184,6 +184,7 @@ pub struct CustomizeSettings {
     pub save_icons: bool,
     pub boss_icons: bool,
     pub miniboss_icons: bool,
+    pub start_location_icon: bool,
     pub reserve_hud_style: bool,
     pub vanilla_screw_attack_animation: bool,
     pub palette_theme: PaletteTheme,
@@ -210,6 +211,7 @@ impl Default for CustomizeSettings {
             save_icons: true,
             boss_icons: true,
             miniboss_icons: true,
+            start_location_icon: true,
             reserve_hud_style: true,
             vanilla_screw_attack_animation: true,
             room_names: true,
@@ -554,6 +556,27 @@ pub fn customize_rom(
             rom.write_u16(snes2pc(0xdfe20c), 0x1C1D)?; // high contrast missile door color
             rom.write_u16(snes2pc(0xdfe20e), 0x1033)?; // high contrast missile door color
             rom.write_u16(snes2pc(0xdfe210), 0x0829)?; // high contrast missile door color
+
+            // swap T and W for objectives areas
+            let new_w = [
+                0x00, 0xC6, 0x00, 0xC6, 0x00, 0xD6, 0x00, 0xD6, 0x00, 0x7C, 0x00, 0x6C, 0x00, 0x44,
+                0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
+                0xFF, 0x00, 0xFF, 0x00,
+            ];
+
+            for (i, &byte) in new_w.iter().enumerate() {
+                rom.write_u8(snes2pc(0x85C560) + i, byte)?;
+            }
+
+            let new_t = [
+                0xFC, 0x00, 0x30, 0x00, 0x30, 0x00, 0x30, 0x00, 0x30, 0x00, 0x30, 0x00, 0x30, 0x00,
+                0x00, 0x00, 0x03, 0xFC, 0xCF, 0x30, 0xCF, 0x30, 0xCF, 0x30, 0xCF, 0x30, 0xCF, 0x30,
+                0xCF, 0x30, 0xFF, 0x00,
+            ];
+
+            for (i, &byte) in new_t.iter().enumerate() {
+                rom.write_u8(snes2pc(0x85C5A0) + i, byte)?;
+            }
         }
     }
 
@@ -567,6 +590,10 @@ pub fn customize_rom(
     if !settings.save_icons {
         map_icon_settings |= 4;
     }
+    if !settings.start_location_icon {
+        map_icon_settings |= 8;
+    }
+
     rom.write_u16(snes2pc(0x85B600), map_icon_settings)?;
 
     // Fix Phantoon power-on sequence to not overwrite the first two palettes, since those contain

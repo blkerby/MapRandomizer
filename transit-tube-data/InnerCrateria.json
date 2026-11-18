@@ -90,6 +90,18 @@
         "bottom": "Inner Crateria Bricks"
     },
     {
+        "name": "Halfie Climb Room",
+        "x": [0],
+        "top": "Inner Crateria Bricks",
+        "bottom": "Inner Crateria Bricks"
+    },
+    {
+        "name": "Colosseum",
+        "x": [0, 1, 2, 3, 4, 5, 6],
+        "top": "Inner Crateria Bricks",
+        "bottom": "Inner Crateria Bricks"
+    },
+    {
         "name": "Early Supers Room",
         "x": [0, 1, 2],
         "top": "Inner Crateria Bricks",
@@ -350,6 +362,12 @@
     {
         "name": "West Cactus Alley Room",
         "x": [0],
+        "top": "Inner Crateria Fungal",
+        "bottom": "Inner Crateria Fungal"
+    },
+    {
+        "name": "East Cactus Alley Room",
+        "x": [0, 4],
         "top": "Inner Crateria Fungal",
         "bottom": "Inner Crateria Fungal"
     },

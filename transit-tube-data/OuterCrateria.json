@@ -90,6 +90,18 @@
         "bottom": "Outer Crateria Wet"
     },
     {
+        "name": "Halfie Climb Room",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Wet"
+    },
+    {
+        "name": "Colosseum",
+        "x": [0, 1, 2, 3, 4, 5, 6],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Wet"
+    },
+    {
         "name": "Early Supers Room",
         "x": [0, 1, 2],
         "top": "Outer Crateria Dry",
@@ -350,6 +362,12 @@
     {
         "name": "West Cactus Alley Room",
         "x": [0],
+        "top": "Outer Crateria Wet",
+        "bottom": "Outer Crateria Wet"
+    },
+    {
+        "name": "East Cactus Alley Room",
+        "x": [0, 4],
         "top": "Outer Crateria Wet",
         "bottom": "Outer Crateria Wet"
     },

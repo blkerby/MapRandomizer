@@ -7,6 +7,7 @@ pub mod customize;
 pub mod difficulty;
 pub mod helpers;
 pub mod map_repository;
+pub mod map_settings;
 pub mod patch;
 pub mod preset;
 pub mod randomize;

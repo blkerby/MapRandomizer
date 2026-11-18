@@ -270,6 +270,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             room_outline_revealed: false,
             opposite_area_revealed: false,
             hazard_markers: false,
+            animated_tiles: false,
             mother_brain_fight: maprando::settings::MotherBrainFight::Vanilla,
             supers_double: false,
             escape_autosave: false,
@@ -322,8 +323,11 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             min_objectives: 0,
             max_objectives: 0,
             objective_screen: maprando::settings::ObjectiveScreen::Disabled,
+            objective_areas: maprando::settings::ObjectiveAreas::Disabled,
         },
-        map_layout: String::new(),
+        map_settings: maprando::map_settings::MapSettings::from_preset(
+            maprando::settings::MapPreset::Standard,
+        ),
         doors_settings: DoorsSettings {
             preset: Some("Blue".to_string()),
             red_doors_count: 0,
@@ -347,9 +351,6 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             } else {
                 maprando::settings::WallJump::Vanilla
             },
-            area_assignment: maprando::settings::AreaAssignment::from_preset(
-                maprando::settings::AreaAssignmentPreset::Standard,
-            ),
             door_locks_size: maprando::settings::DoorLocksSize::Large,
             energy_free_shinesparks: settings.energy_free_shinesparks.unwrap_or(false),
             all_enemies_respawn: false,
@@ -359,7 +360,6 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             enable_major_glitches: false,
             race_mode: false,
             savestate: maprando::settings::SaveState::No,
-            random_seed: None,
         },
         debug: false,
     })

@@ -8,3 +8,4 @@ FC00 - FC0F: ; Fake Lava.asm
 FC10 - FC1C: ; crash_handle_yapping.asm
 FC20 - FC3A: ; remove_spikesuit.asm
 FC40 - FCBA: ; split_speed.asm
+FD00 - FD40: ; map_progress_maintain.asm

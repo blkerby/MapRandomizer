@@ -1,0 +1,191 @@
+<script>
+const freshMapGeneration = {{ fresh_map_generation }};
+const mapPresets = Object.fromEntries({{ map_presets_json|safe }}.map(p => [p.preset, p]));
+const mapSubpresets = Object.fromEntries(Object.entries({{ map_subpresets_json|safe }})
+    .map(([group, presets]) => [group, Object.fromEntries(presets.map(p => [p.preset, p]))]));
+const mapGenerationPresetFields = {
+    landmarks: ['landmarks_preset', ['landmarks']],
+    locations: ['area_locations_preset', ['reward_area_x', 'reward_area_y', 'target_area_x', 'target_area_y']],
+    loops: ['return_paths_preset', ['reward_missing_connect_utility', 'max_return_distance']],
+    sizes: ['area_sizes_preset', ['target_area_rooms']],
+};
+const mapLandmarks = mapSubpresets.landmarks.All.landmarks;
+let mapSettings = structuredClone(mapPresets.Standard);
+const mapRelabelPresets = mapSubpresets.relabel;
+let mapRelabelDraft = structuredClone(mapRelabelPresets.Standard);
+
+function buildMapSettings() {
+    return structuredClone(mapSettings);
+}
+
+function applyMapSettings(settings) {
+    mapSettings = structuredClone(mapPresets[settings.preset] ?? settings);
+    if (mapSettings.generation.max_graph_diameter === undefined) {
+        mapSettings.generation.max_graph_diameter = mapPresets.Standard.generation.max_graph_diameter;
+    }
+    mapSettings.generation.reject_nearby_save_rooms ??= false;
+    mapSettings.generation.reject_nearby_refill_stations ??= false;
+    for (const group of Object.keys(mapGenerationPresetFields)) processMapGenerationPreset(group);
+    for (const field of ['maridia_water', 'norfair_heat']) {
+        const preset = mapSettings.generation[field].preset;
+        if (preset != null) mapClimateChoice(field, preset);
+    }
+    if (mapSettings.area_assignment?.preset != null) {
+        mapSettings.area_assignment = structuredClone(mapRelabelPresets[mapSettings.area_assignment.preset]);
+    }
+    mapRelabelDraft = structuredClone(mapSettings.area_assignment ?? mapRelabelPresets.Standard);
+    renderMapSettings();
+}
+
+function processMapGenerationPreset(group) {
+    const [presetField, fields] = mapGenerationPresetFields[group];
+    const g = mapSettings.generation;
+    const preset = mapSubpresets[group][g[presetField]];
+    if (preset) {
+        for (const field of fields) g[field] = structuredClone(preset[field]);
+    }
+}
+
+function mapPresetChanged(preset) {
+    applyMapSettings(mapPresets[preset]);
+    fullSettingsChanged();
+}
+
+function mapSettingsChanged() {
+    mapSettings.preset = null;
+    renderMapSettings();
+    fullSettingsChanged();
+}
+
+function mapSourceChanged(source) {
+    mapSettings.source = source;
+    if (source !== 'Fresh') {
+        mapSettings.generation.small_map = document.getElementById('mapSource').selectedOptions[0].dataset.smallMap === 'true';
+    }
+    mapSettings.area_assignment = source !== 'Fresh' && source !== 'vanilla'
+        ? structuredClone(mapRelabelPresets.Standard) : null;
+    mapRelabelDraft = structuredClone(mapSettings.area_assignment ?? mapRelabelPresets.Standard);
+    mapSettingsChanged();
+}
+
+function mapAreaShare(area) {
+    const weights = mapSettings.generation.target_area_rooms;
+    return weights[area] / weights.reduce((a, b) => a + b, 0);
+}
+
+function mapClimateChoice(field, choice) {
+    const area = field === 'maridia_water' ? 4 : 2;
+    mapSettings.generation[field] = structuredClone(mapSubpresets.climate[choice]);
+    if (choice === 'Unrestricted') {
+        mapSettings.generation[field].probabilities = Array(3).fill(mapAreaShare(area));
+    }
+}
+
+function mapChoiceChanged(group, value) {
+    const g = mapSettings.generation;
+    switch (group) {
+        case 'size': g.small_map = value === 'Small'; break;
+        case 'landmarks': case 'locations': case 'loops': case 'sizes':
+            g[mapGenerationPresetFields[group][0]] = value;
+            processMapGenerationPreset(group);
+            break;
+        case 'climate':
+            mapClimateChoice('maridia_water', value);
+            mapClimateChoice('norfair_heat', value);
+            break;
+        case 'maridia_water': case 'norfair_heat': mapClimateChoice(group, value); break;
+        case 'relabel':
+            mapSettings.area_assignment = value === 'Off' ? null : structuredClone(mapRelabelPresets[value]);
+            if (mapSettings.area_assignment) mapRelabelDraft = structuredClone(mapSettings.area_assignment);
+            break;
+    }
+    mapSettingsChanged();
+}
+
+function mapLandmarkChanged(landmark, checked) {
+    const g = mapSettings.generation;
+    g.landmarks_preset = null;
+    g.landmarks = mapLandmarks.filter(name => name === landmark ? checked : g.landmarks.includes(name));
+    mapSettingsChanged();
+}
+
+function mapBooleanChanged(field, value) {
+    mapSettings.generation[field] = value === 'true';
+    mapSettingsChanged();
+}
+
+function mapNumberChanged(input) {
+    const path = input.dataset.mapNumber.split('.');
+    let target = mapSettings.generation;
+    for (const key of path.slice(0, -1)) target = target[key];
+    target[path.at(-1)] = input.value === '' ? null : Number(input.value);
+    if (['maridia_water', 'norfair_heat'].includes(path[0])) {
+        mapSettings.generation[path[0]].preset = null;
+    }
+    for (const [presetField, fields] of Object.values(mapGenerationPresetFields)) {
+        if (fields.includes(path[0])) mapSettings.generation[presetField] = null;
+    }
+    mapSettingsChanged();
+}
+
+function mapRelabelChanged() {
+    const value = name => document.querySelector(`input[name="${name}"]:checked`).value;
+    mapRelabelDraft = {
+        preset: null,
+        base_order: value('area_assignment_base_order'),
+        ship_in_crateria: value('area_assignment_ship_in_crateria') === 'true',
+        mother_brain_in_tourian: value('area_assignment_mother_brain_in_tourian') === 'true',
+    };
+    mapSettings.area_assignment = structuredClone(mapRelabelDraft);
+    mapSettingsChanged();
+}
+
+function renderMapSettings() {
+    const g = mapSettings.generation;
+    const select = (group, value) => {
+        for (const radio of document.querySelectorAll(`#mapGroup${group} input`)) {
+            radio.checked = radio.value === value;
+        }
+    };
+    for (const radio of document.querySelectorAll('#mapLayout input')) {
+        radio.checked = radio.value === mapSettings.preset;
+        radio.disabled = !freshMapGeneration && mapPresets[radio.value].source === 'Fresh';
+    }
+    document.getElementById('mapSource').value = mapSettings.source;
+    select('size', mapSettings.source !== 'vanilla' && g.small_map ? 'Small' : 'Full');
+    for (const field of ['reject_nearby_save_rooms', 'reject_nearby_refill_stations']) {
+        select(field, String(g[field]));
+    }
+    for (const [group, [presetField]] of Object.entries(mapGenerationPresetFields)) {
+        select(group, g[presetField]);
+    }
+    for (const landmark of mapLandmarks) {
+        const enabled = g.landmarks.includes(landmark);
+        document.getElementById(`mapLandmark${landmark}Off`).checked = !enabled;
+        document.getElementById(`mapLandmark${landmark}On`).checked = enabled;
+    }
+    for (const [field, area] of [['maridia_water', 4], ['norfair_heat', 2]]) {
+        if (g[field].preset === 'Unrestricted') g[field].probabilities = Array(3).fill(mapAreaShare(area));
+        select(field, g[field].preset);
+    }
+    select('climate', g.maridia_water.preset === g.norfair_heat.preset ? g.maridia_water.preset : null);
+    for (const input of document.querySelectorAll('[data-map-number]')) {
+        const path = input.dataset.mapNumber.split('.');
+        const value = path.reduce((value, key) => value[key], g);
+        input.value = path[1] === 'probabilities' && g[path[0]].preset === 'Unrestricted'
+            ? Number(value.toFixed(3)) : value ?? '';
+    }
+    for (const control of document.querySelectorAll('.map-generation-control')) {
+        control.disabled = mapSettings.source !== 'Fresh';
+    }
+    select('relabel', mapSettings.area_assignment === null ? 'Off' : mapSettings.area_assignment.preset);
+    for (const [name, value] of [
+        ['area_assignment_base_order', mapRelabelDraft.base_order],
+        ['area_assignment_ship_in_crateria', mapRelabelDraft.ship_in_crateria],
+        ['area_assignment_mother_brain_in_tourian', mapRelabelDraft.mother_brain_in_tourian],
+    ]) {
+        for (const radio of document.querySelectorAll(`input[name="${name}"]`)) radio.checked = radio.value === String(value);
+    }
+}
+
+</script>

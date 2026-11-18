@@ -4,119 +4,118 @@ use log::info;
 use rand::{SeedableRng, rngs::StdRng, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
 use std::{
+    collections::{BTreeMap, HashSet},
     fs::File,
-    io::{BufReader, Read, Write},
-    net::TcpStream,
+    io::{BufReader, Read},
     path::{Path, PathBuf},
     time::Duration,
 };
 
+use crate::map_settings::Landmark;
 use crate::randomize::Randomizer;
-use crate::settings::AreaAssignmentBaseOrder;
+use crate::settings::{
+    MapPreset, RandomizerSettings, SkillAssumptionSettings, StartLocationMode, WallJump,
+};
 use maprando_game::{GameData, Map, NodeId, RoomId};
-
-#[derive(Clone, Copy, Debug)]
-pub struct MapSettings {
-    pub small: bool,
-    pub wild: bool,
-    pub vanilla: bool,
-    pub area_assignment_base_order: AreaAssignmentBaseOrder,
-}
-
-impl Default for MapSettings {
-    fn default() -> Self {
-        Self {
-            small: false,
-            wild: false,
-            vanilla: false,
-            area_assignment_base_order: AreaAssignmentBaseOrder::Size,
-        }
-    }
-}
-
-impl MapSettings {
-    pub fn from_map_layout(map_layout: &str) -> Result<Self> {
-        Ok(match map_layout {
-            "Vanilla" => Self {
-                vanilla: true,
-                ..Default::default()
-            },
-            "Small" => Self {
-                small: true,
-                ..Default::default()
-            },
-            "Standard" => Self::default(),
-            "Wild" => Self {
-                wild: true,
-                ..Default::default()
-            },
-            _ => bail!("Unrecognized map layout option: {map_layout}"),
-        })
-    }
-}
 
 pub trait MapRepository: Send + Sync {
     fn get_map_batch(
         &self,
         seed: usize,
-        settings: MapSettings,
+        settings: &RandomizerSettings,
         game_data: &GameData,
     ) -> Result<Vec<Map>>;
 
-    fn requires_area_assignment(&self, _settings: MapSettings) -> bool {
-        true
-    }
+    fn request_refill(&self, settings: &RandomizerSettings) -> Result<()>;
 }
 
-pub struct LocalVanillaMapRepository {
-    vanilla_repository: Box<dyn MapRepository>,
-    other_repository: Box<dyn MapRepository>,
+pub struct SelectableMapRepository {
+    pub pregenerated: PregeneratedMapRepository,
+    pub fresh: Option<HttpMapRepository>,
 }
 
-impl LocalVanillaMapRepository {
-    pub fn new(
-        vanilla_repository: OfflineMapRepository,
-        other_repository: Box<dyn MapRepository>,
-    ) -> Self {
-        Self {
-            vanilla_repository: Box::new(vanilla_repository),
-            other_repository,
-        }
-    }
-}
-
-impl MapRepository for LocalVanillaMapRepository {
+impl MapRepository for SelectableMapRepository {
     fn get_map_batch(
         &self,
         seed: usize,
-        settings: MapSettings,
+        settings: &RandomizerSettings,
         game_data: &GameData,
     ) -> Result<Vec<Map>> {
-        if settings.vanilla {
-            self.vanilla_repository
+        if settings.map_settings.source == "Fresh" {
+            self.fresh
+                .as_ref()
+                .context("Fresh map generation is not configured")?
                 .get_map_batch(seed, settings, game_data)
         } else {
-            self.other_repository
-                .get_map_batch(seed, settings, game_data)
+            self.pregenerated.get_map_batch(seed, settings, game_data)
         }
     }
 
-    fn requires_area_assignment(&self, settings: MapSettings) -> bool {
-        if settings.vanilla {
-            self.vanilla_repository.requires_area_assignment(settings)
-        } else {
-            self.other_repository.requires_area_assignment(settings)
+    fn request_refill(&self, settings: &RandomizerSettings) -> Result<()> {
+        if settings.map_settings.source == "Fresh" {
+            self.fresh
+                .as_ref()
+                .context("Fresh map generation is not configured")?
+                .request_refill(settings)?;
         }
+        Ok(())
     }
 }
 
-pub struct OfflineMapRepository {
-    pools: HashMap<String, OfflineMapPool>,
+pub struct PregeneratedMapRepository {
+    pools: HashMap<String, PregeneratedMapPool>,
 }
 
-struct OfflineMapPool {
-    base_path: PathBuf,
+struct PregeneratedMapPool {
+    source: PregeneratedMapPoolSource,
     filenames: Vec<String>,
+}
+
+enum PregeneratedMapPoolSource {
+    Local(PathBuf),
+    Remote {
+        base_url: reqwest::Url,
+        client: reqwest::blocking::Client,
+    },
+}
+
+#[derive(Deserialize)]
+pub struct MapPoolsConfig {
+    pub preset_fallbacks: BTreeMap<MapPreset, String>,
+    pub pools: Vec<MapPoolConfig>,
+}
+
+#[derive(Deserialize)]
+pub struct MapPoolConfig {
+    pub name: String,
+    pub display_name: String,
+    pub base_url: Option<String>,
+    #[serde(default)]
+    pub small_map: bool,
+}
+
+impl MapPoolsConfig {
+    pub fn load(path: &Path) -> Result<Self> {
+        let config: Self = serde_json::from_slice(
+            &std::fs::read(path).with_context(|| format!("Reading {}", path.display()))?,
+        )
+        .with_context(|| format!("Parsing {}", path.display()))?;
+        let mut pool_names = HashSet::new();
+        for pool in &config.pools {
+            if pool.name == "Fresh" {
+                bail!("Fresh is reserved for fresh map generation and cannot identify a pool");
+            }
+            if !pool_names.insert(pool.name.as_str()) {
+                bail!("Duplicate map pool name {}", pool.name);
+            }
+        }
+        for (preset, pool) in &config.preset_fallbacks {
+            if !pool_names.contains(pool.as_str()) {
+                bail!("Map preset {preset:?} refers to unconfigured pool {pool}");
+            }
+        }
+        Ok(config)
+    }
 }
 
 #[derive(Deserialize)]
@@ -147,47 +146,39 @@ struct MapManifest {
     pub files: Vec<String>,
 }
 
-impl OfflineMapRepository {
-    pub fn new(pools: Vec<(&str, &Path)>) -> Result<Self> {
+impl PregeneratedMapRepository {
+    pub fn new(config: &MapPoolsConfig) -> Result<Self> {
+        let client = reqwest::blocking::Client::builder()
+            .timeout(Duration::from_secs(30))
+            .build()
+            .context("Creating map pool HTTP client")?;
         Ok(Self {
-            pools: pools
-                .into_iter()
-                .map(|(name, base_path)| {
-                    let pool = OfflineMapPool::new(name, base_path)?;
-                    Ok((name.to_string(), pool))
+            pools: config
+                .pools
+                .iter()
+                .map(|pool_config| {
+                    let name = &pool_config.name;
+                    let pool = PregeneratedMapPool::new(name, pool_config, &client)
+                        .with_context(|| format!("Loading map pool {name}"))?;
+                    Ok((name.clone(), pool))
                 })
                 .collect::<Result<HashMap<_, _>>>()?,
         })
     }
-
-    fn pool_name(settings: MapSettings) -> Result<&'static str> {
-        let enabled = [settings.small, settings.wild, settings.vanilla]
-            .into_iter()
-            .filter(|x| *x)
-            .count();
-        if enabled > 1 {
-            bail!("Offline maps support at most one map setting");
-        }
-        if settings.vanilla {
-            Ok("Vanilla")
-        } else if settings.small {
-            Ok("Small")
-        } else if settings.wild {
-            Ok("Wild")
-        } else {
-            Ok("Standard")
-        }
-    }
 }
 
-impl MapRepository for OfflineMapRepository {
+impl MapRepository for PregeneratedMapRepository {
+    fn request_refill(&self, _settings: &RandomizerSettings) -> Result<()> {
+        Ok(())
+    }
+
     fn get_map_batch(
         &self,
         seed: usize,
-        settings: MapSettings,
+        settings: &RandomizerSettings,
         game_data: &GameData,
     ) -> Result<Vec<Map>> {
-        let pool_name = Self::pool_name(settings)?;
+        let pool_name = &settings.map_settings.source;
         let pool = self
             .pools
             .get(pool_name)
@@ -196,34 +187,80 @@ impl MapRepository for OfflineMapRepository {
     }
 }
 
-impl OfflineMapPool {
-    fn new(name: &str, base_path: &Path) -> Result<Self> {
-        let manifest_bytes = std::fs::read(base_path.join("manifest.json"))?;
+impl PregeneratedMapPool {
+    fn new(name: &str, config: &MapPoolConfig, client: &reqwest::blocking::Client) -> Result<Self> {
+        let path = Path::new("../maps").join(name);
+        let manifest_path = path.join("manifest.json");
+        let manifest_bytes = std::fs::read(&manifest_path)
+            .with_context(|| format!("Reading {}", manifest_path.display()))?;
         let manifest: MapManifest = serde_json::from_slice(&manifest_bytes)?;
+        if manifest.files.is_empty() {
+            bail!("Manifest contains no batch files");
+        }
+
+        let local_files = std::fs::read_dir(&path)?
+            .map(|entry| entry.map(|entry| entry.file_name()))
+            .collect::<std::io::Result<HashSet<_>>>()?;
+        let num_local = manifest
+            .files
+            .iter()
+            .filter(|filename| local_files.contains(std::ffi::OsStr::new(filename)))
+            .count();
+        let source = if num_local == manifest.files.len() {
+            info!("{name}: using local batches ({})", path.display());
+            PregeneratedMapPoolSource::Local(path)
+        } else if num_local != 0 {
+            bail!(
+                "Partial local pool in {}: {} of {} batch files missing; finish downloading the pool or remove its batches",
+                path.display(),
+                manifest.files.len() - num_local,
+                manifest.files.len()
+            );
+        } else {
+            let base_url = config
+                .base_url
+                .as_ref()
+                .context("No local batches and no base_url configured")?;
+            let base_url = reqwest::Url::parse(&format!("{}/", base_url.trim_end_matches('/')))?;
+            info!("{name}: using remote batches ({base_url})");
+            PregeneratedMapPoolSource::Remote {
+                base_url,
+                client: client.clone(),
+            }
+        };
 
         let num_maps = match manifest.maps_per_file {
             MapsPerFile::Fixed(n) => manifest.files.len() * n,
             MapsPerFile::Variable(v) => v.iter().sum(),
         };
-        info!(
-            "{}: {} maps available ({})",
-            name,
-            num_maps,
-            base_path.display()
-        );
+        info!("{name}: {num_maps} maps available");
         Ok(Self {
-            base_path: base_path.to_owned(),
+            source,
             filenames: manifest.files,
         })
     }
 
     fn get_map_batch(&self, seed: usize, game_data: &GameData) -> Result<Vec<Map>> {
         let idx = seed % self.filenames.len();
-        let path = self.base_path.join(&self.filenames[idx]);
-        info!("Map batch file: {}", path.display());
-
-        let file = File::open(path)?;
-        let buf_reader = BufReader::new(file);
+        let reader: Box<dyn Read> = match &self.source {
+            PregeneratedMapPoolSource::Local(base_path) => {
+                let path = base_path.join(&self.filenames[idx]);
+                info!("Map batch file: {}", path.display());
+                Box::new(File::open(&path).with_context(|| format!("Opening {}", path.display()))?)
+            }
+            PregeneratedMapPoolSource::Remote { base_url, client } => {
+                let url = base_url.join(&self.filenames[idx])?;
+                info!("Map batch URL: {url}");
+                Box::new(
+                    client
+                        .get(url.clone())
+                        .send()
+                        .and_then(|response| response.error_for_status())
+                        .with_context(|| format!("Fetching map batch {url}"))?,
+                )
+            }
+        };
+        let buf_reader = BufReader::new(reader);
         let avro_reader = apache_avro::Reader::new(buf_reader)?;
         let mut map_vec: Vec<Map> = vec![];
 
@@ -240,52 +277,74 @@ impl OfflineMapPool {
 }
 
 pub struct HttpMapRepository {
-    host: String,
-    port: u16,
-    path: String,
+    base_url: String,
+    client: reqwest::blocking::Client,
+    difficulty_bins: Vec<(String, f32)>,
 }
 
 #[derive(Serialize)]
 struct GenerateRequest {
+    max_num_maps: usize,
     episode_length: usize,
     recommended_candidates: usize,
     shortlist_candidates: usize,
+    num_scored_invalid_candidates: usize,
+    max_candidate_areas_per_placement: usize,
+    recommended_candidates_same_frontier: bool,
+    guarantee_phantoon_counterpart: bool,
+    reject_nearby_save_rooms: bool,
+    reject_nearby_refill_stations: bool,
     temperature: f64,
     proposal_temperature: f64,
     reward_door: f64,
     reward_connection: f64,
     reward_toilet: f64,
-    reward_phantoon: f64,
-    reward_balance: f64,
-    reward_toilet_balance: f64,
+    reward_phantoon_pair: f64,
+    reward_phantoon_area: f64,
+    reward_success: f64,
+    reward_initial_item: f64,
+    initial_item_start: Option<(RoomId, NodeId)>,
+    initial_item_difficulty: String,
+    initial_item_wall_jump: bool,
+    reward_ship_in_crateria: f64,
+    reward_kraid_in_brinstar: f64,
+    reward_ridley_in_norfair: f64,
+    reward_phantoon_in_wrecked_ship: f64,
+    reward_draygon_in_maridia: f64,
+    reward_mother_brain_in_tourian: f64,
+    force_ship_in_crateria: bool,
+    force_kraid_in_brinstar: bool,
+    force_ridley_in_norfair: bool,
+    force_phantoon_in_wrecked_ship: bool,
+    force_draygon_in_maridia: bool,
+    force_mother_brain_in_tourian: bool,
     reward_frontier: f64,
+    max_graph_diameter: Option<f64>,
     reward_graph_diameter: f64,
+    maridia_water_preferred_probability_1: f64,
+    maridia_water_preferred_probability_2: f64,
+    maridia_water_preferred_probability_3: f64,
+    norfair_heat_preferred_probability_1: f64,
+    norfair_heat_preferred_probability_2: f64,
+    norfair_heat_preferred_probability_3: f64,
     reward_save_distance: f64,
     reward_refill_distance: f64,
     reward_missing_connect_utility: f64,
+    door_balance_strength: f64,
+    max_return_distance: Option<f64>,
+    reward_area_distinct_crossing: f64,
+    reward_area_crossing: f64,
+    reward_area_size_valid: f64,
+    reward_area_map_station: f64,
+    reward_area_x: f64,
+    reward_area_y: f64,
+    target_area_rooms: [f64; 6],
+    target_area_x: [f64; 6],
+    target_area_y: [f64; 6],
     small_map: bool,
     min_rooms: Option<usize>,
     max_rooms: Option<usize>,
     target_rooms: Option<usize>,
-    area_assignment_base_order: GenerateAreaAssignmentBaseOrder,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Serialize)]
-#[serde(rename_all = "lowercase")]
-enum GenerateAreaAssignmentBaseOrder {
-    Size,
-    Depth,
-    Random,
-}
-
-impl From<AreaAssignmentBaseOrder> for GenerateAreaAssignmentBaseOrder {
-    fn from(value: AreaAssignmentBaseOrder) -> Self {
-        match value {
-            AreaAssignmentBaseOrder::Size => Self::Size,
-            AreaAssignmentBaseOrder::Depth => Self::Depth,
-            AreaAssignmentBaseOrder::Random => Self::Random,
-        }
-    }
 }
 
 #[derive(Deserialize)]
@@ -315,7 +374,7 @@ struct GenerateResponseEdges {
 }
 
 impl HttpMapRepository {
-    pub fn new(server: &str) -> Result<Self> {
+    pub fn new(server: &str, skill_presets: &[SkillAssumptionSettings]) -> Result<Self> {
         let server = server
             .strip_prefix("http://")
             .unwrap_or(server)
@@ -324,41 +383,148 @@ impl HttpMapRepository {
             bail!("Map generation server must use HTTP, not HTTPS");
         }
         let (host, port) = if let Some((host, port)) = server.rsplit_once(':') {
-            (host.to_string(), port.parse()?)
+            (host, port.parse::<u16>()?)
         } else {
             bail!("Map generation server must be in host:port format");
         };
+        let mut difficulty_bins: Vec<_> = skill_presets
+            .iter()
+            .filter(|preset| preset.preset.as_deref() != Some("Implicit"))
+            .map(|preset| {
+                (
+                    preset.preset.clone().unwrap(),
+                    preset.escape_timer_multiplier,
+                )
+            })
+            .collect();
+        difficulty_bins.sort_by(|a, b| b.1.total_cmp(&a.1));
         Ok(Self {
-            host,
-            port,
-            path: "/generate".to_string(),
+            base_url: format!("http://{host}:{port}"),
+            client: reqwest::blocking::Client::builder()
+                .timeout(Duration::from_secs(300))
+                .no_proxy()
+                .redirect(reqwest::redirect::Policy::none())
+                .build()
+                .context("Failed to create map generation HTTP client")?,
+            difficulty_bins,
         })
     }
 
-    fn generate_request(settings: MapSettings) -> GenerateRequest {
-        GenerateRequest {
+    fn initial_item_difficulty(&self, skill: &SkillAssumptionSettings) -> Result<String> {
+        if let Some(name) = &skill.preset {
+            if !self
+                .difficulty_bins
+                .iter()
+                .any(|(preset, _)| preset == name)
+            {
+                bail!("Unsupported initial-item difficulty preset: {name}");
+            }
+            return Ok(name.clone());
+        }
+        // Midpoints belong to the larger multiplier (the more conservative tier).
+        let preset = self
+            .difficulty_bins
+            .windows(2)
+            .find(|pair| skill.escape_timer_multiplier >= (pair[0].1 + pair[1].1) / 2.0);
+        Ok(preset.map_or_else(
+            || self.difficulty_bins.last().unwrap().0.clone(),
+            |pair| pair[0].0.clone(),
+        ))
+    }
+
+    fn generate_request(&self, settings: &RandomizerSettings) -> Result<GenerateRequest> {
+        let g = &settings.map_settings.generation;
+        let initial_item_start = match settings.start_location_settings.mode {
+            StartLocationMode::Ship => Some((8, 5)),
+            StartLocationMode::Custom => Some((
+                settings
+                    .start_location_settings
+                    .room_id
+                    .context("expected start room_id")?,
+                settings
+                    .start_location_settings
+                    .node_id
+                    .context("expected start node_id")?,
+            )),
+            StartLocationMode::Random | StartLocationMode::Escape => None,
+        };
+        let initial_item_wall_jump = settings.other_settings.wall_jump == WallJump::Vanilla;
+        let water = g.maridia_water.effective_probabilities(g.area_share(4));
+        let heat = g.norfair_heat.effective_probabilities(g.area_share(2));
+        let ship = g.landmarks.contains(&Landmark::Ship);
+        let kraid = g.landmarks.contains(&Landmark::Kraid);
+        let ridley = g.landmarks.contains(&Landmark::Ridley);
+        let phantoon = g.landmarks.contains(&Landmark::Phantoon);
+        let draygon = g.landmarks.contains(&Landmark::Draygon);
+        let mother_brain = g.landmarks.contains(&Landmark::MotherBrain);
+        Ok(GenerateRequest {
+            max_num_maps: 1,
             episode_length: 253,
-            recommended_candidates: 4,
-            shortlist_candidates: 16,
-            temperature: 0.03,
-            proposal_temperature: 0.3,
+            recommended_candidates: 8,
+            shortlist_candidates: 1024,
+            num_scored_invalid_candidates: 0,
+            max_candidate_areas_per_placement: 2,
+            recommended_candidates_same_frontier: false,
+            guarantee_phantoon_counterpart: true,
+            reject_nearby_save_rooms: g.reject_nearby_save_rooms,
+            reject_nearby_refill_stations: g.reject_nearby_refill_stations,
+            temperature: 0.04,
+            proposal_temperature: 0.02,
             reward_door: 1.0,
             reward_connection: 1.0,
             reward_toilet: 1.0,
-            reward_phantoon: 1.0,
-            reward_balance: 0.1,
-            reward_toilet_balance: 0.1,
+            reward_phantoon_pair: 1.0,
+            reward_phantoon_area: 1.0,
+            reward_success: 0.0,
+            reward_initial_item: if initial_item_start.is_some() {
+                1.0
+            } else {
+                0.0
+            },
+            initial_item_start,
+            initial_item_difficulty: self
+                .initial_item_difficulty(&settings.skill_assumption_settings)?,
+            initial_item_wall_jump,
+            reward_ship_in_crateria: if ship { 1.0 } else { 0.0 },
+            reward_kraid_in_brinstar: if kraid { 1.0 } else { 0.0 },
+            reward_ridley_in_norfair: if ridley { 1.0 } else { 0.0 },
+            reward_phantoon_in_wrecked_ship: if phantoon { 1.0 } else { 0.0 },
+            reward_draygon_in_maridia: if draygon { 1.0 } else { 0.0 },
+            reward_mother_brain_in_tourian: if mother_brain { 1.0 } else { 0.0 },
+            force_ship_in_crateria: ship,
+            force_kraid_in_brinstar: kraid,
+            force_ridley_in_norfair: ridley,
+            force_phantoon_in_wrecked_ship: phantoon,
+            force_draygon_in_maridia: draygon,
+            force_mother_brain_in_tourian: mother_brain,
             reward_frontier: 0.0,
-            reward_graph_diameter: 0.1,
-            reward_save_distance: 0.1,
-            reward_refill_distance: 0.1,
-            reward_missing_connect_utility: if settings.wild { 0.0 } else { 1.0 },
-            small_map: settings.small,
-            min_rooms: settings.small.then_some(120),
-            max_rooms: settings.small.then_some(180),
-            target_rooms: settings.small.then_some(150),
-            area_assignment_base_order: settings.area_assignment_base_order.into(),
-        }
+            max_graph_diameter: g.max_graph_diameter,
+            reward_graph_diameter: g.reward_graph_diameter,
+            maridia_water_preferred_probability_1: water[0],
+            maridia_water_preferred_probability_2: water[1],
+            maridia_water_preferred_probability_3: water[2],
+            norfair_heat_preferred_probability_1: heat[0],
+            norfair_heat_preferred_probability_2: heat[1],
+            norfair_heat_preferred_probability_3: heat[2],
+            reward_save_distance: g.reward_save_distance,
+            reward_refill_distance: g.reward_refill_distance,
+            reward_missing_connect_utility: g.reward_missing_connect_utility,
+            door_balance_strength: g.door_balance_strength,
+            max_return_distance: g.max_return_distance,
+            reward_area_distinct_crossing: g.reward_area_distinct_crossing,
+            reward_area_crossing: 0.0,
+            reward_area_size_valid: 1.0,
+            reward_area_map_station: 1.0,
+            reward_area_x: g.reward_area_x,
+            reward_area_y: g.reward_area_y,
+            target_area_rooms: g.target_area_rooms,
+            target_area_x: g.target_area_x,
+            target_area_y: g.target_area_y,
+            small_map: g.small_map,
+            min_rooms: g.small_map.then_some(120),
+            max_rooms: g.small_map.then_some(180),
+            target_rooms: g.small_map.then_some(150),
+        })
     }
 
     fn response_to_maps(response: GenerateResponse, game_data: &GameData) -> Result<Vec<Map>> {
@@ -373,63 +539,56 @@ impl HttpMapRepository {
         Ok(maps)
     }
 
-    fn request_generate(&self, settings: MapSettings) -> Result<GenerateResponse> {
-        let body = serde_json::to_vec(&Self::generate_request(settings))?;
-        let mut stream =
-            TcpStream::connect((self.host.as_str(), self.port)).with_context(|| {
-                format!(
-                    "Failed to connect to map generation server {}:{}",
-                    self.host, self.port
-                )
-            })?;
-        stream.set_read_timeout(Some(Duration::from_secs(300)))?;
-        stream.set_write_timeout(Some(Duration::from_secs(30)))?;
+    fn request_generate(&self, settings: &RandomizerSettings) -> Result<GenerateResponse> {
+        serde_json::from_value(self.post("/generate", settings)?)
+            .context("Failed to parse map generation response JSON")
+    }
 
-        write!(
-            stream,
-            "POST {} HTTP/1.1\r\n\
-             Host: {}:{}\r\n\
-             Content-Type: application/json\r\n\
-             Content-Length: {}\r\n\
-             Connection: close\r\n\
-             \r\n",
-            self.path,
-            self.host,
-            self.port,
-            body.len()
-        )?;
-        stream.write_all(&body)?;
-        stream.flush()?;
-
-        let mut response_bytes = Vec::new();
-        stream.read_to_end(&mut response_bytes)?;
-        parse_generate_response(&response_bytes).with_context(|| {
-            format!(
-                "Failed to parse response from map generation server {}:{}",
-                self.host, self.port
-            )
-        })
+    fn post(&self, path: &str, settings: &RandomizerSettings) -> Result<serde_json::Value> {
+        let url = format!("{}{path}", self.base_url);
+        let response = self
+            .client
+            .post(&url)
+            .json(&self.generate_request(settings)?)
+            .send()
+            .with_context(|| format!("Map generation request failed: {url}"))?;
+        let status = response.status();
+        if !status.is_success() {
+            let body = response
+                .text()
+                .context("Failed to read map generation error response")?;
+            bail!(
+                "Map generation server returned HTTP status {}: {body}",
+                status.as_u16()
+            );
+        }
+        response
+            .json()
+            .with_context(|| format!("Failed to parse response from map generation server {url}"))
     }
 }
 
 impl MapRepository for HttpMapRepository {
     fn get_map_batch(
         &self,
-        seed: usize,
-        settings: MapSettings,
+        _seed: usize,
+        settings: &RandomizerSettings,
         game_data: &GameData,
     ) -> Result<Vec<Map>> {
+        settings.map_settings.generation.validate()?;
+        // TODO: if it is feasible to make fresh map generation reproducible,
+        // plumb the `_seed` through to the request. It is ignored for now.
         let response = self.request_generate(settings)?;
-        let mut maps = Self::response_to_maps(response, game_data)?;
+        let maps = Self::response_to_maps(response, game_data)?;
         if maps.is_empty() {
             bail!("Map generation server returned no valid maps");
         }
-        shuffle_maps(&mut maps, seed);
         Ok(maps)
     }
 
-    fn requires_area_assignment(&self, _settings: MapSettings) -> bool {
-        false
+    fn request_refill(&self, settings: &RandomizerSettings) -> Result<()> {
+        self.post("/refill", settings)?;
+        Ok(())
     }
 }
 
@@ -767,30 +926,4 @@ fn validate_response_lengths(response: &GenerateResponse, map_count: usize) -> R
         }
     }
     Ok(())
-}
-
-fn parse_generate_response(response_bytes: &[u8]) -> Result<GenerateResponse> {
-    let header_end = response_bytes
-        .windows(4)
-        .position(|window| window == b"\r\n\r\n")
-        .with_context(|| "HTTP response missing header terminator")?;
-    let header_bytes = &response_bytes[..header_end];
-    let body_bytes = &response_bytes[header_end + 4..];
-    let header_text = std::str::from_utf8(header_bytes)?;
-    let mut header_lines = header_text.lines();
-    let status_line = header_lines
-        .next()
-        .with_context(|| "HTTP response missing status line")?;
-    let status = status_line
-        .split_whitespace()
-        .nth(1)
-        .with_context(|| format!("Malformed HTTP status line: {status_line}"))?
-        .parse::<u16>()?;
-    if !(200..300).contains(&status) {
-        bail!(
-            "Map generation server returned HTTP status {status}: {}",
-            String::from_utf8_lossy(body_bytes)
-        );
-    }
-    serde_json::from_slice(body_bytes).context("Failed to parse map generation response JSON")
 }

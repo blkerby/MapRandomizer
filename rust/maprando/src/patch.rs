@@ -20,8 +20,9 @@ use crate::{
     settings::{
         AreaAssignmentPreset, CrashFixes, CrashFixesPreset, DisableETankSetting, ETankRefill,
         EnemyDrops, Fanfares, FixMode, ItemCount, MapPreset, MotherBrainFight, ObjPreset,
-        Objective, ObjectiveScreen, ProgressionPreset, QolPreset, RandomizerSettings, SaveAnimals,
-        SaveState, SkillPreset, SpeedBooster, StartLocationMode, WallJump,
+        Objective, ObjectiveAreas, ObjectiveScreen, ProgressionPreset, QolPreset,
+        RandomizerSettings, SaveAnimals, SaveState, SkillPreset, SpeedBooster, StartLocationMode,
+        WallJump,
     },
 };
 use anyhow::{Context, Result, bail, ensure};
@@ -570,6 +571,10 @@ impl Patcher<'_> {
             patches.push("missile_refill_all");
         }
 
+        if self.settings.quality_of_life_settings.animated_tiles {
+            patches.push("animated_map_tiles");
+        }
+
         if self.settings.quality_of_life_settings.crash_fixes.preset
             != Some(CrashFixesPreset::Crash)
         {
@@ -731,7 +736,7 @@ impl Patcher<'_> {
             }
         }
 
-        if self.settings.map_layout != "Vanilla" {
+        if !self.settings.map_settings.is_vanilla() {
             patches.push("zebes_asleep_music");
         }
 
@@ -788,7 +793,7 @@ impl Patcher<'_> {
         }
 
         if let Some(escape_items) = escape_itembits {
-            self.rom.write_u16(snes2pc(0xA9FB7B), escape_items)?;
+            self.rom.write_u16(snes2pc(0xA9FB75), escape_items)?;
         }
 
         if self.settings.item_progression_settings.missile_size != 5 {
@@ -1068,16 +1073,13 @@ impl Patcher<'_> {
     }
 
     fn get_arrow_xy(&self, door: &RoomGeometryDoor) -> (isize, isize) {
-        if door.direction == "left" {
-            (door.x as isize - 1, door.y as isize)
-        } else if door.direction == "right" {
-            (door.x as isize + 1, door.y as isize)
-        } else if door.direction == "up" {
-            (door.x as isize, door.y as isize - 1)
-        } else if door.direction == "down" {
-            (door.x as isize, door.y as isize + 1)
-        } else {
-            panic!("Unrecognized door direction: {}", door.direction);
+        let (x, y) = (door.x as isize, door.y as isize);
+        match door.direction.as_str() {
+            "left" => (x - 1, y),
+            "right" => (x + 1, y),
+            "up" => (x, y - 1),
+            "down" => (x, y + 1),
+            other => panic!("Unrecognized door direction: {}", other),
         }
     }
 
@@ -1769,6 +1771,7 @@ impl Patcher<'_> {
                 }
                 // Skip MB2 and MB3:
                 self.rom.write_u16(snes2pc(0xA98D80), 0xAEE1)?;
+                self.rom.write_u16(snes2pc(0xA98D3F), 0x0000)?; // disable bg2 tilemap request
                 self.rom.write_n(
                     snes2pc(0xA9AEFD),
                     &[
@@ -2095,7 +2098,10 @@ impl Patcher<'_> {
     }
 
     fn write_autotracker_map_layout(&mut self) -> Result<()> {
-        let value: u8 = MapPreset::from_preset(&self.settings.map_layout)
+        let value: u8 = self
+            .settings
+            .map_settings
+            .preset
             .map(MapPreset::to_byte)
             .unwrap_or(0);
         self.rom.write_u8(snes2pc(0xdfff0d), value as isize)?;
@@ -2607,6 +2613,16 @@ impl Patcher<'_> {
                 (Some(0x18A06), Some(0x1A300)), // West Ocean Gravity Suit door
                 (Some(0x193EA), Some(0x193D2)), // Crocomire's Room top door
             ]);
+        }
+        // Hazard marker for entering top of Aqueduct only if "Top Door Snail Step" notable disabled:
+        if !self
+            .settings
+            .skill_assumption_settings
+            .notable_settings
+            .iter()
+            .any(|notable| notable.room_id == 183 && notable.notable_id == 10 && notable.enabled)
+        {
+            door_ptr_pairs.push((Some(0x1A72C), Some(0x1A768))); // Aqueduct (top)
         }
         for pair in door_ptr_pairs {
             self.apply_door_hazard_marker(pair)?;
@@ -3573,33 +3589,138 @@ impl Patcher<'_> {
         // Sort the coordinates of objective checkboxes in row-major order, to correspond
         // with the order that the mb_barrier_clear.asm expects.
         let mut obj_coords_vec: Vec<(usize, usize)> = obj_coords.keys().copied().collect();
+        let mut coords_offset = 0;
         assert!(obj_coords_vec.len() == self.randomization.objectives.len());
         obj_coords_vec.sort();
         for (obj_i, coords) in obj_coords_vec.iter().enumerate() {
             let obj = obj_coords[coords];
-            let (addr, mask) = match obj {
-                Kraid => (0xD829, 1),
-                Ridley => (0xD82A, 1),
-                Phantoon => (0xD82B, 1),
-                Draygon => (0xD82C, 1),
-                SporeSpawn => (0xD829, 2),
-                Crocomire => (0xD82A, 2),
-                Botwoon => (0xD82C, 2),
-                GoldenTorizo => (0xD82A, 4),
-                MetroidRoom1 => (0xD822, 1),
-                MetroidRoom2 => (0xD822, 2),
-                MetroidRoom3 => (0xD822, 4),
-                MetroidRoom4 => (0xD822, 8),
-                BombTorizo => (0xD828, 4),
-                BowlingStatue => (0xD823, 1),
-                AcidChozoStatue => (0xD821, 0x10),
-                PitRoom => (0xD823, 2),
-                BabyKraidRoom => (0xD823, 4),
-                PlasmaRoom => (0xD823, 8),
-                MetalPiratesRoom => (0xD823, 0x10),
+            let (addr, mask, room_hdr, offset_state_hdr, tile_coords) = match obj {
+                Kraid => (0xD829, 1, 0xA59F, 18, vec![(0, 0), (1, 0), (0, 1), (1, 1)]),
+                Ridley => (0xD82A, 1, 0xB32E, 18, vec![(0, 0), (0, 1)]),
+                Phantoon => (0xD82B, 1, 0xCD13, 18, vec![(0, 0)]),
+                Draygon => (0xD82C, 1, 0xDA60, 18, vec![(0, 0), (1, 0), (0, 1), (1, 1)]),
+                SporeSpawn => (0xD829, 2, 0x9DC7, 18, vec![(0, 0), (0, 1), (0, 2)]),
+                Crocomire => (
+                    0xD82A,
+                    2,
+                    0xA98D,
+                    18,
+                    vec![
+                        (0, 0),
+                        (1, 0),
+                        (2, 0),
+                        (3, 0),
+                        (4, 0),
+                        (5, 0),
+                        (6, 0),
+                        (7, 0),
+                    ],
+                ),
+                Botwoon => (0xD82C, 2, 0xD95E, 18, vec![(0, 0), (1, 0)]),
+                GoldenTorizo => (0xD82A, 4, 0xB283, 18, vec![(0, 0), (1, 0), (0, 1), (1, 1)]),
+                MetroidRoom1 => (
+                    0xD822,
+                    1,
+                    0xDAE1,
+                    18,
+                    vec![(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0)],
+                ),
+                MetroidRoom2 => (0xD822, 2, 0xDB31, 18, vec![(0, 0), (0, 1)]),
+                MetroidRoom3 => (
+                    0xD822,
+                    4,
+                    0xDB7D,
+                    18,
+                    vec![(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0)],
+                ),
+                MetroidRoom4 => (0xD822, 8, 0xDBCD, 18, vec![(0, 0), (0, 1)]),
+                BombTorizo => (0xD828, 4, 0x9804, 23, vec![(0, 0)]),
+                BowlingStatue => (
+                    0xD823,
+                    1,
+                    0xC98E,
+                    18,
+                    vec![
+                        (2, 0),
+                        (3, 0),
+                        (4, 0),
+                        (5, 0),
+                        (0, 1),
+                        (1, 1),
+                        (2, 1),
+                        (3, 1),
+                        (4, 1),
+                        (5, 1),
+                        (1, 2),
+                        (2, 2),
+                        (3, 2),
+                        (4, 2),
+                        (5, 2),
+                    ],
+                ),
+                AcidChozoStatue => (
+                    0xD821,
+                    0x10,
+                    0xB1E5,
+                    13,
+                    vec![(0, 0), (1, 0), (0, 1), (1, 1), (0, 2), (1, 2), (2, 2)],
+                ),
+                PitRoom => (0xD823, 2, 0x975C, 17, vec![(0, 0), (1, 0), (2, 0), (0, 1)]),
+                BabyKraidRoom => (
+                    0xD823,
+                    4,
+                    0xA521,
+                    18,
+                    vec![(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0)],
+                ),
+                PlasmaRoom => (
+                    0xD823,
+                    8,
+                    0xD2AA,
+                    13,
+                    vec![(0, 0), (1, 0), (0, 1), (1, 1), (0, 2), (1, 2)],
+                ),
+                MetalPiratesRoom => (0xD823, 0x10, 0xB62B, 13, vec![(0, 0), (1, 0), (2, 0)]),
             };
             self.rom.write_u16(snes2pc(0x8FEBC0) + obj_i * 2, addr)?;
             self.rom.write_u16(snes2pc(0x8FEBE8) + obj_i * 2, mask)?;
+            // metatable format: room_hdr, offset_state_hdr, coords_offset, n_coords
+            match self.settings.objective_settings.objective_areas {
+                ObjectiveAreas::Enabled => {
+                    self.rom
+                        .write_u16(snes2pc(0x8FED00) + obj_i * 6, room_hdr)?;
+                    self.rom
+                        .write_u8(snes2pc(0x8FED02) + obj_i * 6, offset_state_hdr)?;
+                    self.rom
+                        .write_u16(snes2pc(0x8FED03) + obj_i * 6, coords_offset as isize)?;
+                    self.rom
+                        .write_u8(snes2pc(0x8FED05) + obj_i * 6, tile_coords.len() as isize)?;
+
+                    for &(x, y) in &tile_coords {
+                        self.rom.write_u8(snes2pc(0x85C800) + coords_offset, x)?;
+                        self.rom
+                            .write_u8(snes2pc(0x85C800) + coords_offset + 1, y)?;
+                        coords_offset += 2;
+                    }
+                }
+                ObjectiveAreas::Disabled => {}
+            }
+        }
+
+        match self.settings.objective_settings.objective_areas {
+            ObjectiveAreas::Enabled => {}
+            ObjectiveAreas::Disabled => {
+                self.rom.write_u16(snes2pc(0x8FED00), 0x0000)?; // disabled flag
+
+                let green_check = [
+                    0x01, 0x00, 0x03, 0x00, 0x06, 0x00, 0x8C, 0x00, 0xD8, 0x00, 0x70, 0x00, 0x20,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                ];
+                for (i, &byte) in green_check.iter().enumerate() {
+                    self.rom.write_u8(snes2pc(0x62A160) + i, byte)?;
+                }
+            }
         }
 
         Ok(())
@@ -3766,9 +3887,11 @@ pub fn make_rom(
     patcher.remove_non_blue_doors()?;
     patcher.write_crash_handler(&patcher.settings.quality_of_life_settings.crash_fixes)?;
     override_music(patcher.rom)?;
-    if randomizer_settings.map_layout != "Vanilla"
-        || randomizer_settings.other_settings.area_assignment.preset
-            != Some(AreaAssignmentPreset::Standard)
+    if !randomizer_settings.map_settings.is_vanilla()
+        || randomizer_settings
+            .map_settings
+            .area_assignment
+            .is_some_and(|a| a.preset != Some(AreaAssignmentPreset::Standard))
     {
         patcher.use_area_based_music()?;
     }

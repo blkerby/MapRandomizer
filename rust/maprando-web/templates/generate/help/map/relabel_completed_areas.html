@@ -1,0 +1,25 @@
+<div class="modal map-settings-modal" id="mapRelabelHelpModal" tabindex="-1" data-parent-modal="mapSettingsModal">
+  <div class="modal-dialog modal-lg modal-fullscreen-sm-down modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Relabel completed areas</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>This setting changes which area labels are assigned to the generated areas of completed maps:</p>
+        <ul>
+          <li><strong>Off:</strong> Keeps the area names assigned during map generation.</li>
+          <li><strong>Standard:</strong> Assigns Crateria to the area containing Landing Site and Tourian to the area containing Mother Brain. The remaining areas are named by size.</li>
+          <li><strong>Size:</strong> Assigns area names from largest to smallest: Norfair, Brinstar, Maridia, Crateria, Tourian, Wrecked Ship.</li>
+          <li><strong>Depth:</strong> Assigns area names from highest to lowest on the map: Crateria, Wrecked Ship, Tourian, Brinstar, Maridia, Norfair. Each area's highest map tile determines its position in this order.</li>
+          <li><strong>Random:</strong> Assigns area names at random.</li>
+        </ul>
+        <p>Relabeling can override the effects of the landmark, heat/water, area-location, and area-size settings. It changes area names without moving rooms.</p>
+        <p>Use the gear button to customize the ordering and whether the Ship and Mother Brain determine the names of their areas.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

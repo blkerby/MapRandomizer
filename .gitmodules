@@ -19,3 +19,6 @@
 [submodule "rust/lznint"]
 	path = rust/lznint
 	url = https://github.com/blkerby/lznint.git
+[submodule "map-gen"]
+	path = map-gen
+	url = https://github.com/blkerby/map-gen

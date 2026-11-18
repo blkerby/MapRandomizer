@@ -2163,7 +2163,7 @@ impl GameData {
                 Requirement::HeatFrames(110.into()),
             )],
             DoorType::Beam(BeamType::Charge) => vec![(
-                vec!["charge"],
+                vec!["missiles", "ammo"],
                 Requirement::Item(Item::Charge as ItemId),
                 Requirement::HeatFrames(60.into()),
             )],
@@ -3107,7 +3107,7 @@ impl GameData {
                     .notable_map
                     .unwrap()
                     .get(&notable_name)
-                    .context(format!("Undefined notable: {}", &notable_name))?;
+                    .context(format!("Undefined notable: {}", notable_name))?;
                 return Ok(Requirement::Notable(notable_idx));
             } else if key == "heatFramesWithEnergyDrops" {
                 let frames = self.parse_numeric(&value["frames"]).unwrap_or_else(|e| {

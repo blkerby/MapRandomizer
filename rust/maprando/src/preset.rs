@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{collections::BTreeMap, path::Path};
 
 use anyhow::{Context, Result};
 use hashbrown::HashMap;
@@ -7,10 +7,11 @@ use maprando_game::{GameData, IndexedVec, NotableId, RoomId, TechId};
 use serde::{Deserialize, Serialize};
 
 use crate::{
+    map_settings::MapSettings,
     randomize::DifficultyConfig,
     settings::{
-        DoorsSettings, ItemProgressionSettings, ObjectiveSettings, QualityOfLifeSettings,
-        RandomizerSettings, SkillAssumptionSettings,
+        AreaAssignment, AreaAssignmentPreset, DoorsSettings, ItemProgressionSettings, MapPreset,
+        ObjectiveSettings, QualityOfLifeSettings, RandomizerSettings, SkillAssumptionSettings,
     },
 };
 
@@ -33,6 +34,8 @@ pub struct NotableData {
 }
 
 pub struct PresetData {
+    pub fresh_map_generation: bool,
+    pub map_pool_presets: BTreeMap<MapPreset, String>,
     pub tech_data_map: HashMap<TechId, TechData>,
     pub notable_data_map: HashMap<(RoomId, NotableId), NotableData>,
     pub difficulty_levels: IndexedVec<String>,
@@ -80,6 +83,19 @@ fn get_notables_by_difficulty(
 }
 
 impl PresetData {
+    pub fn map_settings_from_preset(&self, preset: MapPreset) -> MapSettings {
+        let mut settings = MapSettings::from_preset(preset);
+        if !self.fresh_map_generation
+            && preset != MapPreset::Vanilla
+            && let Some(pool) = self.map_pool_presets.get(&preset)
+        {
+            settings.source = pool.clone();
+            settings.area_assignment =
+                Some(AreaAssignment::from_preset(AreaAssignmentPreset::Standard));
+        }
+        settings
+    }
+
     pub fn load(
         tech_path: &Path,
         notable_path: &Path,
@@ -258,6 +274,8 @@ impl PresetData {
             logic_page_presets.push(preset);
         }
         let preset_data = Self {
+            fresh_map_generation: false,
+            map_pool_presets: BTreeMap::new(),
             tech_data_map,
             notable_data_map,
             difficulty_levels,

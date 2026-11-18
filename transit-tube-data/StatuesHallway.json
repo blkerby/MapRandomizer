@@ -90,6 +90,18 @@
         "bottom": "Statues Hallway"
     },
     {
+        "name": "Halfie Climb Room",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Colosseum",
+        "x": [0, 1, 2, 3, 4, 5, 6],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
         "name": "Early Supers Room",
         "x": [0, 1, 2],
         "top": "Statues Hallway",
@@ -350,6 +362,12 @@
     {
         "name": "West Cactus Alley Room",
         "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "East Cactus Alley Room",
+        "x": [0, 4],
         "top": "Statues Hallway",
         "bottom": "Statues Hallway"
     },

@@ -1,12 +1,13 @@
 FROM rust:1.94.1-bookworm AS development
 
-RUN apt-get update && apt-get install -y zstd
+RUN apt-get update && apt-get install -y zstd python3
 
-# Download the map datasets and Mosaic patches
+# Download the map manifests and Mosaic patches
 WORKDIR /
 COPY /scripts /scripts
 COPY /MOSAIC_BUILD_ID /MOSAIC_BUILD_ID
-RUN bash /scripts/download_data.sh
+COPY /rust/data/map_pools.json /map_pools.json
+RUN bash /scripts/download_data.sh --config /map_pools.json
 
 # Stopping at this point gives us an image suitable for local development, e.g. using Dev Containers.
 # The rest of the Dockerfile is for building the production image.

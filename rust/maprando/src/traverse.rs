@@ -2399,7 +2399,7 @@ fn apply_requirement_simple(
                 &cx.game_data.node_reset_room_requirement[&(other_room_id, other_node_id)];
             apply_requirement_simple(reset_req, local, cx)
         }
-        Requirement::EscapeMorphLocation => (cx.settings.map_layout == "Vanilla").into(),
+        Requirement::EscapeMorphLocation => (cx.settings.map_settings.is_vanilla()).into(),
         Requirement::EnemyDrops => {
             (cx.settings.quality_of_life_settings.enemy_drops != EnemyDrops::Off).into()
         }

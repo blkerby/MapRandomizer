@@ -90,6 +90,18 @@
         "bottom": "Green Maridia"
     },
     {
+        "name": "Halfie Climb Room",
+        "x": [0],
+        "top": "Green Maridia",
+        "bottom": "Green Maridia"
+    },
+    {
+        "name": "Colosseum",
+        "x": [0, 1, 2, 3, 4, 5, 6],
+        "top": "Green Maridia",
+        "bottom": "Green Maridia"
+    },
+    {
         "name": "Early Supers Room",
         "x": [0, 1, 2],
         "top": "Green Maridia",
@@ -350,6 +362,12 @@
     {
         "name": "West Cactus Alley Room",
         "x": [0],
+        "top": "Green Maridia",
+        "bottom": "Green Maridia"
+    },
+    {
+        "name": "East Cactus Alley Room",
+        "x": [0, 4],
         "top": "Green Maridia",
         "bottom": "Green Maridia"
     },

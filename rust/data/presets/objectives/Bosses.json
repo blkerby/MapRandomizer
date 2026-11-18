@@ -23,5 +23,6 @@
     ],
     "min_objectives": 4,
     "max_objectives": 4,
-    "objective_screen": "Enabled"
+    "objective_screen": "Enabled",
+    "objective_areas": "Enabled"
 }

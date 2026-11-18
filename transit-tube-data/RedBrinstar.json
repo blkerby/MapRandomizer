@@ -90,6 +90,18 @@
         "bottom": "Red Brinstar"
     },
     {
+        "name": "Halfie Climb Room",
+        "x": [0],
+        "top": "Red Brinstar",
+        "bottom": "Red Brinstar"
+    },
+    {
+        "name": "Colosseum",
+        "x": [0, 1, 2, 3, 4, 5, 6],
+        "top": "Red Brinstar",
+        "bottom": "Red Brinstar"
+    },
+    {
         "name": "Early Supers Room",
         "x": [0, 1, 2],
         "top": "Red Brinstar",
@@ -350,6 +362,12 @@
     {
         "name": "West Cactus Alley Room",
         "x": [0],
+        "top": "Red Brinstar",
+        "bottom": "Red Brinstar"
+    },
+    {
+        "name": "East Cactus Alley Room",
+        "x": [0, 4],
         "top": "Red Brinstar",
         "bottom": "Red Brinstar"
     },

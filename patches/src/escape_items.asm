@@ -6,7 +6,7 @@ org $A9CD12
 org $A9FB70
 get_hyper_beam:
     jsl $91E4AD   ; run the hi-jacked instruction
-    lda #$F72F
+    lda #$F72F  ; this value is overwritten in patch.rs if split speed is enabled.
     sta $09A2   ; all items equipped (including WallJump = $0400)
     sta $09A4   ; all items collected
 

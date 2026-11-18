@@ -24,6 +24,7 @@ OUTPUT_PATH = "patches/ips"
 excluded_files = [
     "Mosaic/Projects/Base/ASM/Acid Tilemap.asm",
     "Mosaic/Projects/Base/ASM/Area Map Debug.asm",
+    "Mosaic/Projects/Base/ASM/Sprite Tube.asm",
 ]
 ignored_overlap_patterns = ["hyper_beam", "ultra_low_"]
 

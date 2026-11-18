@@ -6,18 +6,19 @@ use askama::Template;
 use hashbrown::{HashMap, HashSet};
 use maprando::{
     helpers::get_item_priorities,
+    map_repository::MapPoolsConfig,
     preset::PresetData,
     randomize::{DifficultyConfig, ItemPriorityGroup, Randomization, get_starting_items},
     seed_repository::{Seed, SeedFile},
     settings::{
-        AreaAssignmentBaseOrder, AreaAssignmentPreset, CrashFixesPreset, DisableETankSetting,
-        DoorLocksSize, ETankRefill, FillerItemPriority, ItemCount, MapStationActivationPreset,
-        RandomizerSettings, SaveState, SpeedBooster, WallJump, get_objective_groups,
+        AreaAssignmentBaseOrder, CrashFixesPreset, DisableETankSetting, DoorLocksSize, ETankRefill,
+        FillerItemPriority, ItemCount, MapStationActivationPreset, RandomizerSettings, SaveState,
+        SpeedBooster, WallJump, get_objective_groups,
     },
     spoiler_log::SpoilerLog,
     spoiler_map,
 };
-use maprando_game::{GameData, NotableId, RoomId, TechId};
+use maprando_game::{GameData, Item, NotableId, RoomId, TechId};
 use rand::{RngCore, SeedableRng};
 use serde::Serialize;
 
@@ -29,6 +30,7 @@ pub struct SeedHeaderTemplate<'a> {
     random_seed: usize,
     version_info: VersionInfo,
     settings: &'a RandomizerSettings,
+    map_pools_config: &'a MapPoolsConfig,
     item_priority_groups: Vec<ItemPriorityGroup>,
     objective_names: HashMap<String, String>,
     race_mode: bool,
@@ -119,11 +121,19 @@ impl SeedHeaderTemplate<'_> {
     }
 
     fn item_pool_strs(&self) -> String {
+        let other = &self.settings.other_settings;
         self.settings
             .item_progression_settings
             .item_pool
             .iter()
             .filter(|x| x.count > 0)
+            .filter(|x| !(x.item == Item::WallJump && other.wall_jump == WallJump::Vanilla))
+            .filter(|x| match other.speed_booster {
+                SpeedBooster::Vanilla => {
+                    x.item != Item::SparkBooster && x.item != Item::BlueBooster
+                }
+                SpeedBooster::Split => x.item != Item::SpeedBooster,
+            })
             .map(|x| {
                 if x.count > 1 {
                     format!("{:?} ({})", x.item, x.count)
@@ -136,11 +146,19 @@ impl SeedHeaderTemplate<'_> {
     }
 
     fn starting_items_strs(&self) -> String {
+        let other = &self.settings.other_settings;
         self.settings
             .item_progression_settings
             .starting_items
             .iter()
             .filter(|x| x.count > 0)
+            .filter(|x| !(x.item == Item::WallJump && other.wall_jump == WallJump::Vanilla))
+            .filter(|x| match other.speed_booster {
+                SpeedBooster::Vanilla => {
+                    x.item != Item::SparkBooster && x.item != Item::BlueBooster
+                }
+                SpeedBooster::Split => x.item != Item::SpeedBooster,
+            })
             .map(|x| {
                 if x.count > 1 {
                     format!("{:?} ({})", x.item, x.count)
@@ -174,11 +192,20 @@ impl SeedHeaderTemplate<'_> {
             None => "Custom",
         }
     }
+    fn map_source(&self) -> &str {
+        let source = &self.settings.map_settings.source;
+        self.map_pools_config
+            .pools
+            .iter()
+            .find(|pool| &pool.name == source)
+            .map_or(source.as_str(), |pool| pool.display_name.as_str())
+    }
+
     fn game_variations(&self) -> Vec<&str> {
         let mut game_variations = vec![];
         let other_settings = &self.settings.other_settings;
-        if other_settings.area_assignment.preset != Some(AreaAssignmentPreset::Standard) {
-            match other_settings.area_assignment.base_order {
+        if let Some(assignment) = self.settings.map_settings.area_assignment {
+            match assignment.base_order {
                 AreaAssignmentBaseOrder::Size => {
                     game_variations.push("Size-based area assignment");
                 }
@@ -189,10 +216,10 @@ impl SeedHeaderTemplate<'_> {
                     game_variations.push("Random area assignment");
                 }
             }
-            if other_settings.area_assignment.ship_in_crateria {
+            if assignment.ship_in_crateria {
                 game_variations.push("Ship in Crateria");
             }
-            if other_settings.area_assignment.mother_brain_in_tourian {
+            if assignment.mother_brain_in_tourian {
                 game_variations.push("Mother Brain in Tourian");
             }
         }
@@ -237,6 +264,7 @@ pub struct SeedFooterTemplate {
     ammo_refill_all: bool,
     supers_double: bool,
     settings: RandomizerSettings,
+    start_location_mode: String,
 }
 
 pub fn get_random_seed() -> usize {
@@ -541,6 +569,7 @@ pub fn render_seed(
         early_save: seed_data.early_save,
         ammo_refill_all: seed_data.ammo_refill_all,
         preset_data: &app_data.preset_data,
+        map_pools_config: &app_data.map_pools_config,
         enabled_tech,
         enabled_notables,
         starting_items: get_starting_items(&seed_data.settings),
@@ -553,6 +582,7 @@ pub fn render_seed(
         ammo_refill_all: seed_data.ammo_refill_all,
         supers_double: seed_data.supers_double,
         settings: seed_data.settings.clone(),
+        start_location_mode: seed_data.start_location_mode.clone(),
     };
     let seed_footer_html = seed_footer_template.render()?;
     Ok((seed_header_html, seed_footer_html))
