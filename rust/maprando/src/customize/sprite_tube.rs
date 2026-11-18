@@ -13,8 +13,8 @@ use super::Allocator;
 // A room header of $FFFF terminates the table. Each 256-byte DMA payload
 // contains four top tiles followed by four bottom tiles, all in bank EA.
 const TABLE_START: usize = 0xEAB000;
-const GRAPHICS_START: usize = 0xEAB800;
-const GRAPHICS_END: usize = 0xEB0000;
+const GRAPHICS_START: usize = 0xEAB100;
+const GRAPHICS_END: usize = 0xEAB300;
 const RECORD_SIZE: usize = 20;
 const GRAPHICS_SIZE: usize = 256;
 

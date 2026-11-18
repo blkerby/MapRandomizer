@@ -344,6 +344,6 @@ LoadRoomTube:
 assert pc() <= $B4FA00
 
 ; Customization replaces this default empty table and writes DMA payloads
-; at $EAB800-$EAFFFF. No room is enabled until its record is installed.
+; at $EAB100-$EAB2FF. No room is enabled until its record is installed.
 org !tube_table
     dw $FFFF
