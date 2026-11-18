@@ -588,6 +588,12 @@
         "video_id": 774
     },
     {
+        "tech_id": 247,
+        "name": "canRespin",
+        "difficulty": "Very Hard",
+        "video_id": null
+    },
+    {
         "tech_id": 85,
         "name": "canUnmorphBombBoost",
         "difficulty": "Expert+",
