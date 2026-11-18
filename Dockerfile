@@ -44,9 +44,6 @@ RUN rm /rust/src/*.rs
 RUN cargo install wasm-pack
 COPY rust /rust
 
-# Only needed for TEST_ALL_TUBE_ROOMS:
-COPY transit-tube-data/Base.json /transit-tube-data/Base.json
-
 WORKDIR /rust/maprando-wasm
 RUN wasm-pack build --target="web" --release
 WORKDIR /rust

@@ -13,9 +13,6 @@ use rand::{Rng, SeedableRng, seq::SliceRandom};
 use super::TileTheme;
 use super::sprite_tube::apply_sprite_tubes;
 
-// Temporary testing mode; normal mode only enables rooms intersected by the Toilet.
-const TEST_ALL_TUBE_ROOMS: bool = true;
-
 const BPS_PATCH_PATH: &str = "../patches/mosaic";
 
 fn apply_bps_patch(rom: &mut Rom, orig_rom: &Rom, filename: &str) -> Result<()> {
@@ -292,7 +289,7 @@ pub fn apply_retiling_and_palettes(
         apply_toilet(rom, orig_rom, &theme_name_map[&toilet_room_ptr])?;
     }
 
-    apply_sprite_tubes(rom, map, game_data, TEST_ALL_TUBE_ROOMS)?;
+    apply_sprite_tubes(rom, map, game_data)?;
 
     Ok(())
 }

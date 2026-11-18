@@ -45,12 +45,6 @@ struct PaletteData {
     rooms: Vec<PaletteMapping>,
 }
 
-#[derive(Deserialize)]
-struct TestPlacement {
-    name: String,
-    x: Vec<isize>,
-}
-
 fn parse_address(value: &str) -> Result<usize> {
     parse_int::parse(value).with_context(|| format!("Invalid tube address {value}"))
 }
@@ -210,34 +204,14 @@ fn add_room(
     Ok(())
 }
 
-pub fn apply_sprite_tubes(
-    rom: &mut Rom,
-    map: &Map,
-    game_data: &GameData,
-    test_all_rooms: bool,
-) -> Result<()> {
+pub fn apply_sprite_tubes(rom: &mut Rom, map: &Map, game_data: &GameData) -> Result<()> {
     let data: PaletteData = serde_json::from_str(include_str!("../../../data/tube_palettes.json"))?;
     ensure!(
         data.tube_source_colors == [4, 5, 6, 7, 15],
         "Unsupported tube source palette"
     );
     let mut rooms = Vec::new();
-    if test_all_rooms {
-        let placements: Vec<TestPlacement> =
-            serde_json::from_str(include_str!("../../../../transit-tube-data/Base.json"))?;
-        let placements: HashMap<_, _> = placements.into_iter().map(|p| (p.name, p.x)).collect();
-        for mapping in &data.rooms {
-            let x = match mapping.name.as_str() {
-                "Pants Room" => 1,
-                "West Ocean" => 5,
-                _ => *placements
-                    .get(&mapping.name)
-                    .and_then(|xs| xs.first())
-                    .with_context(|| format!("Missing tube test X for {}", mapping.name))?,
-            };
-            add_room(rom, &mut rooms, mapping, x)?;
-        }
-    } else if map.room_mask[game_data.toilet_room_idx] {
+    if map.room_mask[game_data.toilet_room_idx] {
         let room_header = rom.read_u16(snes2pc(0xB5FE70))? as usize;
         if room_header == 0xFFFF {
             // Vanilla-map special case: these are independent randomizer rooms.
