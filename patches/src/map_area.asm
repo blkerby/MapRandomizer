@@ -1097,47 +1097,35 @@ tilemap_transfer_row_loop:
     sta $0A        ; $0A <- end tilemap col index = current tilemap col index + room width + 4
 
 tilemap_transfer_col_loop:
-    lda $04
-    bmi .skip_word             ; r = -1, above the map
-    cmp #$0020
-    bcs .skip_word             ; r >= 32, below the map
-
     lda $08
     cmp #$0020
     bcs .second_page
 
-    lda $04 : inc : and #$001F ; tilemap row = (r+1) & 31
+    lda $04
     asl : asl : asl : asl : asl
     clc
     adc $08
-    asl
+    asl      ; A <- (row index * 32 + col index) * 2
     bra .transfer_word
 
 .second_page:
-    lda $04 : inc : and #$001F
+    lda $04
     asl : asl : asl : asl : asl
     clc
     adc $08
     adc #$03E0
-    asl
+    asl          ; A <- (row index * 32 + col index - 32) * 2 + 0x800
+    bra .transfer_word
 
 .transfer_word:
-    tay
+    tay    
     ldx $02
     lda $E40000,x
+    inx : inx
+    stx $02
     tyx
-    sta $703000,x              ; base is now $703000 since the +1 row is in the index
-    ldx $02                    ; fall through to advance the source pointer
-    inx : inx
-    stx $02
-    bra .next_col
+    sta $703040,x
 
-.skip_word:
-    ldx $02
-    inx : inx
-    stx $02
-
-.next_col:
     lda $08
     inc
     sta $08
