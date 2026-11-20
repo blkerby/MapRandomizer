@@ -2152,8 +2152,6 @@ org $829F3F                   ; was: STA $05B2 : PLB : PLP : RTS
     NOP : NOP
 org $829E74                   ; was: LDA $05B2 : SEC
     JSL ClampB1
-org $82B97D                   ; for 62x31 maps (allow to wrap one tile downwards to create the illusion of margin)
-    db $A9                    ; $B97C is SBC #$00B1; allow one more tile of scroll down
 org $82B955
     db $20                    ; $B954: ADC #$0018 -> ADC #$0020 (we are using 0-61 so allow it to wrap to create 2 tiles of margin illusion)
 
@@ -2262,11 +2260,11 @@ org !bank_90_free_space_start
 ClampLimits:                  ; A = max Y scroll, as in vanilla
     STA $05B2
     LDA $05AC : CMP #$0010 : BPL +
-    LDA #$0010 : STA $05AC    ; min X >= 10h, so X scroll >= 0
+    LDA #$0008 : STA $05AC    ; min X >= 08h, so X scroll >= -10h (left arrow stops at minX - 18h): 2 tiles of left wrap
 +   LDA $05AE : CMP #$01E9 : BMI +
     LDA #$01E8 : STA $05AE    ; max X <= 1E8h, so X scroll <= 100h
-+   LDA $05B0 : CMP #$0010 : BPL +
-    LDA #$0010 : STA $05B0    ; min Y >= 10h, so Y scroll >= -20h
++   LDA $05B0 : CMP #$0008 : BPL +
+    LDA #$0008 : STA $05B0    ; min Y >= 08h, so Y scroll >= -28h: padding row visible as top margin
 +   PLB : PLP
     JML $829F44               ; RTS
 assert pc() <= !bank_90_free_space_end
@@ -2282,8 +2280,8 @@ FixBottom:
     RTS
 ClampB1:
     LDA $B1 : BPL .pos
-    CMP #$FFF8 : BPL .done
-    LDA #$FFF8 : STA $B1 : BRA .done
+    CMP #$FFF0 : BPL .done
+    LDA #$FFF0 : STA $B1 : BRA .done
 .pos:
     CMP #$0109 : BCC .done    ; (changed from 101 / 100 to allow wrapping in 0-61 table to create margin illusion)
     LDA #$0108 : STA $B1
@@ -2301,7 +2299,7 @@ DownOnly:
     CMP #$00B8 : BMI .done                ; visible enough, leave it alone
     SEC : SBC #$00B8
     CLC : ADC $B3 : STA $B3               ; scroll down by the excess
-    LDA $05B2 : SEC : SBC #$00A9          ; don't go past what the down arrow allows ($00B1 for vanilla, changed to 00A9 for 62x31 to allow wrap)
+    LDA $05B2 : SEC : SBC #$00B1          ; vanilla scroll fix.
     AND #$FFF8 : CLC : ADC #$0008
     CMP $B3 : BPL .done
     STA $B3
