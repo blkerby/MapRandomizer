@@ -43,7 +43,7 @@ org $82E737
 
 org !bank_82_free_space_start
 hook_tileset_load:
-    ; Copy the new tileset's "bad" tiles from $7E2000-$7E2400 to $704040-$704400.
+    ; Copy the new tileset's "bad" tiles from $7E2000-$7E2400 to $704000-$704400.
     ; This is to avoid them getting overwritten (e.g. in boss rooms) before the
     ; door transition has finished.
     ldx #!bad_tiles_bytes_size-2
