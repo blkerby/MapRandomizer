@@ -55,7 +55,7 @@ hook_tileset_load:
     bpl .copy_loop
     lda $07B3  ; run hi-jacked instruction
     rts
-warnpc !bank_82_free_space_end
+assert pc() <= !bank_82_free_space_end
 
 org !bank_85_free_space_start
 hook_pre_scrolling:
@@ -125,6 +125,6 @@ transfer_bad_tiles:
 
 write_tbl:
     dw $CE00, $009A ; null tbl
-    dw $4000, $0070 ; saved tbl
+    dw !bad_tiles_ram_addr&$FFFF, !bad_tiles_ram_addr>>16  ; saved tbl
     
-warnpc !bank_85_free_space_end
+assert pc() <= !bank_85_free_space_end

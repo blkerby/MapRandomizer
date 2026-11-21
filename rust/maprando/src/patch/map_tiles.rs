@@ -3394,8 +3394,15 @@ impl<'a> MapPatcher<'a> {
             if self.area_min_x[area] == isize::MAX {
                 continue;
             }
-            let margin_x = (64 - (self.area_max_x[area] - self.area_min_x[area])) / 2;
-            let margin_y = (32 - (self.area_max_y[area] - self.area_min_y[area])) / 2;
+            let width = self.area_max_x[area] - self.area_min_x[area] + 1;
+            let height = self.area_max_y[area] - self.area_min_y[area] + 1;
+            if width > 62 || height > 31 {
+                bail!(
+                    "Area {area} is {width}x{height} tiles including transition markers; maximum is 62x31"
+                );
+            }
+            let margin_x = (62 - width) / 2;
+            let margin_y = (31 - height) / 2;
             self.area_offset_x[area] = self.area_min_x[area] - margin_x;
             self.area_offset_y[area] = self.area_min_y[area] - margin_y;
         }

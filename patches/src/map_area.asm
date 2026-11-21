@@ -13,6 +13,10 @@ lorom
 !bank_85_freespace2_end  = $85ACA0
 !bank_85_freespace3_start = $85B600
 !bank_85_freespace3_end  = $85BA00
+!bank_90_free_space_start = $908E75 ; 62 x 31 Map fixes.
+!bank_90_free_space_end = $908EA9
+!bank_90_free_space2_start = $90D525  ; 62 x 31 Map fixes.
+!bank_90_free_space2_end = $90D5A2
 !bank_b6_freespace_start = $B6FE80
 !bank_b6_freespace_end = $B70000
 !bank_94_freespace_start = $94B1A0
@@ -161,9 +165,6 @@ org $829E27
     rts
 
 org $82903B
-    jsr horizontal_scroll_hook
-
-org $829E38  ; TODO: remove this (should be unused?)
     jsr horizontal_scroll_hook
 
 org $82E7C9
@@ -1094,6 +1095,10 @@ tilemap_transfer_row_loop:
 
 tilemap_transfer_col_loop:
     lda $08
+    cmp #$0040 : bcs .skip      ; column >= 64, or negative (unsigned)
+    lda $04
+    cmp #$001F : bcs .skip      ; loop row >= 31 (= pause row 32), or negative (unsigned)
+    lda $08
     cmp #$0020
     bcs .second_page
 
@@ -1111,7 +1116,6 @@ tilemap_transfer_col_loop:
     adc $08
     adc #$03E0
     asl          ; A <- (row index * 32 + col index - 32) * 2 + 0x800
-    bra .transfer_word
 
 .transfer_word:
     tay    
@@ -1121,7 +1125,11 @@ tilemap_transfer_col_loop:
     stx $02
     tyx
     sta $703040,x
+bra .next_col
 
+.skip:
+    inc $02 : inc $02           ; consume the source word
+.next_col:
     lda $08
     inc
     sta $08
@@ -2114,3 +2122,184 @@ fix_pants_room_fx:
     STX $78D            ; replaced code
     RTS
 assert pc() <= !bank_94_freespace_end
+
+;;; Super Metroid 62 x 31 Map support
+;;; (62 columns x 31 rows including transition markers; tilemap row 0 is padding, columns 62-63 are blank)
+;;;
+;;; This also fixes the seam issue with Samus on the last column of page 0 or page 1,
+;;; and the minimap Y pointer wrapping to page 1 when Samus is at x = 0 or 1 on page 0.
+
+;;;
+;;; Vanilla hooks
+;;;
+
+;;; Bank 82
+
+org $8290B3
+    db $0D                    ; BMI now targets $90C1 (was $90C7)
+org $8290BD
+    JML UpClampThenDown       ; was: CMP #$FFD8 : BPL : LDA #$FFD8 : STA $B3
+org $8290C1
+    JML DownOnly              ; reached from the BMI above
+org $829F3F                   ; was: STA $05B2 : PLB : PLP : RTS
+    JML ClampLimits           ; $9F3F-$9F42. ClampLimits does the STA/PLB/PLP itself
+    NOP                       ; $9F43 (was PLP). $9F44 RTS is left intact
+org $829077                   ; was: LDA $05B2 : SEC
+    JSL ClampB1
+org $82B955
+    db $20                    ; $B954: ADC #$0018 -> ADC #$0020 (table is columns 0-61; columns 62-63 are blank, 
+                              ; so scrolling wraps into 2 columns  of margin)
+
+
+;;; Bank 90
+
+org $90AA54                   ; was: BEQ $AA6A (skipped the x < 2 check when page was 0)
+    NOP : NOP                 ; x < 2 now takes the SBC #$0402 path on either page.
+                              ; On page 0 that starts Y $07C0 too low, so the false page
+                              ; seam at $AB33 (stepping from col 31 of the row above into
+                              ; col 0) adds it back and lands Y on the right tile.
+                              ; The blank columns left of col 0 are never read (FetchWindow zeroes their bits).
+org $90A9A2             ; skip the old explored-bit reads, keep the area-pointer setup at $A9BD
+    db $80,$19
+org $90AA98
+    JSR FixBottom
+org $90AB5F
+    JMP MarkAbove       ; rest of old routine ($AB62-$AB74) is now dead
+
+org $90A9D6             ; replace the old ROM-map reads and spill call
+    JSR FetchWindow
+    JMP $AA2C           ; BRANCH_SINGLE_PAGE
+MarkAbove:              ; mark the tile above Samus explored (RAM + SRAM mirror), seam safe
+    PHX : PHY
+    LDA $1E
+    AND #$007C         ; tilemap row * 4 within the page
+    CMP #$0008         ; tilemap row < 2: row 0 is padding, row 1 has nothing above it
+    BCC .done
+    SEC : SBC #$0004   ; row - 1 (always >= 1 here, no wrap)
+    PHA
+    LDA $1E
+    AND #$0083         ; keep page bit and column byte
+    ORA $01,s          ; recombine with the new row
+    TAX                ; X = in-area byte index of the tile above (0..$FF)
+    PLA
+    SEP #$20
+    LDY $20
+    LDA $07F7,x
+    ORA $AC04,y
+    STA $07F7,x
+
+    ; mirror to SRAM: in-area index ($00-$FF) -> overall index (area*$100 + index)
+    TXA : XBA
+    LDA $1F5B
+    XBA : TAX          ; 16-bit TAX copies the full accumulator: X = area<<8 | index
+    LDA $702000,x
+    ORA $AC04,y
+    STA $702000,x
+
+    REP #$20
+.done:
+    PLY : PLX
+    RTS
+assert pc() <= $90AA2C
+
+org $90AB75            ; ;;; $AB75: Adjust map bits for map page spill ;;; Rewrite most of this to fix seam issue too.
+FetchWindow:
+    LDA $0F : STA $09           ; $0B is $70 from map_progress_maintain.asm
+    LDA $22 : LSR : LSR : LSR   ; page * 4
+    CLC : ADC $14
+    SEC : SBC $2E
+    STA $32                     ; global byte column of origin (-1..7)
+    LDA $16 : DEC : DEC         ; $16 = tilemap row = real row + 1, so this is the real row above Samus
+    STA $30                     ; (-1 = off the top of the map)
+    LDX #$0000
+.row:
+    LDA $30 : CMP #$001F : BCS .blank   ; only real rows 0-30 exist (-1 and 31+ are off the table)
+    LDA $32 : JSR .get
+    XBA : STA $26,x
+    LDA $2C : XBA : STA $18,x
+    LDA $32 : INC
+    JSR .get
+    ORA $26,x : STA $26,x
+    LDA $2C : ORA $18,x
+    LDY $34 : AND $AC0C,y
+    STA $18,x
+.next:
+    INC $30 : INX : INX
+    CPX #$0006 : BCC .row
+    RTS
+.blank:
+    STZ $18,x : STZ $26,x
+    BRA .next
+
+.get:                           ; A = global byte column; returns map byte in A, explored byte in $2C
+    STZ $2C
+    CMP #$0008 : BCS .off
+    PHA
+    AND #$0003 : STA $2C
+    LDA $30 : INC : ASL : ASL   ; tilemap row (real + 1) * 4, always 1-31 here so it stays inside the page
+    ORA $2C : STA $2C
+    PLA
+    AND #$0004
+    ASL : ASL : ASL : ASL : ASL
+    ORA $2C : TAY
+    LDA $07F7,y : AND #$00FF : STA $2C
+    LDA [$09],y : AND #$00FF
+    RTS
+.off:
+    LDA #$0000
+    RTS
+
+assert pc() <= $90AC04
+
+;;;
+;;; Custom code in free space
+;;;
+
+org !bank_90_free_space_start 
+ClampLimits:                  ; A = max Y scroll, as in vanilla
+    STA $05B2
+    LDA $05AC : CMP #$0010 : BPL +
+    LDA #$0008 : STA $05AC    ; min X >= 08h, so X scroll >= -10h (left arrow stops at minX - 18h): 2 tiles of left wrap
++   LDA $05AE : CMP #$01E9 : BMI +
+    LDA #$01E8 : STA $05AE    ; max X <= 1E8h, so X scroll <= 108h (vanilla 100h, +8 from ADC #$0020 at $82B955)
++   LDA $05B0 : CMP #$0008 : BPL +
+    LDA #$0008 : STA $05B0    ; min Y >= 08h, so Y scroll >= -28h: padding row visible as top margin
++   PLB : PLP
+    JML $829F44               ; RTS
+assert pc() <= !bank_90_free_space_end
+
+org !bank_90_free_space2_start 
+FixBottom:
+    LDA $16 : CMP #$001F : BNE .done       ; samus in tilemap row 31 (real row 30, the last usable row)
+    LDA $06 : SEC : SBC #$0800 : STA $06   ; the row below wraps inside the page to the blank padding row 0
+.done:
+    LDA #$0005
+    RTS
+ClampB1:
+    LDA $B1 : BPL .pos
+    CMP #$FFF0 : BPL .done
+    LDA #$FFF0 : STA $B1 : BRA .done
+.pos:
+    CMP #$0109 : BCC .done    ; (changed from 101 / 100 to allow wrapping in 0-61 table to create margin illusion)
+    LDA #$0108 : STA $B1
+.done:
+    LDA $05B2 : SEC           ; replaced instructions
+    RTL
+UpClampThenDown:                          ; A = [BG1 Y scroll] here
+    CMP #$FFD8 : BPL DownOnly
+    LDA #$FFD8 : STA $B3                  ; BG1 Y scroll = max(scroll, -28h)
+DownOnly:
+    LDA $0AFA : XBA : AND #$00FF
+    CLC : ADC $07A3 : INC
+    ASL : ASL : ASL                       ; Samus pixel Y, same as $90A4-$90A6
+    SEC : SBC $B3                         ; screen Y
+    CMP #$00B8 : BMI .done                ; visible enough, leave it alone
+    SEC : SBC #$00B8
+    CLC : ADC $B3 : STA $B3               ; scroll down by the excess
+    LDA $05B2 : SEC : SBC #$00B1          ; vanilla scroll fix.
+    AND #$FFF8 : CLC : ADC #$0008
+    CMP $B3 : BPL .done
+    STA $B3
+.done:
+    RTL                                   ; $9028 is entered with JSL
+assert pc() <= !bank_90_free_space2_end

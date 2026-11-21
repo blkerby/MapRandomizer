@@ -22,7 +22,8 @@ patch_hud_minimap_draw:
     sta $08
     lda #$3000
     bra .setup
-warnpc $90AA8A
+assert pc() <= $90AA8A
+
 org $90AA8A
 .setup:
 
@@ -64,7 +65,7 @@ door_transition_hook:
     cmp #$0003      ; run hi-jacked instruction
     rts
 
-warnpc !bank_82_freespace_end
+assert pc() <= !bank_82_freespace_end
 
 ; Free space in any bank:
 org $83B600
@@ -141,8 +142,8 @@ update_hud_tilemap:
 
 .done:
     rep #$20
-    lda #$0000
-    sta !last_samus_map_y  ; reset Samus map Y coordinate, to trigger minimap to update
+    lda #$FFFF                 ; was #$0000
+    sta !last_samus_map_y      ; no valid row can match this, so the minimap always redraws
     ply
     plx
     plp
@@ -220,4 +221,4 @@ update_pause_tilemap:
     plp
     rtl
 
-warnpc $83B700
+assert pc() <= $83B700

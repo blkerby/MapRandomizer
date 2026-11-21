@@ -20,10 +20,6 @@ org $848CA6
 org $90A923
     nop : nop
 
-; Hook routine that marks the tile above Samus as explored (in Terminator and Croc Speedway)
-org $90AB6D
-    jsr hook_mark_tile_above
-
 ; Hook for normal routine to mark tiles explored (at current Samus location)
 ; This will also check if mini-map is disabled, and if so, skip the rest of the mini-map drawing routine.
 org $90A98B
@@ -147,25 +143,6 @@ activate_map_station_hook:
 
 .done_cross_area_reveal:
     plb
-    rts
-
-hook_mark_tile_above:
-    ; run hi-jacked instruction (mark explored tile)
-    sta $07F3,x
-
-    ; convert X from within-area byte index (between $00 and $ff) to an overall byte index (between $00 and $5ff)
-    ; (accumulator is 8-bit)
-    txa
-    xba
-    lda $1F5B
-    xba
-    tax
-    
-    ; mark revealed tile:
-    lda $702000-4, x
-    ora $AC04,y
-    sta $702000-4, x
-
     rts
 
 assert pc() <= !bank_90_freespace_end
@@ -386,39 +363,3 @@ fix_mb:
     rtl
 
 assert pc() <= !bank_a4_free_space_end
-
-!bank_90_free_space_start = $90FD00
-!bank_90_free_space_end = $90FD40
-
-org $90aa29 ;;; jsr $ab75 (seam fix)
-  jsr minimapfix
-  
-org !bank_90_free_space_start
-
-minimapfix:
-    lda $22
-    beq .page0
-    lda $2e
-    beq .right_edge     ; page 1, same byte -> right edge of map
-    bra .seam
-.page0:
-    lda $2e
-    bne .left_edge      ; page 0, origin in earlier byte -> left edge of map
-.seam:
-    jmp $ab75        
-
-.right_edge:            ; off-map tiles are in the low bytes
-    sep #$20
-    stz $18 : stz $1a : stz $1c
-    stz $26 : stz $28 : stz $2a
-    rep #$20
-    rts
-
-.left_edge:             ; off-map tiles are in the high bytes
-    sep #$20
-    stz $19 : stz $1b : stz $1d
-    stz $27 : stz $29 : stz $2b
-    rep #$20
-    rts
-    
-assert pc() <= !bank_90_free_space_end
