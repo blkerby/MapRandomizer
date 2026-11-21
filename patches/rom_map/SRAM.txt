@@ -30,11 +30,11 @@ $702700-702D00: Map partially revealed bits (map_progress_maintain.asm)
 $702D00-702E00: HUD current minimap tile graphics (map_area.asm)
 $702E00-703000: [FREE]
 $703000-704000: Temporary tilemap for applying dynamic item dot changes (in both pause menu map and HUD mini-map)
-$704000-704400: Temporary tileset graphics, used only during door transition (fix_transition_bad_tiles.asm)
+$704000-7043FF: Temporary tileset graphics, used only during door transition (fix_transition_bad_tiles.asm)
 $704400-704800: (reserved in case we expand the temporary tileset graphics)
 $703000-707400: backup of RAM $7E5000-$7E5400 and $7E7000-$7EB000, used only during unpause (decompression.asm)
 $707400-707800: room map tile graphics (map_area.asm)
 $707800-707F00: room name map tiles, used only during pause menu (map_area.asm/pause_menu_objectives.asm)
 $707F00-708000: savestate.asm
 $708A00-710000: [FREE]
-$710000-771200: savestate.asm
+$710000-7725FF: savestate.asm

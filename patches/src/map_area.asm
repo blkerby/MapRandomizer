@@ -167,9 +167,6 @@ org $829E27
 org $82903B
     jsr horizontal_scroll_hook
 
-org $829E38  ; TODO: remove this (should be unused?)
-    jsr horizontal_scroll_hook
-
 org $82E7C9
     jsr load_tileset_palette_hook_wrapper
     nop : nop : nop : nop
@@ -1098,6 +1095,10 @@ tilemap_transfer_row_loop:
 
 tilemap_transfer_col_loop:
     lda $08
+    cmp #$0040 : bcs .skip      ; column >= 64, or negative (unsigned)
+    lda $04
+    cmp #$001F : bcs .skip      ; loop row >= 31 (= pause row 32), or negative (unsigned)
+    lda $08
     cmp #$0020
     bcs .second_page
 
@@ -1115,7 +1116,6 @@ tilemap_transfer_col_loop:
     adc $08
     adc #$03E0
     asl          ; A <- (row index * 32 + col index - 32) * 2 + 0x800
-    bra .transfer_word
 
 .transfer_word:
     tay    
@@ -1125,7 +1125,11 @@ tilemap_transfer_col_loop:
     stx $02
     tyx
     sta $703040,x
+bra .next_col
 
+.skip:
+    inc $02 : inc $02           ; consume the source word
+.next_col:
     lda $08
     inc
     sta $08
@@ -2120,8 +2124,10 @@ fix_pants_room_fx:
 assert pc() <= !bank_94_freespace_end
 
 ;;; Super Metroid 62 x 31 Map support
+;;; (62 columns x 31 rows including transition markers; tilemap row 0 is padding, columns 62-63 are blank)
 ;;;
-;;; This also fixes the seam issue with Samus being on the last tile of page 2 and the minimap failing to draw properly.
+;;; This also fixes the seam issue with Samus on the last column of page 0 or page 1,
+;;; and the minimap Y pointer wrapping to page 1 when Samus is at x = 0 or 1 on page 0.
 
 ;;;
 ;;; Vanilla hooks
@@ -2130,22 +2136,29 @@ assert pc() <= !bank_94_freespace_end
 ;;; Bank 82
 
 org $8290B3
-    db $0D                      ; BMI now targets $90C1 (was $90C7)
+    db $0D                    ; BMI now targets $90C1 (was $90C7)
 org $8290BD
-    JML UpClampThenDown         ; was: CMP #$FFD8 : BPL : LDA #$FFD8 : STA $B3
+    JML UpClampThenDown       ; was: CMP #$FFD8 : BPL : LDA #$FFD8 : STA $B3
 org $8290C1
-    JML DownOnly                ; reached from the BMI above
+    JML DownOnly              ; reached from the BMI above
 org $829F3F                   ; was: STA $05B2 : PLB : PLP : RTS
-    JML ClampLimits
-    NOP : NOP
-org $829E74                   ; was: LDA $05B2 : SEC
+    JML ClampLimits           ; $9F3F-$9F42. ClampLimits does the STA/PLB/PLP itself
+    NOP                       ; $9F43 (was PLP). $9F44 RTS is left intact
+org $829077                   ; was: LDA $05B2 : SEC
     JSL ClampB1
 org $82B955
-    db $20                    ; $B954: ADC #$0018 -> ADC #$0020 (we are using 0-61 so allow it to wrap to create 2 tiles of margin illusion)
+    db $20                    ; $B954: ADC #$0018 -> ADC #$0020 (table is columns 0-61; columns 62-63 are blank, 
+                              ; so scrolling wraps into 2 columns  of margin)
 
 
 ;;; Bank 90
-    
+
+org $90AA54                   ; was: BEQ $AA6A (skipped the x < 2 check when page was 0)
+    NOP : NOP                 ; x < 2 now takes the SBC #$0402 path on either page.
+                              ; On page 0 that starts Y $07C0 too low, so the false page
+                              ; seam at $AB33 (stepping from col 31 of the row above into
+                              ; col 0) adds it back and lands Y on the right tile.
+                              ; The blank columns left of col 0 are never read (FetchWindow zeroes their bits).
 org $90A9A2             ; skip the old explored-bit reads, keep the area-pointer setup at $A9BD
     db $80,$19
 org $90AA98
@@ -2156,13 +2169,13 @@ org $90AB5F
 org $90A9D6             ; replace the old ROM-map reads and spill call
     JSR FetchWindow
     JMP $AA2C           ; BRANCH_SINGLE_PAGE
-MarkAbove:                     ; mark the tile above Samus explored (RAM + SRAM mirror), seam safe
+MarkAbove:              ; mark the tile above Samus explored (RAM + SRAM mirror), seam safe
     PHX : PHY
     LDA $1E
     AND #$007C         ; tilemap row * 4 within the page
-    CMP #$0004         ; tilemap row 1 = real row 0
-    BEQ .done          ; nothing above real row 0 (row 0 is padding), so skip
-    SEC : SBC #$0004   ; row - 1 (never below row 1 here, so no wrap)
+    CMP #$0008         ; tilemap row < 2: row 0 is padding, row 1 has nothing above it
+    BCC .done
+    SEC : SBC #$0004   ; row - 1 (always >= 1 here, no wrap)
     PHA
     LDA $1E
     AND #$0083         ; keep page bit and column byte
@@ -2242,22 +2255,18 @@ assert pc() <= $90AC04
 ;;; Custom code in free space
 ;;;
 
-;;; 53 bytes here. Patch is 51.
-
 org !bank_90_free_space_start 
 ClampLimits:                  ; A = max Y scroll, as in vanilla
     STA $05B2
     LDA $05AC : CMP #$0010 : BPL +
     LDA #$0008 : STA $05AC    ; min X >= 08h, so X scroll >= -10h (left arrow stops at minX - 18h): 2 tiles of left wrap
 +   LDA $05AE : CMP #$01E9 : BMI +
-    LDA #$01E8 : STA $05AE    ; max X <= 1E8h, so X scroll <= 100h
+    LDA #$01E8 : STA $05AE    ; max X <= 1E8h, so X scroll <= 108h (vanilla 100h, +8 from ADC #$0020 at $82B955)
 +   LDA $05B0 : CMP #$0008 : BPL +
     LDA #$0008 : STA $05B0    ; min Y >= 08h, so Y scroll >= -28h: padding row visible as top margin
 +   PLB : PLP
     JML $829F44               ; RTS
 assert pc() <= !bank_90_free_space_end
-
-;;; 126 bytes here, patch is 113 bytes.
 
 org !bank_90_free_space2_start 
 FixBottom:

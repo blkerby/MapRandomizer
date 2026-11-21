@@ -354,11 +354,8 @@ save_return:
     ; Clear inputs
     TDC : STA !IH_CONTROLLER_PRI : STA !IH_CONTROLLER_PRI_NEW
 
-    ; Save fix_transition_bad_tiles SRAM to prevent possible door transition corruption
-    %sram_to_sram($704000, $400, $770200)
-
-    ; Save temporary tilemap segment, uses $770000-$771000
-    %sram_to_sram($703000, $1000, $770000)
+    ; Save temporary tilemap + fix_transition_bad_tiles tileset, uses $771200-$77263F
+    %sram_to_sram($703000, $1400, $771200)
     
     PLB
     TSC : STA !SRAM_SAVED_SP
@@ -431,11 +428,8 @@ load_return:
     PLB
     LDA !SRAM_SAVED_SP : TCS
     
-    ; Restore fix_transition_bad_tiles SRAM to prevent possible door transition corruption
-    %sram_to_sram($770200, $400, $704000)
-    
-    ; Restore temporary tilemap segment
-    %sram_to_sram($770000, $1000, $703000)
+    ; Restore temporary tilemap + fix_transition_bad_tiles tileset
+    %sram_to_sram($771200, $1400, $703000)
     
     ; Clear inputs and prevent repeated loads
     JSR load_clear_inputs
