@@ -38,6 +38,7 @@ $707400-707800: room map tile graphics (map_area.asm)
 $707800-707F00: room name map tiles, used only during pause menu (map_area.asm/pause_menu_objectives.asm)
 $707F00–$707F07	saved SP, music data, music track, sound timer
 $707F80–$707FFB	saved DMA registers
+$708A00-710000: [FREE]
 $710000–$747FFF	WRAM copy (4 × $8000)
 $750000–$767FFF	VRAM copy (2 × $8000)
 $770000-770FFF: [FREE]
