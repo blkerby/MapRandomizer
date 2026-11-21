@@ -354,7 +354,7 @@ save_return:
     ; Clear inputs
     TDC : STA !IH_CONTROLLER_PRI : STA !IH_CONTROLLER_PRI_NEW
 
-    ; Save temporary tilemap + fix_transition_bad_tiles tileset, uses $771200-$77263F
+    ; Save temporary tilemap + fix_transition_bad_tiles tileset
     %sram_to_sram($703000, $1400, $771200)
     
     PLB

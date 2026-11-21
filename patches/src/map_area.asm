@@ -2204,7 +2204,7 @@ assert pc() <= $90AA2C
 
 org $90AB75            ; ;;; $AB75: Adjust map bits for map page spill ;;; Rewrite most of this to fix seam issue too.
 FetchWindow:
-    LDA $0F : STA $09           ; $0B is still $82 from $A9C6
+    LDA $0F : STA $09           ; $0B is $70 from map_progress_maintain.asm
     LDA $22 : LSR : LSR : LSR   ; page * 4
     CLC : ADC $14
     SEC : SBC $2E

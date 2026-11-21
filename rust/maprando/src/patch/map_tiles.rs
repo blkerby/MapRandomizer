@@ -3398,7 +3398,7 @@ impl<'a> MapPatcher<'a> {
             let height = self.area_max_y[area] - self.area_min_y[area] + 1;
             if width > 62 || height > 31 {
                 bail!(
-                    "Area {area} is {width}x{height} tiles including transition markers; maximum is 64x31"
+                    "Area {area} is {width}x{height} tiles including transition markers; maximum is 62x31"
                 );
             }
             let margin_x = (62 - width) / 2;
