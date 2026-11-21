@@ -3,7 +3,7 @@
 !bank_85_free_space_start = $85A100
 !bank_85_free_space_end = $85A180
 
-!bad_tiles_ram_addr = $704040
+!bad_tiles_ram_addr = $704000
 !bad_tiles_vram_addr = $0000
 !bad_tiles_word_size = $0200
 !bad_tiles_bytes_size = (!bad_tiles_word_size*2)
@@ -43,7 +43,7 @@ org $82E737
 
 org !bank_82_free_space_start
 hook_tileset_load:
-    ; Copy the new tileset's "bad" tiles from $7E2000-$7E2400 to $704040-$704440.
+    ; Copy the new tileset's "bad" tiles from $7E2000-$7E2400 to $704040-$704400.
     ; This is to avoid them getting overwritten (e.g. in boss rooms) before the
     ; door transition has finished.
     ldx #!bad_tiles_bytes_size-2
