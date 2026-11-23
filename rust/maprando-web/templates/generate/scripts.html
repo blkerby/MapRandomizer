@@ -484,6 +484,24 @@ let saveSettingsModal = new bootstrap.Modal('#saveSettingsModal', {})
 let managePresetsModal = new bootstrap.Modal('#managePresetsModal', {})
 let deletePresetModal = new bootstrap.Modal('#deletePresetModal', {})
 let renamePresetModal = new bootstrap.Modal('#renamePresetModal', {})
+
+// Error handling, validation failing cancels the submit before preparesbumit runs and can't show the tooltip either for hidden fields.
+let invalidTimer = null;
+let invalidMessages = [];
+document.getElementById("main-form").addEventListener("invalid", function (e) {
+    let el = e.target;
+    let label = (el.id && document.querySelector(`label[for="${el.id}"]`)?.textContent.trim())
+        || el.dataset.mapNumber || el.name || el.id || "(unnamed field)";
+    invalidMessages.push(`${label}: ${el.validationMessage}`);
+    clearTimeout(invalidTimer);
+    invalidTimer = setTimeout(function () {
+        document.getElementById("errorMsg").textContent =
+            "Some settings are invalid:\n" + invalidMessages.join("\n");
+        invalidMessages = [];
+        errorModal.show();
+    }, 0);
+}, true);  // capture: "invalid" doesn't bubble
+
 async function prepareSubmit(form) {
     // updateTechJSON();
     // updateStratJSON();
