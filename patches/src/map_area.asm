@@ -2259,9 +2259,9 @@ org !bank_90_free_space_start
 ClampLimits:                  ; A = max Y scroll, as in vanilla
     STA $05B2
     LDA $05AC : CMP #$0010 : BPL +
-    LDA #$0008 : STA $05AC    ; min X >= 08h, so X scroll >= -10h (left arrow stops at minX - 18h): 2 tiles of left wrap
-+   LDA $05AE : CMP #$01E9 : BMI +
-    LDA #$01E8 : STA $05AE    ; max X <= 1E8h, so X scroll <= 108h (vanilla 100h, +8 from ADC #$0020 at $82B955)
+    LDA #$0000 : STA $05AC    ; was #$0008. min X scroll = 0 - 18h = -18h (one more tile left)
++   LDA $05AE : CMP #$01E1 : BMI +
+    LDA #$01E0 : STA $05AE    ; was #$01E8 (CMP #$01E9). max X scroll = 1E0h + 20h - 100h = 100h
 +   LDA $05B0 : CMP #$0008 : BPL +
     LDA #$0008 : STA $05B0    ; min Y >= 08h, so Y scroll >= -28h: padding row visible as top margin
 +   PLB : PLP
@@ -2277,11 +2277,11 @@ FixBottom:
     RTS
 ClampB1:
     LDA $B1 : BPL .pos
-    CMP #$FFF0 : BPL .done
-    LDA #$FFF0 : STA $B1 : BRA .done
+    CMP #$FFE8  : BPL .done
+    LDA #$FFE8  : STA $B1 : BRA .done
 .pos:
-    CMP #$0109 : BCC .done    ; (changed from 101 / 100 to allow wrapping in 0-61 table to create margin illusion)
-    LDA #$0108 : STA $B1
+    CMP #$0101 : BCC .done
+    LDA #$0100 : STA $B1
 .done:
     LDA $05B2 : SEC           ; replaced instructions
     RTL
