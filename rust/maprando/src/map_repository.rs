@@ -286,6 +286,8 @@ pub struct HttpMapRepository {
 struct GenerateRequest {
     max_num_maps: usize,
     episode_length: usize,
+    area_bounding_box_width: usize,
+    area_bounding_box_height: usize,
     recommended_candidates: usize,
     shortlist_candidates: usize,
     num_scored_invalid_candidates: usize,
@@ -460,6 +462,8 @@ impl HttpMapRepository {
         Ok(GenerateRequest {
             max_num_maps: 1,
             episode_length: 253,
+            area_bounding_box_width: 62,
+            area_bounding_box_height: 31,
             recommended_candidates: 8,
             shortlist_candidates: 1024,
             num_scored_invalid_candidates: 0,
