@@ -62,9 +62,13 @@ org !bank_80_free_space_start
 
 calc_checksum:
     sta $05B4           ; run hi-jacked instruction (NMI request flag = 1)
+    lda $0998           
+    cmp #$27            
+    beq .nocheck        ; end credits clobbers our !bank value so avoid an unstable restart.
     lda !bank
     bne .do_checksum    ; non-zero = still computing checksum
-    jmp nmi_wait        ; already done, return to vanilla NMI wait loop
+.nocheck:
+    jmp nmi_wait        ; already done / end credits, return to vanilla NMI wait loop
     
 .do_checksum
     phx
